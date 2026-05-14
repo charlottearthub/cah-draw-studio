@@ -32,6 +32,7 @@
             <button id="undoBtn" type="button">Undo</button>
             <button id="redoBtn" type="button">Redo</button>
             <button id="savePngBtn" type="button">Save PNG</button>
+            <button id="openSubmitModalBtn" class="cah-submit-top-btn" type="button">Submit Drawing</button>
             <button id="clearCanvasBtn" type="button">Clear</button>
             <button id="resetPanelsBtn" type="button">Reset UI</button>
           </div>
@@ -169,12 +170,24 @@
         </div>
       </section>
 
-      <section class="cah-submit-panel cah-panel cah-submit-drawer" data-panel="submit">
-        <button class="cah-panel-min" data-min-panel="submit" type="button">−</button>
+      <section id="submitModal" class="cah-submit-modal" aria-hidden="true">
+        <div class="cah-submit-modal-backdrop"></div>
 
-        <div class="cah-panel-title">Submit Drawing</div>
+        <div class="cah-submit-modal-card" role="dialog" aria-modal="true" aria-label="Submit drawing form">
+          <div class="cah-submit-modal-header">
+            <div>
+              <div class="cah-kicker">Charlotte Art Hub</div>
+              <h2>Submit Drawing</h2>
+              <p>Finalize the details before sending this drawing to the CAH approval queue.</p>
+            </div>
 
-        <div class="cah-panel-content">
+            <button id="closeSubmitModalBtn" class="cah-modal-close" type="button">×</button>
+          </div>
+
+          <div class="cah-submit-preview-wrap">
+            <canvas id="submitPreviewCanvas" class="cah-submit-preview" width="320" height="180"></canvas>
+          </div>
+
           <div class="cah-submit-grid">
             <label class="cah-control">
               <span>Artist Name</span>
@@ -217,7 +230,10 @@
             <span>I have permission to submit this drawing to Charlotte Art Hub for review.</span>
           </label>
 
-          <button id="submitDrawingBtn" class="cah-submit-action" type="button">Submit for Review</button>
+          <div class="cah-submit-modal-actions">
+            <button id="cancelSubmitModalBtn" type="button">Back to Drawing</button>
+            <button id="submitDrawingBtn" class="cah-submit-action" type="button">Submit for Review</button>
+          </div>
 
           <div id="submitStatus" class="cah-submit-status" aria-live="polite"></div>
         </div>
