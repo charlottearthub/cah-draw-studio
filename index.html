@@ -88,6 +88,58 @@
         </div>
       </section>
 
+      <section class="cah-submit-panel cah-panel" data-panel="submit">
+        <button class="cah-panel-min" data-min-panel="submit" type="button">−</button>
+
+        <div class="cah-panel-title">Submit Drawing</div>
+
+        <div class="cah-panel-content">
+          <label class="cah-control">
+            <span>Artist Name</span>
+            <input id="submitArtistName" class="cah-text-input" type="text" maxlength="160" placeholder="Your name" />
+          </label>
+
+          <label class="cah-control">
+            <span>Contact / IG / Website</span>
+            <input id="submitContact" class="cah-text-input" type="text" maxlength="160" placeholder="@handle or email" />
+          </label>
+
+          <label class="cah-control">
+            <span>Title</span>
+            <input id="submitTitle" class="cah-text-input" type="text" maxlength="160" placeholder="Untitled Drawing" />
+          </label>
+
+          <label class="cah-control">
+            <span>Age Group</span>
+            <select id="submitAgeGroup" class="cah-select">
+              <option value="Adult">Adult</option>
+              <option value="Teen">Teen</option>
+              <option value="Child">Child</option>
+              <option value="Not specified">Prefer not to say</option>
+            </select>
+          </label>
+
+          <label id="guardianNameWrap" class="cah-control cah-guardian-wrap">
+            <span>Parent / Guardian Name</span>
+            <input id="submitGuardianName" class="cah-text-input" type="text" maxlength="160" placeholder="Required for child submissions" />
+          </label>
+
+          <label class="cah-control">
+            <span>Description</span>
+            <textarea id="submitDescription" class="cah-textarea" maxlength="1000" placeholder="Short description"></textarea>
+          </label>
+
+          <label class="cah-check-row">
+            <input id="submitPermission" type="checkbox" />
+            <span>I have permission to submit this drawing to Charlotte Art Hub for review.</span>
+          </label>
+
+          <button id="submitDrawingBtn" type="button">Submit for Review</button>
+
+          <div id="submitStatus" class="cah-submit-status" aria-live="polite"></div>
+        </div>
+      </section>
+
       <section class="cah-brush-panel cah-panel" data-panel="brushes">
         <button class="cah-panel-min" data-min-panel="brushes" type="button">−</button>
 
