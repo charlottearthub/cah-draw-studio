@@ -9,14 +9,8 @@ const brushSizeText = document.getElementById("brushSizeText");
 const brushOpacity = document.getElementById("brushOpacity");
 const brushOpacityText = document.getElementById("brushOpacityText");
 
-const brushToolBtn = document.getElementById("brushToolBtn");
-const inkToolBtn = document.getElementById("inkToolBtn");
-const pencilToolBtn = document.getElementById("pencilToolBtn");
-const markerToolBtn = document.getElementById("markerToolBtn");
-const softToolBtn = document.getElementById("softToolBtn");
-const watercolorToolBtn = document.getElementById("watercolorToolBtn");
-const charcoalToolBtn = document.getElementById("charcoalToolBtn");
-const smudgeToolBtn = document.getElementById("smudgeToolBtn");
+const brushSelect = document.getElementById("brushSelect");
+const drawToolBtn = document.getElementById("drawToolBtn");
 const eraserToolBtn = document.getElementById("eraserToolBtn");
 const panToolBtn = document.getElementById("panToolBtn");
 
@@ -44,7 +38,9 @@ let layers = [];
 let activeLayerId = null;
 let nextLayerNumber = 1;
 
+let selectedBrush = "brush";
 let currentTool = "brush";
+
 let isDrawing = false;
 let isPanning = false;
 let isRotating = false;
@@ -734,18 +730,21 @@ function preventMiddleMouseAutoScroll(event) {
 function setTool(tool) {
   currentTool = tool;
 
-  brushToolBtn.classList.toggle("active", tool === "brush");
-  inkToolBtn.classList.toggle("active", tool === "ink");
-  pencilToolBtn.classList.toggle("active", tool === "pencil");
-  markerToolBtn.classList.toggle("active", tool === "marker");
-  softToolBtn.classList.toggle("active", tool === "soft");
-  watercolorToolBtn.classList.toggle("active", tool === "watercolor");
-  charcoalToolBtn.classList.toggle("active", tool === "charcoal");
-  smudgeToolBtn.classList.toggle("active", tool === "smudge");
+  drawToolBtn.classList.toggle("active", tool === selectedBrush);
   eraserToolBtn.classList.toggle("active", tool === "eraser");
   panToolBtn.classList.toggle("active", tool === "pan");
 
   layersContainer.classList.toggle("pan-active", tool === "pan");
+}
+
+function selectBrush(brushName) {
+  selectedBrush = brushName;
+  currentTool = brushName;
+
+  drawToolBtn.classList.add("active");
+  eraserToolBtn.classList.remove("active");
+  panToolBtn.classList.remove("active");
+  layersContainer.classList.remove("pan-active");
 }
 
 function addLayer() {
@@ -824,16 +823,22 @@ function toggleUi() {
 
   if (!isHidden) {
     document.body.classList.remove(
-      "cah-panel-header-hidden",
-      "cah-panel-tools-hidden",
-      "cah-panel-layers-hidden",
-      "cah-panel-gizmo-hidden"
+      "cah-panel-header-minimized",
+      "cah-panel-brushes-minimized",
+      "cah-panel-modifiers-minimized",
+      "cah-panel-layers-minimized",
+      "cah-panel-gizmo-minimized"
     );
   }
 }
 
-function hidePanel(panelName) {
-  document.body.classList.add("cah-panel-" + panelName + "-hidden");
+function togglePanelMin(panelName) {
+  const className = "cah-panel-" + panelName + "-minimized";
+  const isNowMinimized = document.body.classList.toggle(className);
+
+  document.querySelectorAll('[data-min-panel="' + panelName + '"]').forEach((button) => {
+    button.textContent = isNowMinimized ? "+" : "−";
+  });
 }
 
 function startGizmoDrag(event) {
@@ -926,14 +931,11 @@ brushOpacity.addEventListener("input", () => {
   brushOpacityText.textContent = brushOpacity.value + "%";
 });
 
-brushToolBtn.addEventListener("click", () => setTool("brush"));
-inkToolBtn.addEventListener("click", () => setTool("ink"));
-pencilToolBtn.addEventListener("click", () => setTool("pencil"));
-markerToolBtn.addEventListener("click", () => setTool("marker"));
-softToolBtn.addEventListener("click", () => setTool("soft"));
-watercolorToolBtn.addEventListener("click", () => setTool("watercolor"));
-charcoalToolBtn.addEventListener("click", () => setTool("charcoal"));
-smudgeToolBtn.addEventListener("click", () => setTool("smudge"));
+brushSelect.addEventListener("change", () => {
+  selectBrush(brushSelect.value);
+});
+
+drawToolBtn.addEventListener("click", () => selectBrush(selectedBrush));
 eraserToolBtn.addEventListener("click", () => setTool("eraser"));
 panToolBtn.addEventListener("click", () => setTool("pan"));
 
@@ -956,10 +958,10 @@ toggleUiBtn.addEventListener("click", toggleUi);
 addLayerBtn.addEventListener("click", addLayer);
 deleteLayerBtn.addEventListener("click", deleteLayer);
 
-document.querySelectorAll("[data-hide-panel]").forEach((button) => {
+document.querySelectorAll("[data-min-panel]").forEach((button) => {
   button.addEventListener("click", (event) => {
     event.stopPropagation();
-    hidePanel(button.dataset.hidePanel);
+    togglePanelMin(button.dataset.minPanel);
   });
 });
 
@@ -998,5 +1000,5 @@ window.addEventListener("resize", () => {
 
 createLayer("Layer 1");
 nextLayerNumber = 2;
-setTool("brush");
+selectBrush("brush");
 resetView();
