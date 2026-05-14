@@ -22,6 +22,12 @@ const panToolBtn = document.getElementById("panToolBtn");
 const canvasPresetSelect = document.getElementById("canvasPresetSelect");
 const applyCanvasPresetBtn = document.getElementById("applyCanvasPresetBtn");
 
+const openSubmitModalBtn = document.getElementById("openSubmitModalBtn");
+const closeSubmitModalBtn = document.getElementById("closeSubmitModalBtn");
+const cancelSubmitModalBtn = document.getElementById("cancelSubmitModalBtn");
+const submitModal = document.getElementById("submitModal");
+const submitPreviewCanvas = document.getElementById("submitPreviewCanvas");
+
 const submitArtistName = document.getElementById("submitArtistName");
 const submitContact = document.getElementById("submitContact");
 const submitTitle = document.getElementById("submitTitle");
@@ -56,7 +62,6 @@ const layersList = document.getElementById("layersList");
 const shell = document.querySelector(".cah-draw-shell");
 const headerPanel = document.querySelector(".cah-floating-header");
 const canvasPanel = document.querySelector(".cah-canvas-panel");
-const submitPanel = document.querySelector(".cah-submit-panel");
 const brushPanel = document.querySelector(".cah-brush-panel");
 const modifierPanel = document.querySelector(".cah-modifier-panel");
 const layersPanel = document.querySelector(".cah-layers-panel");
@@ -98,12 +103,11 @@ let canvasHeight = 1080;
 
 const maxLayers = 5;
 const maxHistory = 30;
-const panelStorageKey = "cahDrawStudioPanelStateV9";
+const panelStorageKey = "cahDrawStudioPanelStateV10";
 
 const panelMap = {
   header: headerPanel,
   canvas: canvasPanel,
-  submit: submitPanel,
   brushes: brushPanel,
   modifiers: modifierPanel,
   layers: layersPanel,
@@ -136,21 +140,15 @@ function clamp(value, min, max) {
 
 function hexToRgba(hex, alpha) {
   const cleanHex = hex.replace("#", "");
-
   const r = parseInt(cleanHex.substring(0, 2), 16);
   const g = parseInt(cleanHex.substring(2, 4), 16);
   const b = parseInt(cleanHex.substring(4, 6), 16);
-
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function getViewportSize() {
   const rect = canvasViewport.getBoundingClientRect();
-
-  return {
-    width: rect.width,
-    height: rect.height
-  };
+  return { width: rect.width, height: rect.height };
 }
 
 function applyViewTransform() {
@@ -161,7 +159,6 @@ function applyViewTransform() {
 
 function fitCanvasToScreen() {
   const viewport = getViewportSize();
-
   const scaleX = viewport.width / canvasWidth;
   const scaleY = viewport.height / canvasHeight;
   const fitScale = Math.min(scaleX, scaleY) * 0.82;
@@ -174,47 +171,47 @@ function fitCanvasToScreen() {
   applyViewTransform();
 }
 
-function screenToWorld(screenX, screenY) {
-  const rad = (-view.rotation * Math.PI) / 180;
-  const dx = screenX - view.x;
-  const dy = screenY - view.y;
+function screenToWorld(screenX, screenY, sourceView = view) {
+  const rad = (-sourceView.rotation * Math.PI) / 180;
+  const dx = screenX - sourceView.x;
+  const dy = screenY - sourceView.y;
 
   const rotatedX = dx * Math.cos(rad) - dy * Math.sin(rad);
   const rotatedY = dx * Math.sin(rad) + dy * Math.cos(rad);
 
   return {
-    x: rotatedX / view.scale,
-    y: rotatedY / view.scale
+    x: rotatedX / sourceView.scale,
+    y: rotatedY / sourceView.scale
+  };
+}
+
+function getTransformedPoint(worldX, worldY, targetView) {
+  const scaledX = worldX * targetView.scale;
+  const scaledY = worldY * targetView.scale;
+  const rad = (targetView.rotation * Math.PI) / 180;
+
+  return {
+    x: scaledX * Math.cos(rad) - scaledY * Math.sin(rad),
+    y: scaledX * Math.sin(rad) + scaledY * Math.cos(rad)
   };
 }
 
 function worldToScreen(worldX, worldY) {
-  const scaledX = worldX * view.scale;
-  const scaledY = worldY * view.scale;
-  const rad = (view.rotation * Math.PI) / 180;
-
+  const transformed = getTransformedPoint(worldX, worldY, view);
   return {
-    x: view.x + scaledX * Math.cos(rad) - scaledY * Math.sin(rad),
-    y: view.y + scaledX * Math.sin(rad) + scaledY * Math.cos(rad)
+    x: view.x + transformed.x,
+    y: view.y + transformed.y
   };
 }
 
 function getViewportCenter() {
   const viewport = getViewportSize();
-
-  return {
-    x: viewport.width / 2,
-    y: viewport.height / 2
-  };
+  return { x: viewport.width / 2, y: viewport.height / 2 };
 }
 
 function getViewportPoint(clientX, clientY) {
   const rect = canvasViewport.getBoundingClientRect();
-
-  return {
-    x: clientX - rect.left,
-    y: clientY - rect.top
-  };
+  return { x: clientX - rect.left, y: clientY - rect.top };
 }
 
 function resetView() {
@@ -223,13 +220,11 @@ function resetView() {
 
 function zoomAtViewportPoint(factor, viewportX, viewportY) {
   const world = screenToWorld(viewportX, viewportY);
-
   view.scale = clamp(view.scale * factor, 0.03, 12);
 
-  const after = worldToScreen(world.x, world.y);
-
-  view.x += viewportX - after.x;
-  view.y += viewportY - after.y;
+  const transformed = getTransformedPoint(world.x, world.y, view);
+  view.x = viewportX - transformed.x;
+  view.y = viewportY - transformed.y;
 
   applyViewTransform();
 }
@@ -243,15 +238,13 @@ function rotateAtViewportPoint(amount, viewportX, viewportY) {
   const world = screenToWorld(viewportX, viewportY);
 
   view.rotation += amount;
-
   if (view.rotation >= 360 || view.rotation <= -360) {
     view.rotation = view.rotation % 360;
   }
 
-  const after = worldToScreen(world.x, world.y);
-
-  view.x += viewportX - after.x;
-  view.y += viewportY - after.y;
+  const transformed = getTransformedPoint(world.x, world.y, view);
+  view.x = viewportX - transformed.x;
+  view.y = viewportY - transformed.y;
 
   applyViewTransform();
 }
@@ -272,7 +265,6 @@ function setupCanvas(layer) {
   layer.canvas.height = canvasHeight;
   layer.canvas.style.width = canvasWidth + "px";
   layer.canvas.style.height = canvasHeight + "px";
-
   layer.ctx.setTransform(1, 0, 0, 1, 0, 0);
   layer.ctx.lineCap = "round";
   layer.ctx.lineJoin = "round";
@@ -322,7 +314,6 @@ function setActiveLayer(id) {
 
 function toggleLayerVisibility(layerId) {
   const layer = layers.find((item) => item.id === layerId);
-
   if (!layer) return;
 
   saveHistory();
@@ -359,9 +350,7 @@ function renderLayers() {
     row.appendChild(checkbox);
     row.appendChild(name);
 
-    row.addEventListener("click", () => {
-      setActiveLayer(layer.id);
-    });
+    row.addEventListener("click", () => setActiveLayer(layer.id));
 
     layersList.appendChild(row);
   });
@@ -452,14 +441,12 @@ function restoreState(snapshot) {
 
 function undo() {
   if (undoStack.length === 0) return;
-
   redoStack.push(captureState());
   restoreState(undoStack.pop());
 }
 
 function redo() {
   if (redoStack.length === 0) return;
-
   undoStack.push(captureState());
   restoreState(redoStack.pop());
 }
@@ -475,17 +462,11 @@ function getCanvasPoint(event) {
 }
 
 function getScreenPoint(event) {
-  return {
-    x: event.clientX,
-    y: event.clientY
-  };
+  return { x: event.clientX, y: event.clientY };
 }
 
 function midpoint(a, b) {
-  return {
-    x: (a.x + b.x) / 2,
-    y: (a.y + b.y) / 2
-  };
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
 
 function prepareBrush(ctx) {
@@ -610,11 +591,9 @@ function drawFastSmudge(layer, point) {
 
   const radius = Math.max(4, Math.floor(size * (0.34 + strength * 0.16)));
   const sampleSize = radius * 2;
-
   const movementX = point.x - lastPoint.x;
   const movementY = point.y - lastPoint.y;
   const distance = Math.hypot(movementX, movementY);
-
   const steps = Math.max(1, Math.min(3, Math.ceil(distance / Math.max(14, radius * 1.9))));
   const dragLag = 0.08 + strength * 0.28;
   const alpha = opacity * (0.06 + strength * 0.18);
@@ -627,36 +606,27 @@ function drawFastSmudge(layer, point) {
 
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
-
     const currentX = lastPoint.x + movementX * t;
     const currentY = lastPoint.y + movementY * t;
-
     const sourceX = currentX - movementX * dragLag;
     const sourceY = currentY - movementY * dragLag;
-
-    const sampleX = Math.floor(sourceX - radius);
-    const sampleY = Math.floor(sourceY - radius);
-    const drawX = Math.floor(currentX - radius);
-    const drawY = Math.floor(currentY - radius);
 
     try {
       ctx.save();
       ctx.beginPath();
       ctx.arc(currentX, currentY, radius, 0, Math.PI * 2);
       ctx.clip();
-
       ctx.drawImage(
         layer.canvas,
-        sampleX,
-        sampleY,
+        Math.floor(sourceX - radius),
+        Math.floor(sourceY - radius),
         sampleSize,
         sampleSize,
-        drawX,
-        drawY,
+        Math.floor(currentX - radius),
+        Math.floor(currentY - radius),
         sampleSize,
         sampleSize
       );
-
       ctx.restore();
     } catch (error) {
       ctx.restore();
@@ -683,7 +653,6 @@ function drawFastBlend(layer, point) {
 
   const radius = Math.max(5, Math.floor(size * (0.45 + strength * 0.2)));
   const sampleSize = radius * 2;
-
   const movementX = point.x - lastPoint.x;
   const movementY = point.y - lastPoint.y;
   const distance = Math.hypot(movementX, movementY);
@@ -697,33 +666,25 @@ function drawFastBlend(layer, point) {
 
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
-
     const currentX = lastPoint.x + movementX * t;
     const currentY = lastPoint.y + movementY * t;
-
-    const sampleX = Math.floor(currentX - radius);
-    const sampleY = Math.floor(currentY - radius);
-    const drawX = Math.floor(currentX - radius);
-    const drawY = Math.floor(currentY - radius);
 
     try {
       ctx.save();
       ctx.beginPath();
       ctx.arc(currentX, currentY, radius, 0, Math.PI * 2);
       ctx.clip();
-
       ctx.drawImage(
         layer.canvas,
-        sampleX,
-        sampleY,
+        Math.floor(currentX - radius),
+        Math.floor(currentY - radius),
         sampleSize,
         sampleSize,
-        drawX,
-        drawY,
+        Math.floor(currentX - radius),
+        Math.floor(currentY - radius),
         sampleSize,
         sampleSize
       );
-
       ctx.restore();
     } catch (error) {
       ctx.restore();
@@ -757,7 +718,6 @@ function drawSmoothPoint(point) {
   if (!lastPoint) {
     lastPoint = point;
     lastMidPoint = point;
-
     ctx.beginPath();
     ctx.arc(point.x, point.y, Number(brushSize.value) / 2, 0, Math.PI * 2);
     ctx.fill();
@@ -795,8 +755,7 @@ function rememberPointer(event) {
     y: event.clientY,
     width: event.width || 1,
     height: event.height || 1,
-    pressure: event.pressure || 0,
-    event
+    pressure: event.pressure || 0
   });
 }
 
@@ -813,7 +772,6 @@ function updateRememberedPointer(event) {
   stored.width = event.width || 1;
   stored.height = event.height || 1;
   stored.pressure = event.pressure || 0;
-  stored.event = event;
 }
 
 function forgetPointer(event) {
@@ -883,17 +841,14 @@ function beginTouchGestureIfNeeded() {
   const first = touches[0];
   const second = touches[1];
   const center = centerBetweenPointers(first, second);
+  const startView = { ...view };
 
   gestureState = {
     startDistance: distanceBetweenPointers(first, second),
     startAngle: angleBetweenPointers(first, second),
     startCenter: center,
-    startView: {
-      x: view.x,
-      y: view.y,
-      scale: view.scale,
-      rotation: view.rotation
-    }
+    startWorld: screenToWorld(center.x, center.y, startView),
+    startView
   };
 
   isDrawing = false;
@@ -919,18 +874,17 @@ function updateTouchGesture() {
   const scaleFactor = currentDistance / Math.max(1, gestureState.startDistance);
   const angleDelta = ((currentAngle - gestureState.startAngle) * 180) / Math.PI;
 
-  const startWorld = screenToWorld(
-    gestureState.startCenter.x,
-    gestureState.startCenter.y
-  );
-
-  view.scale = clamp(gestureState.startView.scale * scaleFactor, 0.03, 12);
+  view.scale = clamp(gestureState.startView.scale * scaleFactor, 0.05, 8);
   view.rotation = gestureState.startView.rotation + angleDelta;
 
-  const after = worldToScreen(startWorld.x, startWorld.y);
+  const transformed = getTransformedPoint(
+    gestureState.startWorld.x,
+    gestureState.startWorld.y,
+    view
+  );
 
-  view.x += currentCenter.x - after.x;
-  view.y += currentCenter.y - after.y;
+  view.x = currentCenter.x - transformed.x;
+  view.y = currentCenter.y - transformed.y;
 
   applyViewTransform();
 
@@ -956,6 +910,7 @@ function shouldStartDrawFromPointer(event) {
 }
 
 function startDrawing(event) {
+  if (document.body.classList.contains("cah-submit-modal-open")) return;
   if (event.isPrimary === false && event.pointerType !== "touch") return;
 
   event.preventDefault();
@@ -1016,6 +971,8 @@ function startDrawing(event) {
 function draw(event) {
   updateRememberedPointer(event);
 
+  if (document.body.classList.contains("cah-submit-modal-open")) return;
+
   if (event.pointerType === "pen") {
     penHasBeenDetected = true;
     lastPenInputTime = Date.now();
@@ -1045,7 +1002,6 @@ function draw(event) {
     const currentPoint = getScreenPoint(event);
     const dx = currentPoint.x - rotateLastPoint.x;
     const dy = currentPoint.y - rotateLastPoint.y;
-
     const rotationAmount = dx * 0.35 + dy * 0.12;
 
     rotateAtCenter(rotationAmount);
@@ -1085,15 +1041,12 @@ function draw(event) {
 function stopDrawing(event) {
   forgetPointer(event);
 
-  if (event.pointerType === "touch") {
-    if (getTouchPointers().length < 2) {
-      gestureState = null;
-    }
+  if (event.pointerType === "touch" && getTouchPointers().length < 2) {
+    gestureState = null;
   }
 
   if (isRotating) {
     event.preventDefault();
-
     isRotating = false;
     isMiddleMouseRotating = false;
     rotateLastPoint = null;
@@ -1102,7 +1055,6 @@ function stopDrawing(event) {
 
   if (isPanning) {
     event.preventDefault();
-
     isPanning = false;
     isRightMousePanning = false;
     panLastPoint = null;
@@ -1123,10 +1075,8 @@ function stopDrawing(event) {
 
 function handleWheel(event) {
   event.preventDefault();
-
   const point = getViewportPoint(event.clientX, event.clientY);
   const factor = event.deltaY < 0 ? 1.12 : 0.88;
-
   zoomAtViewportPoint(factor, point.x, point.y);
 }
 
@@ -1158,7 +1108,6 @@ function setTool(tool) {
   drawToolBtn.classList.toggle("active", tool === selectedBrush);
   eraserToolBtn.classList.toggle("active", tool === "eraser");
   panToolBtn.classList.toggle("active", tool === "pan");
-
   canvasStage.classList.toggle("pan-active", tool === "pan");
 }
 
@@ -1227,11 +1176,39 @@ function createExportCanvas() {
 
 function savePng() {
   const exportCanvas = createExportCanvas();
-
   const link = document.createElement("a");
   link.download = "cah-drawing.png";
   link.href = exportCanvas.toDataURL("image/png");
   link.click();
+}
+
+function updateSubmitPreview() {
+  if (!submitPreviewCanvas) return;
+
+  const exportCanvas = createExportCanvas();
+  const ctx = submitPreviewCanvas.getContext("2d");
+
+  const previewWidth = 640;
+  const previewHeight = Math.max(220, Math.round((canvasHeight / canvasWidth) * previewWidth));
+
+  submitPreviewCanvas.width = previewWidth;
+  submitPreviewCanvas.height = previewHeight;
+
+  ctx.fillStyle = "#fffaf4";
+  ctx.fillRect(0, 0, previewWidth, previewHeight);
+  ctx.drawImage(exportCanvas, 0, 0, previewWidth, previewHeight);
+}
+
+function openSubmitModal() {
+  updateSubmitPreview();
+  setSubmitStatus("");
+  document.body.classList.add("cah-submit-modal-open");
+  submitModal.setAttribute("aria-hidden", "false");
+}
+
+function closeSubmitModal() {
+  document.body.classList.remove("cah-submit-modal-open");
+  submitModal.setAttribute("aria-hidden", "true");
 }
 
 function applyCanvasPreset() {
@@ -1281,21 +1258,10 @@ function validateSubmissionForm() {
   const ageGroup = submitAgeGroup.value;
   const guardianName = submitGuardianName.value.trim();
 
-  if (!artistName) {
-    return "Please add an artist name.";
-  }
-
-  if (!title) {
-    return "Please add a title.";
-  }
-
-  if (ageGroup === "Child" && !guardianName) {
-    return "Please add a parent or guardian name for child submissions.";
-  }
-
-  if (!submitPermission.checked) {
-    return "Please confirm permission before submitting.";
-  }
+  if (!artistName) return "Please add an artist name.";
+  if (!title) return "Please add a title.";
+  if (ageGroup === "Child" && !guardianName) return "Please add a parent or guardian name for child submissions.";
+  if (!submitPermission.checked) return "Please confirm permission before submitting.";
 
   return "";
 }
@@ -1367,7 +1333,6 @@ function toggleUi() {
     document.body.classList.remove(
       "cah-panel-header-minimized",
       "cah-panel-canvas-minimized",
-      "cah-panel-submit-minimized",
       "cah-panel-brushes-minimized",
       "cah-panel-modifiers-minimized",
       "cah-panel-layers-minimized",
@@ -1396,9 +1361,7 @@ function isPanelDragHandle(target) {
 
   const panelName = panel.dataset.panel;
 
-  if (panelName === "header") {
-    return false;
-  }
+  if (panelName === "header") return false;
 
   return Boolean(
     target.id === "gizmoDragHandle" ||
@@ -1442,12 +1405,6 @@ function startPanelMove(panel, event) {
   document.addEventListener("pointermove", movePanel, { passive: false });
   document.addEventListener("pointerup", stopPanelMove, { passive: false });
   document.addEventListener("pointercancel", stopPanelMove, { passive: false });
-
-  try {
-    panel.setPointerCapture(event.pointerId);
-  } catch (error) {
-    /* pointer capture can fail on some browsers */
-  }
 }
 
 function movePanel(event) {
@@ -1480,12 +1437,9 @@ function movePanel(event) {
 
 function stopPanelMove(event) {
   if (!activeMovingPanel) return;
-
   if (event && movingPointerId !== null && event.pointerId !== movingPointerId) return;
 
-  if (event) {
-    event.preventDefault();
-  }
+  if (event) event.preventDefault();
 
   activeMovingPanel.classList.remove("is-moving");
 
@@ -1518,7 +1472,6 @@ function savePanelState() {
   const minimized = {
     header: document.body.classList.contains("cah-panel-header-minimized"),
     canvas: document.body.classList.contains("cah-panel-canvas-minimized"),
-    submit: document.body.classList.contains("cah-panel-submit-minimized"),
     brushes: document.body.classList.contains("cah-panel-brushes-minimized"),
     modifiers: document.body.classList.contains("cah-panel-modifiers-minimized"),
     layers: document.body.classList.contains("cah-panel-layers-minimized"),
@@ -1579,7 +1532,6 @@ function resetPanels() {
 
   Object.values(panelMap).forEach((panel) => {
     if (!panel) return;
-
     panel.style.left = "";
     panel.style.top = "";
     panel.style.right = "";
@@ -1590,7 +1542,6 @@ function resetPanels() {
   document.body.classList.remove(
     "cah-panel-header-minimized",
     "cah-panel-canvas-minimized",
-    "cah-panel-submit-minimized",
     "cah-panel-brushes-minimized",
     "cah-panel-modifiers-minimized",
     "cah-panel-layers-minimized",
@@ -1625,15 +1576,17 @@ blendStrength.addEventListener("input", () => {
   blendStrengthText.textContent = blendStrength.value + "%";
 });
 
-brushSelect.addEventListener("change", () => {
-  selectBrush(brushSelect.value);
-});
+brushSelect.addEventListener("change", () => selectBrush(brushSelect.value));
 
 drawToolBtn.addEventListener("click", () => selectBrush(selectedBrush));
 eraserToolBtn.addEventListener("click", () => setTool("eraser"));
 panToolBtn.addEventListener("click", () => setTool("pan"));
 
 applyCanvasPresetBtn.addEventListener("click", applyCanvasPreset);
+
+openSubmitModalBtn.addEventListener("click", openSubmitModal);
+closeSubmitModalBtn.addEventListener("click", closeSubmitModal);
+cancelSubmitModalBtn.addEventListener("click", closeSubmitModal);
 
 submitAgeGroup.addEventListener("change", updateSubmitAgeGroup);
 submitDrawingBtn.addEventListener("click", submitDrawing);
@@ -1665,6 +1618,27 @@ document.querySelectorAll("[data-min-panel]").forEach((button) => {
   });
 });
 
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && document.body.classList.contains("cah-submit-modal-open")) {
+    closeSubmitModal();
+  }
+});
+
+document.addEventListener("selectionchange", () => {
+  const selection = window.getSelection();
+
+  if (!selection) return;
+
+  const activeElement = document.activeElement;
+  const isTypingField =
+    activeElement &&
+    ["INPUT", "TEXTAREA", "SELECT"].includes(activeElement.tagName);
+
+  if (!isTypingField) {
+    selection.removeAllRanges();
+  }
+});
+
 wirePanelMovement();
 loadPanelState();
 
@@ -1694,25 +1668,7 @@ window.addEventListener("pointerup", (event) => {
   }
 });
 
-window.addEventListener("resize", () => {
-  fitCanvasToScreen();
-});
-
-/* ===== LINE GUIDE: PREVENT ACCIDENTAL UI TEXT SELECTION ===== */
-document.addEventListener("selectionchange", () => {
-  const selection = window.getSelection();
-
-  if (!selection) return;
-
-  const activeElement = document.activeElement;
-  const isTypingField =
-    activeElement &&
-    ["INPUT", "TEXTAREA", "SELECT"].includes(activeElement.tagName);
-
-  if (!isTypingField) {
-    selection.removeAllRanges();
-  }
-});
+window.addEventListener("resize", () => fitCanvasToScreen());
 
 createLayer("Layer 1");
 nextLayerNumber = 2;
