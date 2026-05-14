@@ -75,6 +75,12 @@ let isRightMousePanning = false;
 let isMiddleMouseRotating = false;
 let isSubmitting = false;
 
+let activeDrawPointerId = null;
+let activePointers = new Map();
+let gestureState = null;
+let penHasBeenDetected = false;
+let lastPenInputTime = 0;
+
 let lastPoint = null;
 let lastMidPoint = null;
 let panLastPoint = null;
@@ -92,7 +98,7 @@ let canvasHeight = 1080;
 
 const maxLayers = 5;
 const maxHistory = 30;
-const panelStorageKey = "cahDrawStudioPanelStateV6";
+const panelStorageKey = "cahDrawStudioPanelStateV7";
 
 const panelMap = {
   header: headerPanel,
@@ -781,10 +787,197 @@ function drawSmoothPoint(point) {
   finishBrush(ctx);
 }
 
+function rememberPointer(event) {
+  activePointers.set(event.pointerId, {
+    id: event.pointerId,
+    pointerType: event.pointerType,
+    x: event.clientX,
+    y: event.clientY,
+    width: event.width || 1,
+    height: event.height || 1,
+    pressure: event.pressure || 0,
+    event
+  });
+}
+
+function updateRememberedPointer(event) {
+  const stored = activePointers.get(event.pointerId);
+
+  if (!stored) {
+    rememberPointer(event);
+    return;
+  }
+
+  stored.x = event.clientX;
+  stored.y = event.clientY;
+  stored.width = event.width || 1;
+  stored.height = event.height || 1;
+  stored.pressure = event.pressure || 0;
+  stored.event = event;
+}
+
+function forgetPointer(event) {
+  activePointers.delete(event.pointerId);
+}
+
+function getTouchPointers() {
+  return [...activePointers.values()].filter((pointer) => pointer.pointerType === "touch");
+}
+
+function distanceBetweenPointers(a, b) {
+  return Math.hypot(b.x - a.x, b.y - a.y);
+}
+
+function angleBetweenPointers(a, b) {
+  return Math.atan2(b.y - a.y, b.x - a.x);
+}
+
+function centerBetweenPointers(a, b) {
+  const rect = canvasViewport.getBoundingClientRect();
+
+  return {
+    x: (a.x + b.x) / 2 - rect.left,
+    y: (a.y + b.y) / 2 - rect.top
+  };
+}
+
+function isLikelyPalm(event) {
+  if (event.pointerType !== "touch") return false;
+
+  const width = event.width || 1;
+  const height = event.height || 1;
+  const contactArea = width * height;
+
+  if (width >= 32 || height >= 32) return true;
+  if (contactArea >= 700) return true;
+
+  return false;
+}
+
+function shouldRejectTouchDrawing(event) {
+  if (event.pointerType !== "touch") return false;
+
+  const now = Date.now();
+
+  if (isLikelyPalm(event)) return true;
+
+  if (penHasBeenDetected && now - lastPenInputTime < 2500) {
+    return true;
+  }
+
+  if (getTouchPointers().length >= 2) {
+    return true;
+  }
+
+  return false;
+}
+
+function beginTouchGestureIfNeeded() {
+  const touches = getTouchPointers();
+
+  if (touches.length < 2) {
+    gestureState = null;
+    return false;
+  }
+
+  const first = touches[0];
+  const second = touches[1];
+  const center = centerBetweenPointers(first, second);
+
+  gestureState = {
+    startDistance: distanceBetweenPointers(first, second),
+    startAngle: angleBetweenPointers(first, second),
+    startCenter: center,
+    startView: {
+      x: view.x,
+      y: view.y,
+      scale: view.scale,
+      rotation: view.rotation
+    }
+  };
+
+  isDrawing = false;
+  activeDrawPointerId = null;
+  lastPoint = null;
+  lastMidPoint = null;
+
+  return true;
+}
+
+function updateTouchGesture() {
+  const touches = getTouchPointers();
+
+  if (touches.length < 2 || !gestureState) return false;
+
+  const first = touches[0];
+  const second = touches[1];
+
+  const currentDistance = distanceBetweenPointers(first, second);
+  const currentAngle = angleBetweenPointers(first, second);
+  const currentCenter = centerBetweenPointers(first, second);
+
+  const scaleFactor = currentDistance / Math.max(1, gestureState.startDistance);
+  const angleDelta = ((currentAngle - gestureState.startAngle) * 180) / Math.PI;
+
+  const startWorld = screenToWorld(
+    gestureState.startCenter.x,
+    gestureState.startCenter.y
+  );
+
+  view.scale = clamp(gestureState.startView.scale * scaleFactor, 0.03, 12);
+  view.rotation = gestureState.startView.rotation + angleDelta;
+
+  const after = worldToScreen(startWorld.x, startWorld.y);
+
+  view.x += currentCenter.x - after.x;
+  view.y += currentCenter.y - after.y;
+
+  applyViewTransform();
+
+  return true;
+}
+
+function shouldStartDrawFromPointer(event) {
+  if (event.pointerType === "pen") {
+    penHasBeenDetected = true;
+    lastPenInputTime = Date.now();
+    return true;
+  }
+
+  if (event.pointerType === "mouse") {
+    return event.button === 0;
+  }
+
+  if (event.pointerType === "touch") {
+    return !shouldRejectTouchDrawing(event);
+  }
+
+  return false;
+}
+
 function startDrawing(event) {
-  if (event.isPrimary === false) return;
+  if (event.isPrimary === false && event.pointerType !== "touch") return;
 
   event.preventDefault();
+
+  rememberPointer(event);
+
+  if (event.pointerType === "pen") {
+    penHasBeenDetected = true;
+    lastPenInputTime = Date.now();
+  }
+
+  if (event.pointerType === "touch") {
+    if (beginTouchGestureIfNeeded()) {
+      canvasViewport.setPointerCapture?.(event.pointerId);
+      return;
+    }
+
+    if (shouldRejectTouchDrawing(event)) {
+      canvasViewport.setPointerCapture?.(event.pointerId);
+      return;
+    }
+  }
 
   if (event.button === 1) {
     isRotating = true;
@@ -803,7 +996,7 @@ function startDrawing(event) {
     return;
   }
 
-  if (event.button !== 0) return;
+  if (!shouldStartDrawFromPointer(event)) return;
 
   const layer = getActiveLayer();
 
@@ -812,6 +1005,7 @@ function startDrawing(event) {
   saveHistory();
 
   isDrawing = true;
+  activeDrawPointerId = event.pointerId;
   lastPoint = null;
   lastMidPoint = null;
 
@@ -820,6 +1014,31 @@ function startDrawing(event) {
 }
 
 function draw(event) {
+  updateRememberedPointer(event);
+
+  if (event.pointerType === "pen") {
+    penHasBeenDetected = true;
+    lastPenInputTime = Date.now();
+  }
+
+  if (event.pointerType === "touch") {
+    if (gestureState || getTouchPointers().length >= 2) {
+      event.preventDefault();
+
+      if (!gestureState) {
+        beginTouchGestureIfNeeded();
+      }
+
+      updateTouchGesture();
+      return;
+    }
+
+    if (shouldRejectTouchDrawing(event)) {
+      event.preventDefault();
+      return;
+    }
+  }
+
   if (isRotating) {
     event.preventDefault();
 
@@ -850,6 +1069,7 @@ function draw(event) {
   }
 
   if (!isDrawing) return;
+  if (activeDrawPointerId !== event.pointerId) return;
 
   event.preventDefault();
 
@@ -863,6 +1083,14 @@ function draw(event) {
 }
 
 function stopDrawing(event) {
+  forgetPointer(event);
+
+  if (event.pointerType === "touch") {
+    if (getTouchPointers().length < 2) {
+      gestureState = null;
+    }
+  }
+
   if (isRotating) {
     event.preventDefault();
 
@@ -883,10 +1111,12 @@ function stopDrawing(event) {
   }
 
   if (!isDrawing) return;
+  if (activeDrawPointerId !== event.pointerId) return;
 
   event.preventDefault();
 
   isDrawing = false;
+  activeDrawPointerId = null;
   lastPoint = null;
   lastMidPoint = null;
 }
@@ -1448,6 +1678,8 @@ canvasViewport.addEventListener("contextmenu", preventCanvasContextMenu);
 canvasViewport.addEventListener("auxclick", preventMiddleMouseAutoScroll);
 
 window.addEventListener("pointerup", (event) => {
+  forgetPointer(event);
+
   if (isMiddleMouseRotating && event.button === 1) {
     isRotating = false;
     isMiddleMouseRotating = false;
