@@ -513,6 +513,49 @@ function drawCharcoalTexture(ctx, point) {
   ctx.restore();
 }
 
+function createSmudgeStamp(sourceCanvas, sampleX, sampleY, sampleSize, radius) {
+  const tempCanvas = document.createElement("canvas");
+  const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
+
+  tempCanvas.width = sampleSize;
+  tempCanvas.height = sampleSize;
+
+  tempCtx.drawImage(
+    sourceCanvas,
+    sampleX,
+    sampleY,
+    sampleSize,
+    sampleSize,
+    0,
+    0,
+    sampleSize,
+    sampleSize
+  );
+
+  tempCtx.globalCompositeOperation = "destination-in";
+
+  const gradient = tempCtx.createRadialGradient(
+    radius,
+    radius,
+    radius * 0.12,
+    radius,
+    radius,
+    radius
+  );
+
+  gradient.addColorStop(0, "rgba(0,0,0,0.92)");
+  gradient.addColorStop(0.32, "rgba(0,0,0,0.58)");
+  gradient.addColorStop(0.62, "rgba(0,0,0,0.22)");
+  gradient.addColorStop(1, "rgba(0,0,0,0)");
+
+  tempCtx.fillStyle = gradient;
+  tempCtx.fillRect(0, 0, sampleSize, sampleSize);
+
+  tempCtx.globalCompositeOperation = "source-over";
+
+  return tempCanvas;
+}
+
 function drawSoftRoundSmudge(layer, point) {
   if (!lastPoint) {
     lastPoint = point;
@@ -523,36 +566,50 @@ function drawSoftRoundSmudge(layer, point) {
   const ctx = layer.ctx;
   const size = Number(brushSize.value);
   const opacity = Number(brushOpacity.value) / 100;
-  const radius = Math.max(6, Math.floor(size * 0.72));
+  const radius = Math.max(8, Math.floor(size * 0.85));
   const sampleSize = radius * 2;
 
-  const sx = Math.floor(lastPoint.x - radius);
-  const sy = Math.floor(lastPoint.y - radius);
-  const dx = Math.floor(point.x - radius);
-  const dy = Math.floor(point.y - radius);
+  const movementX = point.x - lastPoint.x;
+  const movementY = point.y - lastPoint.y;
+  const distance = Math.hypot(movementX, movementY);
+  const steps = Math.max(1, Math.ceil(distance / Math.max(2, radius * 0.28)));
 
-  try {
-    const sample = ctx.getImageData(sx, sy, sampleSize, sampleSize);
+  ctx.save();
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = opacity * 0.24;
+  ctx.filter = "blur(1.35px)";
 
-    const tempCanvas = document.createElement("canvas");
-    const tempCtx = tempCanvas.getContext("2d");
+  for (let i = 1; i <= steps; i += 1) {
+    const t = i / steps;
 
-    tempCanvas.width = sampleSize;
-    tempCanvas.height = sampleSize;
-    tempCtx.putImageData(sample, 0, 0);
+    const currentX = lastPoint.x + movementX * t;
+    const currentY = lastPoint.y + movementY * t;
 
-    ctx.save();
-    ctx.globalAlpha = opacity * 0.38;
-    ctx.globalCompositeOperation = "source-over";
-    ctx.filter = "blur(2px)";
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.drawImage(tempCanvas, dx, dy);
-    ctx.restore();
-  } catch (error) {
-    /* ignore edge reads */
+    const lag = 0.42;
+    const sourceX = currentX - movementX * lag;
+    const sourceY = currentY - movementY * lag;
+
+    const sampleX = Math.floor(sourceX - radius);
+    const sampleY = Math.floor(sourceY - radius);
+    const drawX = Math.floor(currentX - radius);
+    const drawY = Math.floor(currentY - radius);
+
+    try {
+      const stamp = createSmudgeStamp(layer.canvas, sampleX, sampleY, sampleSize, radius);
+
+      ctx.drawImage(
+        stamp,
+        drawX,
+        drawY,
+        sampleSize,
+        sampleSize
+      );
+    } catch (error) {
+      /* ignore edge reads */
+    }
   }
+
+  ctx.restore();
 
   lastPoint = point;
   lastMidPoint = point;
