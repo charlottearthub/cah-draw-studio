@@ -52,11 +52,26 @@ let view = {
 };
 
 function setStatus(message) {
-  statusText.textContent = message;
+  if (statusText) {
+    statusText.textContent = message;
+  }
 }
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function getSize() {
+  const rect = canvasViewport.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+
+  return {
+    cssWidth: Math.max(1, Math.floor(rect.width)),
+    cssHeight: Math.max(1, Math.floor(rect.height)),
+    pixelWidth: Math.max(1, Math.floor(rect.width * dpr)),
+    pixelHeight: Math.max(1, Math.floor(rect.height * dpr)),
+    dpr
+  };
 }
 
 function applyViewTransform() {
@@ -89,19 +104,6 @@ function zoomAtCenter(factor) {
 
   applyViewTransform();
   setStatus("Zoom " + Math.round(view.scale * 100) + "%");
-}
-
-function getSize() {
-  const rect = canvasViewport.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-
-  return {
-    cssWidth: Math.max(1, Math.floor(rect.width)),
-    cssHeight: Math.max(1, Math.floor(rect.height)),
-    pixelWidth: Math.max(1, Math.floor(rect.width * dpr)),
-    pixelHeight: Math.max(1, Math.floor(rect.height * dpr)),
-    dpr
-  };
 }
 
 function setupCanvas(layer) {
@@ -168,6 +170,7 @@ function renderLayers() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "cah-layer-item" + (layer.id === activeLayerId ? " active" : "");
+
     button.innerHTML = `
       <span>${layer.name}</span>
       <span class="eye">${layer.visible ? "On" : "Off"}</span>
@@ -192,13 +195,17 @@ function captureState() {
 }
 
 function saveHistory() {
-  undoStack.push(captureState());
+  try {
+    undoStack.push(captureState());
 
-  if (undoStack.length > maxHistory) {
-    undoStack.shift();
+    if (undoStack.length > maxHistory) {
+      undoStack.shift();
+    }
+
+    redoStack = [];
+  } catch (error) {
+    setStatus("History failed");
   }
-
-  redoStack = [];
 }
 
 function restoreState(snapshot) {
@@ -392,7 +399,6 @@ function startDrawing(event) {
   lastMidPoint = null;
 
   canvasViewport.setPointerCapture?.(event.pointerId);
-
   drawSmoothPoint(getCanvasPoint(event));
 }
 
@@ -427,9 +433,11 @@ function draw(event) {
 function stopDrawing(event) {
   if (isPanning) {
     event.preventDefault();
+
     isPanning = false;
     panLastPoint = null;
     layersContainer.classList.remove("pan-dragging");
+
     setStatus("Pan saved");
     return;
   }
@@ -543,6 +551,8 @@ function savePng() {
 }
 
 function resizeLayers() {
+  if (layers.length === 0) return;
+
   const snapshots = captureState();
 
   layers.forEach((layer) => {
@@ -554,7 +564,9 @@ function resizeLayers() {
 
 function toggleUi() {
   const isHidden = document.body.classList.toggle("cah-ui-hidden");
+
   toggleUiBtn.textContent = isHidden ? "Show UI" : "Hide UI";
+
   setStatus(isHidden ? "UI hidden" : "UI shown");
 }
 
