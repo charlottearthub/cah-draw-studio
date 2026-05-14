@@ -8,6 +8,8 @@ const brushSize = document.getElementById("brushSize");
 const brushSizeText = document.getElementById("brushSizeText");
 const brushOpacity = document.getElementById("brushOpacity");
 const brushOpacityText = document.getElementById("brushOpacityText");
+const smudgeStrength = document.getElementById("smudgeStrength");
+const smudgeStrengthText = document.getElementById("smudgeStrengthText");
 
 const brushSelect = document.getElementById("brushSelect");
 const drawToolBtn = document.getElementById("drawToolBtn");
@@ -18,6 +20,7 @@ const undoBtn = document.getElementById("undoBtn");
 const redoBtn = document.getElementById("redoBtn");
 const clearCanvasBtn = document.getElementById("clearCanvasBtn");
 const savePngBtn = document.getElementById("savePngBtn");
+const resetPanelsBtn = document.getElementById("resetPanelsBtn");
 
 const zoomOutBtn = document.getElementById("zoomOutBtn");
 const resetViewBtn = document.getElementById("resetViewBtn");
@@ -67,6 +70,15 @@ let movingOffset = null;
 
 const maxLayers = 5;
 const maxHistory = 30;
+const panelStorageKey = "cahDrawStudioPanelStateV1";
+
+const panelMap = {
+  header: headerPanel,
+  brushes: brushPanel,
+  modifiers: modifierPanel,
+  layers: layersPanel,
+  gizmo: navGizmo
+};
 
 let view = {
   x: 0,
@@ -513,7 +525,7 @@ function drawCharcoalTexture(ctx, point) {
   ctx.restore();
 }
 
-function createSmudgeStamp(sourceCanvas, sampleX, sampleY, sampleSize, radius) {
+function createSmudgeStamp(sourceCanvas, sampleX, sampleY, sampleSize, radius, strength) {
   const tempCanvas = document.createElement("canvas");
   const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
 
@@ -534,18 +546,22 @@ function createSmudgeStamp(sourceCanvas, sampleX, sampleY, sampleSize, radius) {
 
   tempCtx.globalCompositeOperation = "destination-in";
 
+  const inner = 0.08 + strength * 0.16;
+  const mid = 0.26 + strength * 0.18;
+  const outer = 0.56 + strength * 0.18;
+
   const gradient = tempCtx.createRadialGradient(
     radius,
     radius,
-    radius * 0.12,
+    radius * inner,
     radius,
     radius,
     radius
   );
 
-  gradient.addColorStop(0, "rgba(0,0,0,0.92)");
-  gradient.addColorStop(0.32, "rgba(0,0,0,0.58)");
-  gradient.addColorStop(0.62, "rgba(0,0,0,0.22)");
+  gradient.addColorStop(0, "rgba(0,0,0,0.95)");
+  gradient.addColorStop(mid, "rgba(0,0,0,0.58)");
+  gradient.addColorStop(outer, "rgba(0,0,0,0.20)");
   gradient.addColorStop(1, "rgba(0,0,0,0)");
 
   tempCtx.fillStyle = gradient;
@@ -566,18 +582,24 @@ function drawSoftRoundSmudge(layer, point) {
   const ctx = layer.ctx;
   const size = Number(brushSize.value);
   const opacity = Number(brushOpacity.value) / 100;
-  const radius = Math.max(8, Math.floor(size * 0.85));
+  const strength = Number(smudgeStrength.value) / 100;
+
+  const radius = Math.max(8, Math.floor(size * (0.64 + strength * 0.38)));
   const sampleSize = radius * 2;
 
   const movementX = point.x - lastPoint.x;
   const movementY = point.y - lastPoint.y;
   const distance = Math.hypot(movementX, movementY);
-  const steps = Math.max(1, Math.ceil(distance / Math.max(2, radius * 0.28)));
+  const steps = Math.max(1, Math.ceil(distance / Math.max(2, radius * 0.26)));
+
+  const dragLag = 0.16 + strength * 0.58;
+  const alpha = opacity * (0.08 + strength * 0.34);
+  const blur = 0.8 + strength * 1.6;
 
   ctx.save();
   ctx.globalCompositeOperation = "source-over";
-  ctx.globalAlpha = opacity * 0.24;
-  ctx.filter = "blur(1.35px)";
+  ctx.globalAlpha = alpha;
+  ctx.filter = `blur(${blur}px)`;
 
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
@@ -585,9 +607,8 @@ function drawSoftRoundSmudge(layer, point) {
     const currentX = lastPoint.x + movementX * t;
     const currentY = lastPoint.y + movementY * t;
 
-    const lag = 0.42;
-    const sourceX = currentX - movementX * lag;
-    const sourceY = currentY - movementY * lag;
+    const sourceX = currentX - movementX * dragLag;
+    const sourceY = currentY - movementY * dragLag;
 
     const sampleX = Math.floor(sourceX - radius);
     const sampleY = Math.floor(sourceY - radius);
@@ -595,15 +616,8 @@ function drawSoftRoundSmudge(layer, point) {
     const drawY = Math.floor(currentY - radius);
 
     try {
-      const stamp = createSmudgeStamp(layer.canvas, sampleX, sampleY, sampleSize, radius);
-
-      ctx.drawImage(
-        stamp,
-        drawX,
-        drawY,
-        sampleSize,
-        sampleSize
-      );
+      const stamp = createSmudgeStamp(layer.canvas, sampleX, sampleY, sampleSize, radius, strength);
+      ctx.drawImage(stamp, drawX, drawY, sampleSize, sampleSize);
     } catch (error) {
       /* ignore edge reads */
     }
@@ -893,6 +907,8 @@ function toggleUi() {
       "cah-panel-gizmo-minimized"
     );
   }
+
+  savePanelState();
 }
 
 function togglePanelMin(panelName) {
@@ -902,6 +918,8 @@ function togglePanelMin(panelName) {
   document.querySelectorAll('[data-min-panel="' + panelName + '"]').forEach((button) => {
     button.textContent = isNowMinimized ? "+" : "−";
   });
+
+  savePanelState();
 }
 
 function shouldIgnorePanelDrag(target) {
@@ -1000,6 +1018,103 @@ function stopPanelMove(event) {
   document.removeEventListener("pointermove", movePanel);
   document.removeEventListener("pointerup", stopPanelMove);
   document.removeEventListener("pointercancel", stopPanelMove);
+
+  savePanelState();
+}
+
+function savePanelState() {
+  const panelState = {};
+
+  Object.entries(panelMap).forEach(([name, panel]) => {
+    if (!panel) return;
+
+    panelState[name] = {
+      left: panel.style.left || "",
+      top: panel.style.top || "",
+      right: panel.style.right || "",
+      bottom: panel.style.bottom || ""
+    };
+  });
+
+  const minimized = {
+    header: document.body.classList.contains("cah-panel-header-minimized"),
+    brushes: document.body.classList.contains("cah-panel-brushes-minimized"),
+    modifiers: document.body.classList.contains("cah-panel-modifiers-minimized"),
+    layers: document.body.classList.contains("cah-panel-layers-minimized"),
+    gizmo: document.body.classList.contains("cah-panel-gizmo-minimized")
+  };
+
+  try {
+    localStorage.setItem(panelStorageKey, JSON.stringify({ panelState, minimized }));
+  } catch (error) {
+    setStatus("Panel state save failed");
+  }
+}
+
+function loadPanelState() {
+  let saved = null;
+
+  try {
+    saved = JSON.parse(localStorage.getItem(panelStorageKey));
+  } catch (error) {
+    saved = null;
+  }
+
+  if (!saved) return;
+
+  if (saved.panelState) {
+    Object.entries(saved.panelState).forEach(([name, state]) => {
+      const panel = panelMap[name];
+
+      if (!panel || !state) return;
+
+      if (state.left) panel.style.left = state.left;
+      if (state.top) panel.style.top = state.top;
+      if (state.right !== undefined) panel.style.right = state.right;
+      if (state.bottom !== undefined) panel.style.bottom = state.bottom;
+    });
+  }
+
+  if (saved.minimized) {
+    Object.entries(saved.minimized).forEach(([name, isMinimized]) => {
+      if (!isMinimized) return;
+
+      document.body.classList.add("cah-panel-" + name + "-minimized");
+
+      document.querySelectorAll('[data-min-panel="' + name + '"]').forEach((button) => {
+        button.textContent = "+";
+      });
+    });
+  }
+}
+
+function resetPanels() {
+  try {
+    localStorage.removeItem(panelStorageKey);
+  } catch (error) {
+    setStatus("Panel reset storage failed");
+  }
+
+  Object.values(panelMap).forEach((panel) => {
+    if (!panel) return;
+
+    panel.style.left = "";
+    panel.style.top = "";
+    panel.style.right = "";
+    panel.style.bottom = "";
+  });
+
+  document.body.classList.remove(
+    "cah-panel-header-minimized",
+    "cah-panel-brushes-minimized",
+    "cah-panel-modifiers-minimized",
+    "cah-panel-layers-minimized",
+    "cah-panel-gizmo-minimized"
+  );
+
+  document.querySelectorAll("[data-min-panel]").forEach((button) => {
+    button.textContent = "−";
+  });
 }
 
 function wirePanelMovement() {
@@ -1032,6 +1147,10 @@ brushOpacity.addEventListener("input", () => {
   brushOpacityText.textContent = brushOpacity.value + "%";
 });
 
+smudgeStrength.addEventListener("input", () => {
+  smudgeStrengthText.textContent = smudgeStrength.value + "%";
+});
+
 brushSelect.addEventListener("change", () => {
   selectBrush(brushSelect.value);
 });
@@ -1044,6 +1163,7 @@ undoBtn.addEventListener("click", undo);
 redoBtn.addEventListener("click", redo);
 clearCanvasBtn.addEventListener("click", clearCanvas);
 savePngBtn.addEventListener("click", savePng);
+resetPanelsBtn.addEventListener("click", resetPanels);
 
 zoomOutBtn.addEventListener("click", () => zoomAtCenter(0.8));
 zoomInBtn.addEventListener("click", () => zoomAtCenter(1.25));
@@ -1067,6 +1187,7 @@ document.querySelectorAll("[data-min-panel]").forEach((button) => {
 });
 
 wirePanelMovement();
+loadPanelState();
 
 canvasViewport.addEventListener("pointerdown", startDrawing);
 canvasViewport.addEventListener("pointermove", draw);
