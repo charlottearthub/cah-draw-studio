@@ -95,6 +95,16 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+function hexToRgba(hex, alpha) {
+  const cleanHex = hex.replace("#", "");
+
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function getSize() {
   const rect = canvasViewport.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
@@ -427,8 +437,9 @@ function midpoint(a, b) {
 function prepareBrush(ctx) {
   const size = Number(brushSize.value);
   const opacity = Number(brushOpacity.value) / 100;
+  const color = hexToRgba(colorPicker.value, opacity);
 
-  ctx.globalAlpha = opacity;
+  ctx.globalAlpha = 1;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.shadowBlur = 0;
@@ -436,53 +447,57 @@ function prepareBrush(ctx) {
 
   if (currentTool === "eraser") {
     ctx.globalCompositeOperation = "destination-out";
-    ctx.strokeStyle = "rgba(0,0,0,1)";
-    ctx.fillStyle = "rgba(0,0,0,1)";
+    ctx.strokeStyle = `rgba(0,0,0,${opacity})`;
+    ctx.fillStyle = `rgba(0,0,0,${opacity})`;
     ctx.lineWidth = size;
     return;
   }
 
   ctx.globalCompositeOperation = "source-over";
-  ctx.strokeStyle = colorPicker.value;
-  ctx.fillStyle = colorPicker.value;
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
 
   if (currentTool === "ink") {
     ctx.lineWidth = Math.max(1, size * 0.68);
-    ctx.globalAlpha = Math.min(1, opacity + 0.12);
     return;
   }
 
   if (currentTool === "pencil") {
     ctx.lineWidth = Math.max(1, size * 0.46);
-    ctx.globalAlpha = opacity * 0.62;
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.72);
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.72);
     return;
   }
 
   if (currentTool === "marker") {
     ctx.lineWidth = size * 1.15;
-    ctx.globalAlpha = opacity * 0.72;
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.78);
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.78);
     return;
   }
 
   if (currentTool === "soft") {
     ctx.lineWidth = size * 1.9;
-    ctx.globalAlpha = opacity * 0.24;
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.28);
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.28);
     ctx.shadowBlur = size * 0.65;
-    ctx.shadowColor = colorPicker.value;
+    ctx.shadowColor = hexToRgba(colorPicker.value, opacity * 0.35);
     return;
   }
 
   if (currentTool === "watercolor") {
     ctx.lineWidth = size * 2.2;
-    ctx.globalAlpha = opacity * 0.18;
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.22);
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.22);
     ctx.shadowBlur = size * 0.45;
-    ctx.shadowColor = colorPicker.value;
+    ctx.shadowColor = hexToRgba(colorPicker.value, opacity * 0.28);
     return;
   }
 
   if (currentTool === "charcoal") {
     ctx.lineWidth = size * 1.35;
-    ctx.globalAlpha = opacity * 0.54;
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.64);
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.64);
     return;
   }
 
@@ -503,8 +518,8 @@ function drawCharcoalTexture(ctx, point) {
 
   ctx.save();
   ctx.globalCompositeOperation = "source-over";
-  ctx.fillStyle = colorPicker.value;
-  ctx.globalAlpha = opacity * 0.24;
+  ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.24);
+  ctx.globalAlpha = 1;
 
   for (let i = 0; i < count; i += 1) {
     const angle = Math.random() * Math.PI * 2;
