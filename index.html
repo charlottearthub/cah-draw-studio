@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>CAH Draw Studio</title>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="cah-draw-app">
+    <section class="cah-draw-shell">
+      <header class="cah-draw-header">
+        <div>
+          <div class="cah-kicker">Charlotte Art Hub</div>
+          <h1>CAH Draw Studio</h1>
+        </div>
+
+        <div class="cah-header-actions">
+          <button id="clearCanvasBtn" type="button">Clear</button>
+          <button id="savePngBtn" type="button">Save PNG</button>
+        </div>
+      </header>
+
+      <section class="cah-toolbar">
+        <label>
+          Color
+          <input id="colorPicker" type="color" value="#111111" />
+        </label>
+
+        <label>
+          Brush
+          <input id="brushSize" type="range" min="1" max="60" value="8" />
+          <span id="brushSizeText">8</span>
+        </label>
+
+        <label>
+          Opacity
+          <input id="brushOpacity" type="range" min="10" max="100" value="100" />
+          <span id="brushOpacityText">100%</span>
+        </label>
+
+        <div class="cah-tool-buttons">
+          <button id="brushToolBtn" class="active" type="button">Brush</button>
+          <button id="eraserToolBtn" type="button">Eraser</button>
+          <button id="undoBtn" type="button">Undo</button>
+          <button id="redoBtn" type="button">Redo</button>
+        </div>
+      </section>
+
+      <section class="cah-canvas-area">
+        <canvas id="drawCanvas"></canvas>
+      </section>
+
+      <footer class="cah-draw-footer">
+        <span>Draw with mouse, finger, or stylus.</span>
+        <span id="statusText">Ready</span>
+      </footer>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
