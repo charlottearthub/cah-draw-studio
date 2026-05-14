@@ -47,6 +47,7 @@ let nextLayerNumber = 1;
 let currentTool = "brush";
 let isDrawing = false;
 let isPanning = false;
+let isRightMousePanning = false;
 
 let lastPoint = null;
 let lastMidPoint = null;
@@ -128,6 +129,15 @@ function getViewportCenter() {
   };
 }
 
+function getViewportPoint(clientX, clientY) {
+  const rect = canvasViewport.getBoundingClientRect();
+
+  return {
+    x: clientX - rect.left,
+    y: clientY - rect.top
+  };
+}
+
 function resetView() {
   view.x = 0;
   view.y = 0;
@@ -136,23 +146,26 @@ function resetView() {
   applyViewTransform();
 }
 
-function zoomAtCenter(factor) {
-  const center = getViewportCenter();
-  const world = screenToWorld(center.x, center.y);
+function zoomAtViewportPoint(factor, viewportX, viewportY) {
+  const world = screenToWorld(viewportX, viewportY);
 
-  view.scale = clamp(view.scale * factor, 0.35, 4);
+  view.scale = clamp(view.scale * factor, 0.25, 8);
 
   const after = worldToScreen(world.x, world.y);
 
-  view.x += center.x - after.x;
-  view.y += center.y - after.y;
+  view.x += viewportX - after.x;
+  view.y += viewportY - after.y;
 
   applyViewTransform();
 }
 
-function rotateAtCenter(amount) {
+function zoomAtCenter(factor) {
   const center = getViewportCenter();
-  const world = screenToWorld(center.x, center.y);
+  zoomAtViewportPoint(factor, center.x, center.y);
+}
+
+function rotateAtViewportPoint(amount, viewportX, viewportY) {
+  const world = screenToWorld(viewportX, viewportY);
 
   view.rotation += amount;
 
@@ -162,10 +175,15 @@ function rotateAtCenter(amount) {
 
   const after = worldToScreen(world.x, world.y);
 
-  view.x += center.x - after.x;
-  view.y += center.y - after.y;
+  view.x += viewportX - after.x;
+  view.y += viewportY - after.y;
 
   applyViewTransform();
+}
+
+function rotateAtCenter(amount) {
+  const center = getViewportCenter();
+  rotateAtViewportPoint(amount, center.x, center.y);
 }
 
 function panView(dx, dy) {
@@ -586,13 +604,22 @@ function startDrawing(event) {
 
   event.preventDefault();
 
-  if (currentTool === "pan") {
+  if (event.button === 1) {
+    const point = getViewportPoint(event.clientX, event.clientY);
+    rotateAtViewportPoint(15, point.x, point.y);
+    return;
+  }
+
+  if (event.button === 2 || currentTool === "pan") {
     isPanning = true;
+    isRightMousePanning = event.button === 2;
     panLastPoint = getScreenPoint(event);
     layersContainer.classList.add("pan-dragging");
     canvasViewport.setPointerCapture?.(event.pointerId);
     return;
   }
+
+  if (event.button !== 0) return;
 
   const layer = getActiveLayer();
 
@@ -641,6 +668,7 @@ function stopDrawing(event) {
     event.preventDefault();
 
     isPanning = false;
+    isRightMousePanning = false;
     panLastPoint = null;
     layersContainer.classList.remove("pan-dragging");
     return;
@@ -653,6 +681,19 @@ function stopDrawing(event) {
   isDrawing = false;
   lastPoint = null;
   lastMidPoint = null;
+}
+
+function handleWheel(event) {
+  event.preventDefault();
+
+  const point = getViewportPoint(event.clientX, event.clientY);
+  const factor = event.deltaY < 0 ? 1.12 : 0.88;
+
+  zoomAtViewportPoint(factor, point.x, point.y);
+}
+
+function preventCanvasContextMenu(event) {
+  event.preventDefault();
 }
 
 function setTool(tool) {
@@ -894,6 +935,17 @@ canvasViewport.addEventListener("pointermove", draw);
 canvasViewport.addEventListener("pointerup", stopDrawing);
 canvasViewport.addEventListener("pointercancel", stopDrawing);
 canvasViewport.addEventListener("pointerleave", stopDrawing);
+canvasViewport.addEventListener("wheel", handleWheel, { passive: false });
+canvasViewport.addEventListener("contextmenu", preventCanvasContextMenu);
+
+window.addEventListener("mouseup", () => {
+  if (isRightMousePanning) {
+    isPanning = false;
+    isRightMousePanning = false;
+    panLastPoint = null;
+    layersContainer.classList.remove("pan-dragging");
+  }
+});
 
 window.addEventListener("resize", () => {
   if (layers.length > 0) {
