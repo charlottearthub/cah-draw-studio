@@ -7,7 +7,7 @@ body {
   margin: 0;
   width: 100%;
   min-height: 100%;
-  background: #120b08;
+  background: #090909;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -18,11 +18,12 @@ body {
 .cah-draw-app {
   width: 100vw;
   height: 100vh;
+  color: #f7f4ed;
   background:
-    radial-gradient(circle at 20% 15%, rgba(232, 107, 47, 0.16), transparent 32%),
-    radial-gradient(circle at 82% 12%, rgba(242, 184, 75, 0.10), transparent 28%),
-    linear-gradient(180deg, #1b0d09, #070403);
-  color: #fff7ed;
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.055), transparent 28%),
+    radial-gradient(circle at 18% 18%, rgba(242, 184, 75, 0.08), transparent 26%),
+    radial-gradient(circle at 84% 14%, rgba(232, 107, 47, 0.06), transparent 25%),
+    linear-gradient(180deg, #151515 0%, #070707 100%);
   overflow: hidden;
 }
 
@@ -42,19 +43,29 @@ textarea {
 
 button {
   appearance: none;
-  border: 1px solid rgba(242, 184, 75, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   background:
-    linear-gradient(135deg, rgba(242, 184, 75, 0.10), rgba(232, 107, 47, 0.08)),
-    rgba(20, 10, 8, 0.76);
-  color: #fff7ed;
-  border-radius: 4px;
-  padding: 7px 8px;
-  font-weight: 900;
-  font-size: 10.5px;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)),
+    rgba(18, 18, 18, 0.88);
+  color: #f7f4ed;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-weight: 800;
+  font-size: 11px;
   line-height: 1;
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+button:hover {
+  border-color: rgba(242, 184, 75, 0.34);
+  background:
+    linear-gradient(180deg, rgba(242, 184, 75, 0.12), rgba(255, 255, 255, 0.025)),
+    rgba(22, 22, 22, 0.92);
 }
 
 button:active {
@@ -63,25 +74,13 @@ button:active {
 
 button.active {
   background: linear-gradient(135deg, #f2b84b, #e86b2f);
-  color: #2b1713;
-  border-color: rgba(242, 184, 75, 0.85);
+  color: #211411;
+  border-color: rgba(242, 184, 75, 0.75);
 }
 
 button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
-}
-
-.cah-ui-toggle {
-  position: absolute;
-  z-index: 120;
-  top: 68px;
-  right: 10px;
-  border-color: rgba(56, 214, 255, 0.34);
-  background:
-    linear-gradient(135deg, rgba(56, 214, 255, 0.16), rgba(242, 184, 75, 0.1)),
-    rgba(20, 10, 8, 0.80);
-  backdrop-filter: blur(10px);
 }
 
 .cah-canvas-area {
@@ -90,13 +89,13 @@ button:disabled {
   z-index: 1;
   overflow: hidden;
   background:
-    linear-gradient(45deg, rgba(0,0,0,0.07) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(0,0,0,0.07) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(0,0,0,0.07) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(0,0,0,0.07) 75%),
-    #33251f;
-  background-size: 24px 24px;
-  background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    linear-gradient(45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.025) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.025) 75%),
+    #1b1b1b;
+  background-size: 26px 26px;
+  background-position: 0 0, 0 13px, 13px -13px, -13px 0;
   touch-action: none;
 }
 
@@ -116,8 +115,9 @@ button:disabled {
   height: 1080px;
   background: #fffaf4;
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.28),
-    0 18px 60px rgba(0, 0, 0, 0.38);
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 0 0 8px rgba(0, 0, 0, 0.18),
+    0 28px 95px rgba(0, 0, 0, 0.62);
   transform-origin: 0 0;
   will-change: transform;
 }
@@ -152,11 +152,15 @@ button:disabled {
 .cah-panel {
   position: absolute;
   z-index: 24;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 247, 237, 0.13);
-  background: rgba(20, 10, 8, 0.80);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.105);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)),
+    rgba(14, 14, 14, 0.78);
+  backdrop-filter: blur(18px) saturate(1.25);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .cah-panel.is-moving,
@@ -167,146 +171,191 @@ button:disabled {
 .cah-panel-min {
   position: absolute;
   z-index: 6;
-  top: 6px;
-  right: 6px;
-  width: 22px;
-  height: 22px;
+  top: 8px;
+  right: 8px;
+  width: 25px;
+  height: 25px;
   padding: 0;
-  border-radius: 4px;
+  border-radius: 50%;
   font-size: 14px;
-  color: rgba(255, 247, 237, 0.84);
-  background: rgba(0, 0, 0, 0.34);
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(0, 0, 0, 0.36);
+  box-shadow: none;
 }
 
 .cah-panel-title {
   color: #f2b84b;
   font-size: 10px;
   font-weight: 900;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  margin-bottom: 8px;
-  padding-right: 28px;
+  margin-bottom: 10px;
+  padding-right: 30px;
 }
 
 .cah-panel-content {
   width: 100%;
 }
 
-.cah-floating-header {
-  top: 10px;
-  left: 10px;
-  width: min(760px, calc(100vw - 20px));
-  min-height: 50px;
-  padding: 8px 38px 8px 10px;
+.cah-topbar {
+  top: 12px;
+  left: 50%;
+  width: min(880px, calc(100vw - 160px));
+  min-height: 56px;
+  padding: 10px 44px 10px 14px;
+  transform: translateX(-50%);
 }
 
-.cah-floating-header .cah-panel-content {
+.cah-topbar-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+}
+
+.cah-brand-block {
+  min-width: 150px;
 }
 
 .cah-kicker {
   color: #f2b84b;
   font-size: 8px;
   font-weight: 900;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
+  opacity: 0.95;
 }
 
 .cah-floating-header h1 {
   margin: 0;
-  font-size: clamp(18px, 3.8vw, 28px);
+  font-size: clamp(19px, 3vw, 28px);
   line-height: 1;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
 }
 
 .cah-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: flex-end;
+}
+
+.cah-header-actions button {
+  padding: 9px 10px;
+  min-width: 68px;
+}
+
+.cah-ui-toggle {
+  position: absolute;
+  z-index: 120;
+  top: 18px;
+  right: 16px;
+  border-radius: 999px;
+  border-color: rgba(242, 184, 75, 0.24);
+  background:
+    linear-gradient(135deg, rgba(242, 184, 75, 0.18), rgba(232, 107, 47, 0.08)),
+    rgba(10, 10, 10, 0.82);
+  backdrop-filter: blur(14px);
+}
+
+.cah-left-rail {
+  left: 14px;
+  top: 96px;
+  width: 168px;
+  padding: 14px 42px 14px 14px;
+}
+
+.cah-tool-button-grid {
   display: grid;
-  grid-template-columns: repeat(3, auto);
-  gap: 6px;
-  justify-content: end;
+  grid-template-columns: 1fr;
+  gap: 7px;
+  margin-bottom: 10px;
 }
 
-.cah-canvas-panel {
-  left: 10px;
-  top: 74px;
-  width: 260px;
-  padding: 9px 34px 9px 9px;
+.cah-tool-button-grid button {
+  width: 100%;
+  text-align: center;
 }
 
-.cah-submit-panel {
-  left: 10px;
-  top: 182px;
-  width: 286px;
-  max-height: calc(100vh - 202px);
+.cah-right-panel {
+  right: 14px;
+  width: 245px;
+  padding: 14px 42px 14px 14px;
+}
+
+.cah-brush-settings-panel {
+  top: 96px;
+}
+
+.cah-layer-dock {
+  top: 286px;
+  max-height: 330px;
+}
+
+.cah-canvas-settings-panel {
+  bottom: 18px;
+}
+
+.cah-submit-drawer {
+  left: 50%;
+  bottom: 18px;
+  width: min(760px, calc(100vw - 420px));
+  max-height: 270px;
   overflow-y: auto;
-  padding: 9px 34px 9px 9px;
-}
-
-.cah-brush-panel {
-  left: 318px;
-  bottom: 10px;
-  width: 210px;
-  padding: 9px 34px 9px 9px;
-}
-
-.cah-modifier-panel {
-  left: 540px;
-  bottom: 10px;
-  width: 260px;
-  padding: 9px 34px 9px 9px;
-}
-
-.cah-layers-panel {
-  right: 10px;
-  bottom: 10px;
-  width: 210px;
-  max-height: 390px;
-  padding: 9px 34px 9px 9px;
+  padding: 14px 44px 14px 14px;
+  transform: translateX(-50%);
 }
 
 .cah-select,
 .cah-text-input,
 .cah-textarea {
   width: 100%;
-  border-radius: 4px;
-  border: 1px solid rgba(242, 184, 75, 0.26);
-  background: rgba(20, 10, 8, 0.88);
-  color: #fff7ed;
-  font-weight: 900;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.105);
+  background: rgba(5, 5, 5, 0.58);
+  color: #f7f4ed;
+  font-weight: 800;
   font-size: 11px;
+  outline: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 5px 14px rgba(0, 0, 0, 0.16);
+}
+
+.cah-select:focus,
+.cah-text-input:focus,
+.cah-textarea:focus {
+  border-color: rgba(242, 184, 75, 0.58);
 }
 
 .cah-select,
 .cah-text-input {
-  height: 30px;
-  padding: 0 8px;
+  height: 34px;
+  padding: 0 10px;
 }
 
 .cah-textarea {
-  min-height: 66px;
+  min-height: 72px;
   resize: vertical;
-  padding: 8px;
+  padding: 9px 10px;
   line-height: 1.35;
 }
 
 .cah-text-input::placeholder,
 .cah-textarea::placeholder {
-  color: rgba(255, 247, 237, 0.42);
+  color: rgba(247, 244, 237, 0.38);
 }
 
 .cah-control {
   display: grid;
-  gap: 4px;
-  color: rgba(255, 247, 237, 0.72);
+  gap: 5px;
+  color: rgba(247, 244, 237, 0.68);
   font-size: 8.5px;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
+  letter-spacing: 0.09em;
+  margin-bottom: 10px;
 }
 
 .cah-control b {
@@ -315,20 +364,23 @@ button:disabled {
 
 .cah-control input[type="range"] {
   width: 100%;
+  accent-color: #f2b84b;
 }
 
 .cah-color-control input[type="color"] {
   width: 100%;
-  height: 28px;
+  height: 34px;
   border: none;
+  border-radius: 12px;
   background: transparent;
+  cursor: pointer;
 }
 
 .cah-button-stack {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 5px;
-  margin-top: 7px;
+  gap: 7px;
+  margin-top: 8px;
 }
 
 .cah-brush-specific {
@@ -353,27 +405,45 @@ body.cah-submit-child .cah-guardian-wrap {
   display: grid;
 }
 
+.cah-submit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cah-description-control {
+  grid-column: span 2;
+}
+
 .cah-check-row {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 7px;
+  gap: 8px;
   align-items: start;
-  color: rgba(255, 247, 237, 0.78);
-  font-size: 10px;
+  color: rgba(247, 244, 237, 0.78);
+  font-size: 10.5px;
   line-height: 1.35;
-  margin: 8px 0;
+  margin: 8px 0 10px;
 }
 
 .cah-check-row input {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   accent-color: #f2b84b;
   margin-top: 1px;
 }
 
+.cah-submit-action {
+  width: 100%;
+  background:
+    linear-gradient(135deg, rgba(242, 184, 75, 0.98), rgba(232, 107, 47, 0.96));
+  color: #211411;
+  border-color: rgba(242, 184, 75, 0.8);
+}
+
 .cah-submit-status {
   min-height: 18px;
-  margin-top: 8px;
+  margin-top: 9px;
   color: #f2b84b;
   font-size: 10.5px;
   line-height: 1.35;
@@ -390,33 +460,38 @@ body.cah-submit-child .cah-guardian-wrap {
 
 .cah-layers-list {
   min-height: 0;
-  max-height: 270px;
+  max-height: 210px;
   overflow-y: auto;
   overflow-x: hidden;
   display: grid;
   grid-template-columns: 1fr;
   align-content: start;
-  gap: 6px;
+  gap: 7px;
 }
 
 .cah-layer-item {
   width: 100%;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 247, 237, 0.12);
-  background: rgba(255, 255, 255, 0.055);
-  color: #fff7ed;
-  padding: 7px;
+  border-radius: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)),
+    rgba(5, 5, 5, 0.42);
+  color: #f7f4ed;
+  padding: 9px;
   font-size: 10.5px;
   text-align: left;
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
+  box-shadow: none;
 }
 
 .cah-layer-item.active {
-  border-color: rgba(242, 184, 75, 0.68);
-  background: rgba(242, 184, 75, 0.12);
+  border-color: rgba(242, 184, 75, 0.7);
+  background:
+    linear-gradient(180deg, rgba(242, 184, 75, 0.16), rgba(232, 107, 47, 0.07)),
+    rgba(5, 5, 5, 0.42);
 }
 
 .cah-layer-check {
@@ -434,30 +509,30 @@ body.cah-submit-child .cah-guardian-wrap {
 .cah-nav-gizmo {
   position: absolute;
   z-index: 40;
-  right: 12px;
-  top: 94px;
-  width: 176px;
-  height: 176px;
+  left: 14px;
+  bottom: 18px;
+  width: 154px;
+  height: 154px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 247, 237, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background:
-    radial-gradient(circle at center, rgba(242, 184, 75, 0.14), transparent 37%),
+    radial-gradient(circle at center, rgba(242, 184, 75, 0.16), transparent 37%),
     conic-gradient(
       from -22.5deg,
-      rgba(242, 184, 75, 0.13) 0deg 45deg,
-      rgba(232, 107, 47, 0.1) 45deg 90deg,
-      rgba(56, 214, 255, 0.1) 90deg 135deg,
-      rgba(242, 184, 75, 0.13) 135deg 180deg,
-      rgba(232, 107, 47, 0.1) 180deg 225deg,
-      rgba(56, 214, 255, 0.1) 225deg 270deg,
-      rgba(242, 184, 75, 0.13) 270deg 315deg,
-      rgba(232, 107, 47, 0.1) 315deg 360deg
+      rgba(242, 184, 75, 0.12) 0deg 45deg,
+      rgba(232, 107, 47, 0.08) 45deg 90deg,
+      rgba(255, 255, 255, 0.055) 90deg 135deg,
+      rgba(242, 184, 75, 0.12) 135deg 180deg,
+      rgba(232, 107, 47, 0.08) 180deg 225deg,
+      rgba(255, 255, 255, 0.055) 225deg 270deg,
+      rgba(242, 184, 75, 0.12) 270deg 315deg,
+      rgba(232, 107, 47, 0.08) 315deg 360deg
     ),
-    rgba(20, 10, 8, 0.80);
-  backdrop-filter: blur(10px);
+    rgba(14, 14, 14, 0.78);
+  backdrop-filter: blur(18px);
   box-shadow:
-    0 12px 36px rgba(0, 0, 0, 0.34),
-    inset 0 0 28px rgba(0, 0, 0, 0.18);
+    0 18px 50px rgba(0, 0, 0, 0.35),
+    inset 0 0 30px rgba(0, 0, 0, 0.20);
   touch-action: none;
   user-select: none;
 }
@@ -472,28 +547,28 @@ body.cah-submit-child .cah-guardian-wrap {
   position: absolute;
   min-width: 0;
   padding: 0;
-  height: 34px;
-  width: 42px;
-  font-size: 13px;
-  border-radius: 6px;
+  height: 30px;
+  width: 36px;
+  font-size: 12px;
+  border-radius: 10px;
   background:
-    linear-gradient(135deg, rgba(255, 247, 237, 0.09), rgba(242, 184, 75, 0.09)),
-    rgba(20, 10, 8, 0.56);
-  backdrop-filter: blur(4px);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)),
+    rgba(10, 10, 10, 0.62);
+  backdrop-filter: blur(6px);
   touch-action: none;
 }
 
 .cah-gizmo-center {
   left: 50%;
   top: 50%;
-  width: 58px !important;
-  height: 58px !important;
+  width: 54px !important;
+  height: 54px !important;
   transform: translate(-50%, -50%);
   border-radius: 50% !important;
-  color: #2b1713;
+  color: #211411;
   background: linear-gradient(135deg, #f2b84b, #e86b2f) !important;
   border-color: rgba(242, 184, 75, 0.85);
-  font-size: 10px !important;
+  font-size: 9px !important;
   cursor: move;
 }
 
@@ -502,54 +577,54 @@ body.cah-submit-child .cah-guardian-wrap {
 }
 
 .cah-gizmo-up {
-  left: 67px;
+  left: 59px;
   top: 8px;
 }
 
 .cah-gizmo-right {
   right: 8px;
-  top: 69px;
+  top: 62px;
 }
 
 .cah-gizmo-down {
-  left: 67px;
+  left: 59px;
   bottom: 8px;
 }
 
 .cah-gizmo-left {
   left: 8px;
-  top: 69px;
+  top: 62px;
 }
 
 .cah-gizmo-zoom-in {
-  right: 20px;
-  top: 24px;
+  right: 18px;
+  top: 21px;
 }
 
 .cah-gizmo-zoom-out {
-  left: 20px;
-  bottom: 24px;
+  left: 18px;
+  bottom: 21px;
 }
 
 .cah-gizmo-rotate-left {
-  left: 20px;
-  top: 24px;
+  left: 18px;
+  top: 21px;
 }
 
 .cah-gizmo-rotate-right {
-  right: 20px;
-  bottom: 24px;
+  right: 18px;
+  bottom: 21px;
 }
 
 .cah-gizmo-reset {
   left: 50%;
-  bottom: 46px;
-  width: 50px !important;
-  height: 26px !important;
+  bottom: 39px;
+  width: 48px !important;
+  height: 24px !important;
   transform: translateX(-50%);
-  font-size: 9px !important;
+  font-size: 8px !important;
   color: #f2b84b;
-  background: rgba(20, 10, 8, 0.74) !important;
+  background: rgba(10, 10, 10, 0.70) !important;
 }
 
 .cah-gizmo-reset:active {
@@ -568,7 +643,7 @@ body.cah-ui-hidden .cah-layers-panel {
 }
 
 body.cah-ui-hidden .cah-nav-gizmo {
-  opacity: 0.84;
+  opacity: 0.72;
 }
 
 body.cah-ui-hidden .cah-ui-toggle {
@@ -583,9 +658,15 @@ body.cah-panel-submit-minimized .cah-submit-panel,
 body.cah-panel-brushes-minimized .cah-brush-panel,
 body.cah-panel-modifiers-minimized .cah-modifier-panel,
 body.cah-panel-layers-minimized .cah-layers-panel {
-  width: 92px;
-  height: 36px;
+  width: 105px;
+  height: 42px;
   overflow: hidden;
+  transform: none;
+}
+
+body.cah-panel-header-minimized .cah-floating-header {
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 body.cah-panel-header-minimized .cah-floating-header .cah-panel-content,
@@ -605,7 +686,7 @@ body.cah-panel-header-minimized .cah-floating-header::before {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   display: block;
-  margin-top: 4px;
+  margin-top: 5px;
 }
 
 body.cah-panel-canvas-minimized .cah-canvas-panel .cah-panel-title,
@@ -613,14 +694,14 @@ body.cah-panel-submit-minimized .cah-submit-panel .cah-panel-title,
 body.cah-panel-brushes-minimized .cah-brush-panel .cah-panel-title,
 body.cah-panel-modifiers-minimized .cah-modifier-panel .cah-panel-title,
 body.cah-panel-layers-minimized .cah-layers-panel .cah-panel-title {
-  margin: 4px 0 0;
-  padding-right: 28px;
+  margin: 5px 0 0;
+  padding-right: 30px;
 }
 
 body.cah-panel-gizmo-minimized .cah-nav-gizmo {
-  width: 72px;
-  height: 36px;
-  border-radius: 4px;
+  width: 82px;
+  height: 42px;
+  border-radius: 18px;
   overflow: hidden;
 }
 
@@ -642,26 +723,63 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
     height 0.18s ease;
 }
 
+@media (max-width: 1000px) {
+  .cah-topbar {
+    width: calc(100vw - 110px);
+    left: 12px;
+    transform: none;
+  }
+
+  .cah-topbar-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .cah-header-actions {
+    justify-content: start;
+  }
+
+  .cah-left-rail {
+    top: 132px;
+  }
+
+  .cah-brush-settings-panel {
+    top: 132px;
+  }
+
+  .cah-layer-dock {
+    top: 322px;
+  }
+
+  .cah-submit-drawer {
+    width: calc(100vw - 390px);
+  }
+
+  .cah-submit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cah-description-control {
+    grid-column: span 2;
+  }
+}
+
 @media (max-width: 820px) {
   .cah-ui-toggle {
-    top: 60px;
-    right: 8px;
-    padding: 7px 9px;
+    top: 12px;
+    right: 10px;
+    padding: 8px 10px;
     font-size: 10px;
   }
 
-  .cah-floating-header {
-    top: 7px;
-    left: 7px;
-    width: calc(100vw - 14px);
+  .cah-topbar {
+    top: 8px;
+    left: 8px;
+    width: calc(100vw - 92px);
     min-height: 48px;
-    padding: 7px 34px 7px 9px;
-  }
-
-  .cah-floating-header .cah-panel-content {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 6px;
+    padding: 10px 38px 10px 12px;
+    border-radius: 16px;
   }
 
   .cah-floating-header h1 {
@@ -669,146 +787,144 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
   }
 
   .cah-header-actions {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .cah-canvas-panel {
-    left: 7px;
-    top: 126px;
-    width: 200px;
+  .cah-header-actions button {
+    min-width: 0;
   }
 
-  .cah-submit-panel {
-    left: 7px;
-    top: 234px;
-    width: 220px;
-    max-height: calc(100vh - 380px);
+  .cah-left-rail {
+    left: 8px;
+    top: 142px;
+    width: 150px;
+    padding: 12px 38px 12px 12px;
+  }
+
+  .cah-right-panel {
+    right: 8px;
+    width: 170px;
+    padding: 12px 38px 12px 12px;
+  }
+
+  .cah-brush-settings-panel {
+    top: 142px;
+  }
+
+  .cah-layer-dock {
+    top: 336px;
+    max-height: 245px;
+  }
+
+  .cah-canvas-settings-panel {
+    display: none;
+  }
+
+  .cah-layers-list {
+    max-height: 140px;
   }
 
   .cah-nav-gizmo {
-    top: 126px;
-    right: 8px;
-    width: 138px;
-    height: 138px;
+    left: 8px;
+    bottom: 8px;
+    width: 132px;
+    height: 132px;
   }
 
   .cah-nav-gizmo button {
-    width: 34px;
-    height: 27px;
+    width: 31px;
+    height: 25px;
     font-size: 11px;
-    border-radius: 5px;
   }
 
   .cah-gizmo-center {
-    width: 46px !important;
-    height: 46px !important;
+    width: 45px !important;
+    height: 45px !important;
     font-size: 8px !important;
   }
 
   .cah-gizmo-up {
-    left: 52px;
-    top: 6px;
+    left: 50px;
+    top: 7px;
   }
 
   .cah-gizmo-right {
-    right: 6px;
-    top: 55px;
+    right: 7px;
+    top: 53px;
   }
 
   .cah-gizmo-down {
-    left: 52px;
-    bottom: 6px;
+    left: 50px;
+    bottom: 7px;
   }
 
   .cah-gizmo-left {
-    left: 6px;
-    top: 55px;
+    left: 7px;
+    top: 53px;
   }
 
   .cah-gizmo-zoom-in {
-    right: 15px;
-    top: 18px;
+    right: 14px;
+    top: 17px;
   }
 
   .cah-gizmo-zoom-out {
-    left: 15px;
-    bottom: 18px;
+    left: 14px;
+    bottom: 17px;
   }
 
   .cah-gizmo-rotate-left {
-    left: 15px;
-    top: 18px;
+    left: 14px;
+    top: 17px;
   }
 
   .cah-gizmo-rotate-right {
-    right: 15px;
-    bottom: 18px;
+    right: 14px;
+    bottom: 17px;
   }
 
   .cah-gizmo-reset {
-    bottom: 35px;
-    width: 42px !important;
-    height: 22px !important;
-    font-size: 8px !important;
+    bottom: 33px;
+    width: 40px !important;
+    height: 21px !important;
+    font-size: 7px !important;
   }
 
-  .cah-brush-panel {
-    left: 7px;
-    bottom: 7px;
-    width: 170px;
+  .cah-submit-drawer {
+    left: auto;
+    right: 8px;
+    bottom: 8px;
+    width: calc(100vw - 156px);
+    max-height: 230px;
+    transform: none;
   }
 
-  .cah-modifier-panel {
-    left: 184px;
-    bottom: 7px;
-    width: calc(100vw - 191px);
-  }
-
-  .cah-layers-panel {
-    right: 7px;
-    top: 272px;
-    bottom: auto;
-    width: 170px;
-    max-height: 260px;
-  }
-
-  .cah-layers-list {
-    max-height: 170px;
-    display: grid;
+  .cah-submit-grid {
     grid-template-columns: 1fr;
-    overflow-y: auto;
-    overflow-x: hidden;
   }
 
-  .cah-layer-item {
-    width: 100%;
-    min-width: 0;
+  .cah-description-control {
+    grid-column: span 1;
   }
 }
 
 @media (max-height: 740px) and (max-width: 820px) {
-  .cah-canvas-panel {
+  .cah-submit-drawer {
     display: none;
   }
 
-  .cah-submit-panel {
+  .cah-layer-dock {
     display: none;
   }
 
-  .cah-layers-panel {
-    top: 214px;
-    max-height: 190px;
-  }
-
-  .cah-modifier-panel {
+  .cah-brush-settings-panel {
     display: none;
   }
 
-  .cah-brush-panel {
-    width: calc(100vw - 14px);
-  }
-
-  .cah-nav-gizmo {
-    top: 84px;
+  .cah-left-rail {
+    top: auto;
+    bottom: 8px;
+    width: calc(100vw - 156px);
   }
 }
