@@ -25,6 +25,7 @@
           <div class="cah-header-actions">
             <button id="clearCanvasBtn" type="button">Clear</button>
             <button id="savePngBtn" type="button">Save</button>
+            <button id="resetPanelsBtn" type="button">Reset Panels</button>
           </div>
         </div>
       </header>
@@ -104,6 +105,11 @@
           <label class="cah-control">
             <span>Opacity <b id="brushOpacityText">100%</b></span>
             <input id="brushOpacity" type="range" min="10" max="100" value="100" />
+          </label>
+
+          <label class="cah-control">
+            <span>Smudge <b id="smudgeStrengthText">45%</b></span>
+            <input id="smudgeStrength" type="range" min="5" max="100" value="45" />
           </label>
         </div>
       </section>
