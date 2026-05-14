@@ -47,11 +47,19 @@
           <button id="undoBtn" type="button">Undo</button>
           <button id="redoBtn" type="button">Redo</button>
         </div>
+
+        <div class="cah-view-buttons">
+          <button id="zoomOutBtn" type="button">−</button>
+          <button id="resetViewBtn" type="button">Reset View</button>
+          <button id="zoomInBtn" type="button">+</button>
+        </div>
       </section>
 
       <section class="cah-main-workspace">
         <section class="cah-canvas-area">
-          <div id="layersContainer" class="cah-layer-stack"></div>
+          <div id="canvasViewport" class="cah-canvas-viewport">
+            <div id="layersContainer" class="cah-layer-stack"></div>
+          </div>
         </section>
 
         <aside class="cah-layers-panel">
