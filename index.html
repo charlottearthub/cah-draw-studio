@@ -17,117 +17,222 @@
         </div>
       </section>
 
-      <header class="cah-floating-header cah-panel cah-topbar" data-panel="header">
-        <button class="cah-panel-min" data-min-panel="header" type="button">-</button>
-        <div class="cah-panel-content cah-topbar-inner">
-          <div class="cah-brand-block">
-            <div class="cah-kicker">Charlotte Art Hub</div>
-            <h1>Draw Studio</h1>
+      <header class="cah-app-bar cah-panel" data-panel="header">
+        <div class="cah-project-block">
+          <button id="toggleUiBtn" class="cah-icon-button" type="button">☰</button>
+          <div>
+            <h1>CAH Draw Studio</h1>
+            <span>Autosaved locally</span>
           </div>
-          <div class="cah-header-actions">
-            <button id="undoBtn" type="button">Undo</button>
-            <button id="redoBtn" type="button">Redo</button>
-            <button id="savePngBtn" type="button">Save PNG</button>
-            <button id="openSubmitModalBtn" class="cah-submit-top-btn" type="button">Submit</button>
-            <button id="clearCanvasBtn" type="button">Clear</button>
-            <button id="resetPanelsBtn" type="button">Reset UI</button>
-          </div>
+        </div>
+
+        <div class="cah-header-actions">
+          <button id="undoBtn" type="button">Undo</button>
+          <button id="redoBtn" type="button">Redo</button>
+          <button id="savePngBtn" type="button">Save PNG</button>
+          <button id="openSubmitModalBtn" class="cah-submit-top-btn" type="button">Submit</button>
+          <button id="clearCanvasBtn" type="button">Clear</button>
+          <button id="resetPanelsBtn" type="button">Reset UI</button>
         </div>
       </header>
 
-      <button id="toggleUiBtn" class="cah-ui-toggle" type="button">Hide UI</button>
+      <nav class="cah-tool-rail cah-panel" aria-label="Tools">
+        <button id="drawToolBtn" class="cah-tool-button active" data-tool-mode="draw" type="button">
+          <span>🖌</span>
+          <b>Brush</b>
+        </button>
+        <button id="eraserToolBtn" class="cah-tool-button" data-tool-mode="erase" type="button">
+          <span>▱</span>
+          <b>Eraser</b>
+        </button>
+        <button class="cah-tool-button" data-tool-mode="smudge" type="button">
+          <span>●</span>
+          <b>Smudge</b>
+        </button>
+        <button class="cah-tool-button" data-tool-mode="fill" type="button">
+          <span>◈</span>
+          <b>Fill</b>
+        </button>
+        <button class="cah-tool-button" data-tool-mode="shape" type="button">
+          <span>◆</span>
+          <b>Shape</b>
+        </button>
+        <button class="cah-tool-button" data-tool-mode="selection" type="button">
+          <span>◌</span>
+          <b>Select</b>
+        </button>
+        <button class="cah-tool-button" data-tool-mode="transform" type="button">
+          <span>↔</span>
+          <b>Move</b>
+        </button>
+        <button class="cah-tool-button" data-tool-mode="text" type="button">
+          <span>T</span>
+          <b>Text</b>
+        </button>
+        <button class="cah-tool-button" data-tool-mode="eyedropper" type="button">
+          <span>⌖</span>
+          <b>Picker</b>
+        </button>
+        <button class="cah-tool-button" data-tool-mode="zoom" type="button">
+          <span>⌕</span>
+          <b>Zoom</b>
+        </button>
+        <button class="cah-tool-button" data-tool-mode="hand" type="button">
+          <span>✋</span>
+          <b>Hand</b>
+        </button>
+        <button id="railColorButton" class="cah-rail-color" type="button" aria-label="Current color"></button>
+      </nav>
 
-      <section class="cah-brush-panel cah-panel cah-left-rail" data-panel="brushes">
+      <section class="cah-brush-library cah-panel" data-panel="brushes">
         <button class="cah-panel-min" data-min-panel="brushes" type="button">-</button>
-        <div class="cah-panel-title">Tools</div>
-        <div class="cah-panel-content">
-          <label class="cah-control">
-            <span>Brush</span>
-            <select id="brushSelect" class="cah-select">
-              <option value="brush">Brush</option>
-              <option value="ink">Ink</option>
-              <option value="pencil">Pencil</option>
-              <option value="marker">Marker</option>
-              <option value="soft">Soft</option>
-              <option value="watercolor">Wash</option>
-              <option value="charcoal">Charcoal</option>
-              <option value="smudge">Smudge</option>
-              <option value="blend">Blend</option>
-            </select>
-          </label>
-
-          <div class="cah-tool-button-grid cah-mode-grid">
-            <button id="drawToolBtn" class="active" type="button">Draw</button>
-            <button id="eraserToolBtn" type="button">Erase</button>
+        <div class="cah-panel-title">Brush Library</div>
+        <div class="cah-brush-library-grid">
+          <div class="cah-brush-categories">
+            <button class="active" type="button">★ Favorites</button>
+            <button type="button">↺ Recent</button>
+            <button type="button">▴ Sketching</button>
+            <button type="button">▥ Painting</button>
+            <button type="button">▧ Concept</button>
+            <button type="button">▩ Textures</button>
+            <button type="button">△ Abstract</button>
+            <button type="button">▥ Charcoals</button>
+            <button type="button">✦ Elements</button>
+            <button type="button">✱ Spray</button>
           </div>
-
-          <label class="cah-control">
-            <span>Size <b id="brushSizeText">8</b></span>
-            <input id="brushSize" type="range" min="1" max="80" value="8" />
-          </label>
-
-          <label class="cah-control">
-            <span>Opacity <b id="brushOpacityText">100%</b></span>
-            <input id="brushOpacity" type="range" min="5" max="100" value="100" />
-          </label>
-
-          <label id="smudgeStrengthWrap" class="cah-control cah-conditional-control">
-            <span>Smudge <b id="smudgeStrengthText">35%</b></span>
-            <input id="smudgeStrength" type="range" min="5" max="100" value="35" />
-          </label>
-
-          <label id="blendStrengthWrap" class="cah-control cah-conditional-control">
-            <span>Blend <b id="blendStrengthText">45%</b></span>
-            <input id="blendStrength" type="range" min="5" max="100" value="45" />
-          </label>
+          <div class="cah-brush-list">
+            <button class="cah-brush-card active" data-brush="soft" type="button">
+              <span>Cloud Soft</span><i class="stroke stroke-soft"></i>
+            </button>
+            <button class="cah-brush-card" data-brush="ink" type="button">
+              <span>Liner Sharp</span><i class="stroke stroke-ink"></i>
+            </button>
+            <button class="cah-brush-card" data-brush="charcoal" type="button">
+              <span>Rocky Detail</span><i class="stroke stroke-charcoal"></i>
+            </button>
+            <button class="cah-brush-card" data-brush="marker" type="button">
+              <span>Grass Brush</span><i class="stroke stroke-marker"></i>
+            </button>
+            <button class="cah-brush-card" data-brush="blend" type="button">
+              <span>Bristle Blend</span><i class="stroke stroke-blend"></i>
+            </button>
+            <button class="cah-brush-card" data-brush="pencil" type="button">
+              <span>Sketch Pencil</span><i class="stroke stroke-pencil"></i>
+            </button>
+            <button class="cah-brush-card" data-brush="watercolor" type="button">
+              <span>Water Wash</span><i class="stroke stroke-water"></i>
+            </button>
+            <button class="cah-brush-card" data-brush="smudge" type="button">
+              <span>Smudge Mix</span><i class="stroke stroke-smudge"></i>
+            </button>
+          </div>
         </div>
+        <select id="brushSelect" class="cah-hidden-select" aria-hidden="true">
+          <option value="brush">Brush</option>
+          <option value="ink">Ink</option>
+          <option value="pencil">Pencil</option>
+          <option value="marker">Marker</option>
+          <option value="soft">Soft</option>
+          <option value="watercolor">Wash</option>
+          <option value="charcoal">Charcoal</option>
+          <option value="smudge">Smudge</option>
+          <option value="blend">Blend</option>
+        </select>
       </section>
 
-      <section class="cah-color-panel cah-panel cah-right-panel" data-panel="color">
-        <button class="cah-panel-min" data-min-panel="color" type="button">-</button>
-        <div class="cah-panel-title">Color</div>
-        <div class="cah-panel-content">
-          <label class="cah-control cah-color-control">
-            <span>Picker</span>
-            <input id="colorPicker" type="color" value="#111111" />
-          </label>
-          <div id="colorSwatch" class="cah-color-swatch"></div>
-        </div>
+      <section class="cah-brush-settings cah-panel" data-panel="settings">
+        <button class="cah-panel-min" data-min-panel="settings" type="button">-</button>
+        <div class="cah-panel-title">Brush Settings</div>
+        <div class="cah-brush-preview"></div>
+        <label class="cah-control">
+          <span>Size <b id="brushSizeText">8</b></span>
+          <input id="brushSize" type="range" min="1" max="180" value="8" />
+        </label>
+        <label class="cah-control">
+          <span>Opacity <b id="brushOpacityText">100%</b></span>
+          <input id="brushOpacity" type="range" min="5" max="100" value="100" />
+        </label>
+        <label class="cah-control">
+          <span>Flow <b id="brushFlowText">100%</b></span>
+          <input id="brushFlow" type="range" min="5" max="100" value="100" />
+        </label>
+        <label class="cah-control">
+          <span>Spacing <b id="brushSpacingText">12%</b></span>
+          <input id="brushSpacing" type="range" min="1" max="60" value="12" />
+        </label>
+        <label id="smudgeStrengthWrap" class="cah-control cah-conditional-control">
+          <span>Smudge <b id="smudgeStrengthText">35%</b></span>
+          <input id="smudgeStrength" type="range" min="5" max="100" value="35" />
+        </label>
+        <label id="blendStrengthWrap" class="cah-control cah-conditional-control">
+          <span>Blend <b id="blendStrengthText">45%</b></span>
+          <input id="blendStrength" type="range" min="5" max="100" value="45" />
+        </label>
+        <button id="resetBrushSettingsBtn" type="button">Reset</button>
       </section>
 
-      <aside class="cah-layers-panel cah-panel cah-right-panel cah-layer-dock" data-panel="layers">
+      <aside class="cah-layers-panel cah-panel" data-panel="layers">
         <button class="cah-panel-min" data-min-panel="layers" type="button">-</button>
-        <div class="cah-panel-title">Layers</div>
-        <div class="cah-panel-content">
-          <div id="layersList" class="cah-layers-list"></div>
+        <div class="cah-panel-title-row">
+          <div class="cah-panel-title">Layers</div>
+          <button id="addLayerTopBtn" class="cah-layer-top-add" type="button">+</button>
         </div>
+        <select class="cah-select">
+          <option>Normal</option>
+        </select>
+        <label class="cah-control cah-layer-opacity">
+          <span>Opacity <b>100%</b></span>
+          <input type="range" min="0" max="100" value="100" />
+        </label>
+        <div id="layersList" class="cah-layers-list"></div>
       </aside>
 
-      <section class="cah-canvas-panel cah-panel cah-right-panel cah-canvas-settings-panel" data-panel="canvas">
+      <section class="cah-color-panel cah-panel" data-panel="color">
+        <button class="cah-panel-min" data-min-panel="color" type="button">-</button>
+        <div class="cah-panel-title">Color</div>
+        <div class="cah-color-picker-ui">
+          <div id="colorWheel" class="cah-color-wheel">
+            <div id="colorSquare" class="cah-color-square">
+              <div id="colorSquareHandle" class="cah-color-square-handle"></div>
+            </div>
+            <div id="colorWheelHandle" class="cah-color-wheel-handle"></div>
+          </div>
+          <input id="colorPicker" class="cah-native-color" type="color" value="#111111" />
+          <div class="cah-swatch-row">
+            <button data-swatch="#111111" style="background:#111111" type="button"></button>
+            <button data-swatch="#d8e2ef" style="background:#d8e2ef" type="button"></button>
+            <button data-swatch="#6d94ee" style="background:#6d94ee" type="button"></button>
+            <button data-swatch="#f0a36d" style="background:#f0a36d" type="button"></button>
+            <button data-swatch="#d4df8b" style="background:#d4df8b" type="button"></button>
+            <button data-swatch="#6c5a45" style="background:#6c5a45" type="button"></button>
+            <button data-swatch="#9a6f4f" style="background:#9a6f4f" type="button"></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="cah-canvas-panel cah-panel" data-panel="canvas">
         <button class="cah-panel-min" data-min-panel="canvas" type="button">-</button>
         <div class="cah-panel-title">Canvas</div>
-        <div class="cah-panel-content">
-          <label class="cah-control">
-            <span>Preset</span>
-            <select id="canvasPresetSelect" class="cah-select">
-              <option value="1920x1080">16:9 / 1920x1080</option>
-              <option value="1080x1920">9:16 / 1080x1920</option>
-              <option value="1080x1080">1:1 / 1080x1080</option>
-              <option value="1080x1350">4:5 / 1080x1350</option>
-              <option value="1800x1200">3:2 / 1800x1200</option>
-              <option value="1200x1800">2:3 / 1200x1800</option>
-              <option value="2400x3000">8x10 / 2400x3000</option>
-              <option value="3300x4200">11x14 / 3300x4200</option>
-              <option value="3600x4800">12x16 / 3600x4800</option>
-              <option value="4800x6000">16x20 / 4800x6000</option>
-              <option value="5400x7200">18x24 / 5400x7200</option>
-              <option value="7200x10800">24x36 / 7200x10800</option>
-              <option value="3000x3000">Square / 3000x3000</option>
-              <option value="4000x5000">Portrait / 4000x5000</option>
-            </select>
-          </label>
-          <button id="applyCanvasPresetBtn" type="button">Apply Size</button>
-        </div>
+        <label class="cah-control">
+          <span>Preset</span>
+          <select id="canvasPresetSelect" class="cah-select">
+            <option value="1920x1080">16:9 / 1920x1080</option>
+            <option value="1080x1920">9:16 / 1080x1920</option>
+            <option value="1080x1080">1:1 / 1080x1080</option>
+            <option value="1080x1350">4:5 / 1080x1350</option>
+            <option value="1800x1200">3:2 / 1800x1200</option>
+            <option value="1200x1800">2:3 / 1200x1800</option>
+            <option value="2400x3000">8x10 / 2400x3000</option>
+            <option value="3300x4200">11x14 / 3300x4200</option>
+            <option value="3600x4800">12x16 / 3600x4800</option>
+            <option value="4800x6000">16x20 / 4800x6000</option>
+            <option value="5400x7200">18x24 / 5400x7200</option>
+            <option value="7200x10800">24x36 / 7200x10800</option>
+            <option value="3000x3000">Square / 3000x3000</option>
+            <option value="4000x5000">Portrait / 4000x5000</option>
+          </select>
+        </label>
+        <button id="applyCanvasPresetBtn" type="button">Apply Size</button>
       </section>
 
       <section id="navGizmo" class="cah-nav-gizmo cah-panel" data-panel="gizmo" aria-label="Canvas navigation gizmo">
@@ -157,11 +262,9 @@
             </div>
             <button id="closeSubmitModalBtn" class="cah-modal-close" type="button">x</button>
           </div>
-
           <div class="cah-submit-preview-wrap">
             <canvas id="submitPreviewCanvas" class="cah-submit-preview" width="320" height="180"></canvas>
           </div>
-
           <div class="cah-submit-grid">
             <label class="cah-control">
               <span>Artist Name</span>
@@ -193,12 +296,10 @@
               <textarea id="submitDescription" class="cah-textarea" maxlength="1000" placeholder="Short description"></textarea>
             </label>
           </div>
-
           <label class="cah-check-row">
             <input id="submitPermission" type="checkbox" />
             <span>I have permission to submit this drawing to Charlotte Art Hub for review.</span>
           </label>
-
           <div class="cah-submit-modal-actions">
             <button id="cancelSubmitModalBtn" type="button">Back to Drawing</button>
             <button id="submitDrawingBtn" class="cah-submit-action" type="button">Submit for Review</button>
