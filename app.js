@@ -22,22 +22,25 @@ const statusText = document.getElementById("statusText");
 
 let layers = [];
 let activeLayerId = null;
-let nextLayerId = 1;
+let nextLayerNumber = 1;
 
-let isDrawing = false;
 let currentTool = "brush";
-let points = [];
+let isDrawing = false;
+
+let lastPoint = null;
+let lastMidPoint = null;
 
 let undoStack = [];
 let redoStack = [];
-const maxHistory = 30;
+
 const maxLayers = 5;
+const maxHistory = 30;
 
 function setStatus(message) {
   statusText.textContent = message;
 }
 
-function getCanvasSize() {
+function getSize() {
   const rect = layersContainer.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
 
@@ -50,8 +53,13 @@ function getCanvasSize() {
   };
 }
 
-function configureContext(layer) {
-  const size = getCanvasSize();
+function setupCanvas(layer) {
+  const size = getSize();
+
+  layer.canvas.width = size.pixelWidth;
+  layer.canvas.height = size.pixelHeight;
+  layer.canvas.style.width = size.cssWidth + "px";
+  layer.canvas.style.height = size.cssHeight + "px";
 
   layer.ctx.setTransform(size.dpr, 0, 0, size.dpr, 0, 0);
   layer.ctx.lineCap = "round";
@@ -62,52 +70,29 @@ function configureContext(layer) {
 function createLayer(name) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
-  const id = "layer-" + nextLayerId++;
 
   const layer = {
-    id,
+    id: "layer-" + Date.now() + "-" + Math.random().toString(16).slice(2),
     name,
     canvas,
     ctx,
     visible: true
   };
 
-  canvas.dataset.layerId = id;
+  canvas.style.position = "absolute";
+  canvas.style.inset = "0";
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+  canvas.style.pointerEvents = "none";
+
   layersContainer.appendChild(canvas);
   layers.push(layer);
 
-  resizeSingleLayer(layer);
-  setActiveLayer(id);
-  renderLayersList();
+  setupCanvas(layer);
+  setActiveLayer(layer.id);
+  renderLayers();
 
   return layer;
-}
-
-function resizeSingleLayer(layer) {
-  const size = getCanvasSize();
-
-  const oldCanvas = document.createElement("canvas");
-  oldCanvas.width = layer.canvas.width;
-  oldCanvas.height = layer.canvas.height;
-
-  if (oldCanvas.width > 0 && oldCanvas.height > 0) {
-    oldCanvas.getContext("2d").drawImage(layer.canvas, 0, 0);
-  }
-
-  layer.canvas.width = size.pixelWidth;
-  layer.canvas.height = size.pixelHeight;
-  layer.canvas.style.width = size.cssWidth + "px";
-  layer.canvas.style.height = size.cssHeight + "px";
-
-  configureContext(layer);
-
-  if (oldCanvas.width > 0 && oldCanvas.height > 0) {
-    layer.ctx.drawImage(oldCanvas, 0, 0, size.cssWidth, size.cssHeight);
-  }
-}
-
-function resizeAllLayers() {
-  layers.forEach(resizeSingleLayer);
 }
 
 function getActiveLayer() {
@@ -116,21 +101,22 @@ function getActiveLayer() {
 
 function setActiveLayer(id) {
   activeLayerId = id;
-  layers.forEach((layer) => {
-    layer.canvas.style.pointerEvents = layer.id === activeLayerId ? "auto" : "none";
+
+  layers.forEach((layer, index) => {
+    layer.canvas.style.zIndex = String(index + 1);
+    layer.canvas.style.display = layer.visible ? "block" : "none";
   });
-  renderLayersList();
+
+  renderLayers();
 }
 
-function renderLayersList() {
+function renderLayers() {
   layersList.innerHTML = "";
 
   [...layers].reverse().forEach((layer) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "cah-layer-item" + (layer.id === activeLayerId ? " active" : "");
-    button.dataset.layerId = layer.id;
-
     button.innerHTML = `
       <span>${layer.name}</span>
       <span class="eye">${layer.visible ? "On" : "Off"}</span>
@@ -154,59 +140,67 @@ function captureState() {
   }));
 }
 
-function saveState() {
-  try {
-    undoStack.push(captureState());
+function saveHistory() {
+  undoStack.push(captureState());
 
-    if (undoStack.length > maxHistory) {
-      undoStack.shift();
-    }
-
-    redoStack = [];
-  } catch (error) {
-    setStatus("History save failed");
+  if (undoStack.length > maxHistory) {
+    undoStack.shift();
   }
+
+  redoStack = [];
 }
 
 function restoreState(snapshot) {
   if (!snapshot) return;
 
-  const loadPromises = snapshot.map((savedLayer, index) => {
-    return new Promise((resolve) => {
-      let layer = layers[index];
+  layersContainer.innerHTML = "";
+  layers = [];
 
-      if (!layer) {
-        layer = createLayer(savedLayer.name || "Layer");
+  let loaded = 0;
+
+  snapshot.forEach((savedLayer) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const layer = {
+      id: savedLayer.id,
+      name: savedLayer.name,
+      canvas,
+      ctx,
+      visible: savedLayer.visible
+    };
+
+    canvas.style.position = "absolute";
+    canvas.style.inset = "0";
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.pointerEvents = "none";
+
+    layersContainer.appendChild(canvas);
+    layers.push(layer);
+
+    setupCanvas(layer);
+
+    const image = new Image();
+
+    image.onload = () => {
+      const size = getSize();
+      ctx.clearRect(0, 0, size.cssWidth, size.cssHeight);
+      ctx.drawImage(image, 0, 0, size.cssWidth, size.cssHeight);
+
+      loaded += 1;
+
+      if (loaded === snapshot.length) {
+        if (!layers.find((l) => l.id === activeLayerId) && layers[0]) {
+          activeLayerId = layers[0].id;
+        }
+
+        setActiveLayer(activeLayerId);
+        renderLayers();
       }
+    };
 
-      layer.name = savedLayer.name;
-      layer.visible = savedLayer.visible;
-
-      const image = new Image();
-      image.onload = () => {
-        const size = getCanvasSize();
-
-        layer.ctx.clearRect(0, 0, size.cssWidth, size.cssHeight);
-        layer.ctx.drawImage(image, 0, 0, size.cssWidth, size.cssHeight);
-        layer.canvas.style.display = layer.visible ? "block" : "none";
-        resolve();
-      };
-
-      image.src = savedLayer.data;
-    });
-  });
-
-  Promise.all(loadPromises).then(() => {
-    while (layers.length > snapshot.length) {
-      const layer = layers.pop();
-      layer.canvas.remove();
-    }
-
-    if (!layers.find((layer) => layer.id === activeLayerId) && layers[0]) {
-      activeLayerId = layers[0].id;
-    }
-
-    renderLayersList();
+    image.src = savedLayer.data;
   });
 }
 
@@ -217,8 +211,7 @@ function undo() {
   }
 
   redoStack.push(captureState());
-  const previous = undoStack.pop();
-  restoreState(previous);
+  restoreState(undoStack.pop());
   setStatus("Undo");
 }
 
@@ -229,8 +222,7 @@ function redo() {
   }
 
   undoStack.push(captureState());
-  const next = redoStack.pop();
-  restoreState(next);
+  restoreState(redoStack.pop());
   setStatus("Redo");
 }
 
@@ -243,22 +235,95 @@ function getPoint(event) {
   };
 }
 
+function midpoint(a, b) {
+  return {
+    x: (a.x + b.x) / 2,
+    y: (a.y + b.y) / 2
+  };
+}
+
+function prepareBrush(ctx) {
+  const size = Number(brushSize.value);
+  const opacity = Number(brushOpacity.value) / 100;
+
+  ctx.globalAlpha = opacity;
+  ctx.lineWidth = size;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  if (currentTool === "eraser") {
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.strokeStyle = "rgba(0,0,0,1)";
+    ctx.fillStyle = "rgba(0,0,0,1)";
+  } else {
+    ctx.globalCompositeOperation = "source-over";
+    ctx.strokeStyle = colorPicker.value;
+    ctx.fillStyle = colorPicker.value;
+  }
+}
+
+function finishBrush(ctx) {
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+}
+
+function drawSmoothPoint(point) {
+  const layer = getActiveLayer();
+
+  if (!layer || !layer.visible) return;
+
+  const ctx = layer.ctx;
+  prepareBrush(ctx);
+
+  if (!lastPoint) {
+    lastPoint = point;
+    lastMidPoint = point;
+
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, Number(brushSize.value) / 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    finishBrush(ctx);
+    return;
+  }
+
+  const mid = midpoint(lastPoint, point);
+
+  ctx.beginPath();
+  ctx.moveTo(lastMidPoint.x, lastMidPoint.y);
+  ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, mid.x, mid.y);
+  ctx.stroke();
+
+  lastPoint = point;
+  lastMidPoint = mid;
+
+  finishBrush(ctx);
+}
+
 function startDrawing(event) {
   event.preventDefault();
 
-  const activeLayer = getActiveLayer();
+  const layer = getActiveLayer();
 
-  if (!activeLayer || !activeLayer.visible) {
+  if (!layer) {
+    setStatus("No active layer");
+    return;
+  }
+
+  if (!layer.visible) {
     setStatus("Active layer is hidden");
     return;
   }
 
-  saveState();
+  saveHistory();
 
   isDrawing = true;
-  points = [getPoint(event)];
+  lastPoint = null;
+  lastMidPoint = null;
 
-  activeLayer.ctx.beginPath();
+  layersContainer.setPointerCapture?.(event.pointerId);
+
+  drawSmoothPoint(getPoint(event));
 }
 
 function draw(event) {
@@ -266,13 +331,13 @@ function draw(event) {
 
   event.preventDefault();
 
-  const activeLayer = getActiveLayer();
-  if (!activeLayer) return;
+  const events = typeof event.getCoalescedEvents === "function"
+    ? event.getCoalescedEvents()
+    : [event];
 
-  const point = getPoint(event);
-  points.push(point);
-
-  drawSmoothStroke(activeLayer);
+  events.forEach((pointerEvent) => {
+    drawSmoothPoint(getPoint(pointerEvent));
+  });
 }
 
 function stopDrawing(event) {
@@ -280,81 +345,11 @@ function stopDrawing(event) {
 
   event.preventDefault();
 
-  const activeLayer = getActiveLayer();
-
-  if (activeLayer && points.length === 1) {
-    drawDot(activeLayer, points[0]);
-  }
-
-  if (activeLayer) {
-    activeLayer.ctx.beginPath();
-  }
-
   isDrawing = false;
-  points = [];
+  lastPoint = null;
+  lastMidPoint = null;
+
   setStatus("Saved stroke");
-}
-
-function prepareBrush(layer) {
-  const size = Number(brushSize.value);
-  const opacity = Number(brushOpacity.value) / 100;
-
-  layer.ctx.globalAlpha = opacity;
-  layer.ctx.lineWidth = size;
-
-  if (currentTool === "eraser") {
-    layer.ctx.globalCompositeOperation = "destination-out";
-    layer.ctx.strokeStyle = "rgba(0,0,0,1)";
-    layer.ctx.fillStyle = "rgba(0,0,0,1)";
-  } else {
-    layer.ctx.globalCompositeOperation = "source-over";
-    layer.ctx.strokeStyle = colorPicker.value;
-    layer.ctx.fillStyle = colorPicker.value;
-  }
-
-  layer.ctx.lineCap = "round";
-  layer.ctx.lineJoin = "round";
-}
-
-function drawSmoothStroke(layer) {
-  if (points.length < 3) return;
-
-  prepareBrush(layer);
-
-  const p0 = points[points.length - 3];
-  const p1 = points[points.length - 2];
-  const p2 = points[points.length - 1];
-
-  const mid1 = {
-    x: (p0.x + p1.x) / 2,
-    y: (p0.y + p1.y) / 2
-  };
-
-  const mid2 = {
-    x: (p1.x + p2.x) / 2,
-    y: (p1.y + p2.y) / 2
-  };
-
-  layer.ctx.beginPath();
-  layer.ctx.moveTo(mid1.x, mid1.y);
-  layer.ctx.quadraticCurveTo(p1.x, p1.y, mid2.x, mid2.y);
-  layer.ctx.stroke();
-
-  layer.ctx.globalAlpha = 1;
-  layer.ctx.globalCompositeOperation = "source-over";
-}
-
-function drawDot(layer, point) {
-  prepareBrush(layer);
-
-  const radius = Number(brushSize.value) / 2;
-
-  layer.ctx.beginPath();
-  layer.ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-  layer.ctx.fill();
-
-  layer.ctx.globalAlpha = 1;
-  layer.ctx.globalCompositeOperation = "source-over";
 }
 
 function setTool(tool) {
@@ -372,9 +367,11 @@ function addLayer() {
     return;
   }
 
-  saveState();
+  saveHistory();
 
-  const layer = createLayer("Layer " + (layers.length + 1));
+  const layer = createLayer("Layer " + nextLayerNumber);
+  nextLayerNumber += 1;
+
   setActiveLayer(layer.id);
   setStatus(layer.name + " added");
 }
@@ -388,13 +385,12 @@ function deleteLayer() {
   const activeLayer = getActiveLayer();
   if (!activeLayer) return;
 
-  saveState();
+  saveHistory();
 
   activeLayer.canvas.remove();
   layers = layers.filter((layer) => layer.id !== activeLayer.id);
 
   setActiveLayer(layers[layers.length - 1].id);
-  renderLayersList();
   setStatus("Layer deleted");
 }
 
@@ -402,19 +398,19 @@ function toggleLayerVisibility() {
   const activeLayer = getActiveLayer();
   if (!activeLayer) return;
 
-  saveState();
+  saveHistory();
 
   activeLayer.visible = !activeLayer.visible;
   activeLayer.canvas.style.display = activeLayer.visible ? "block" : "none";
 
-  renderLayersList();
+  renderLayers();
   setStatus(activeLayer.visible ? "Layer shown" : "Layer hidden");
 }
 
 function clearCanvas() {
-  saveState();
+  saveHistory();
 
-  const size = getCanvasSize();
+  const size = getSize();
 
   layers.forEach((layer) => {
     layer.ctx.clearRect(0, 0, size.cssWidth, size.cssHeight);
@@ -424,7 +420,7 @@ function clearCanvas() {
 }
 
 function savePng() {
-  const size = getCanvasSize();
+  const size = getSize();
 
   const exportCanvas = document.createElement("canvas");
   const exportCtx = exportCanvas.getContext("2d");
@@ -446,6 +442,16 @@ function savePng() {
   link.click();
 
   setStatus("PNG saved");
+}
+
+function resizeLayers() {
+  const snapshots = captureState();
+
+  layers.forEach((layer) => {
+    setupCanvas(layer);
+  });
+
+  restoreState(snapshots);
 }
 
 brushSize.addEventListener("input", () => {
@@ -474,8 +480,13 @@ layersContainer.addEventListener("pointerup", stopDrawing);
 layersContainer.addEventListener("pointercancel", stopDrawing);
 layersContainer.addEventListener("pointerleave", stopDrawing);
 
-window.addEventListener("resize", resizeAllLayers);
+window.addEventListener("resize", () => {
+  if (layers.length > 0) {
+    resizeLayers();
+  }
+});
 
 createLayer("Layer 1");
+nextLayerNumber = 2;
 setTool("brush");
 setStatus("Ready");
