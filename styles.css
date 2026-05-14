@@ -1066,3 +1066,9 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
   user-select: none !important;
   -webkit-touch-callout: none !important;
 }
+.cah-submit-drawer {
+  left: auto !important;
+  right: 12px !important;
+  bottom: 12px !important;
+  transform: none !important;
+}
