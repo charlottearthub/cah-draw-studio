@@ -16,11 +16,7 @@ body {
   width: 100vw;
   height: 100vh;
   color: #f7f4ed;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.055), transparent 28%),
-    radial-gradient(circle at 18% 18%, rgba(242, 184, 75, 0.08), transparent 26%),
-    radial-gradient(circle at 84% 14%, rgba(232, 107, 47, 0.06), transparent 25%),
-    linear-gradient(180deg, #151515 0%, #070707 100%);
+  background: linear-gradient(180deg, #111 0%, #050505 100%);
   overflow: hidden;
 }
 
@@ -40,10 +36,10 @@ textarea {
 
 button {
   appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)),
-    rgba(18, 18, 18, 0.88);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015)),
+    rgba(18, 18, 18, 0.72);
   color: #f7f4ed;
   border-radius: 6px;
   padding: 6px 8px;
@@ -54,14 +50,14 @@ button {
   user-select: none;
   touch-action: manipulation;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 8px 18px rgba(0, 0, 0, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 5px 14px rgba(0, 0, 0, 0.16);
 }
 
 button:hover {
-  border-color: rgba(242, 184, 75, 0.34);
+  border-color: rgba(105, 151, 240, 0.38);
   background:
-    linear-gradient(180deg, rgba(242, 184, 75, 0.12), rgba(255, 255, 255, 0.025)),
+    linear-gradient(180deg, rgba(105, 151, 240, 0.14), rgba(255, 255, 255, 0.025)),
     rgba(22, 22, 22, 0.92);
 }
 
@@ -70,9 +66,11 @@ button:active {
 }
 
 button.active {
-  background: linear-gradient(135deg, #f2b84b, #e86b2f);
-  color: #211411;
-  border-color: rgba(242, 184, 75, 0.75);
+  background:
+    linear-gradient(180deg, rgba(81, 130, 226, 0.88), rgba(43, 78, 154, 0.88)),
+    rgba(25, 25, 25, 0.9);
+  color: #f7faff;
+  border-color: rgba(105, 151, 240, 0.78);
 }
 
 button:disabled {
@@ -149,20 +147,20 @@ button:disabled {
 .cah-panel {
   position: absolute;
   z-index: 24;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.105);
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.095);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)),
-    rgba(14, 14, 14, 0.78);
-  backdrop-filter: blur(18px) saturate(1.25);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.018)),
+    rgba(18, 18, 18, 0.74);
+  backdrop-filter: blur(20px) saturate(1.12);
   box-shadow:
-    0 18px 50px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 16px 44px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .cah-panel.is-moving,
 .cah-nav-gizmo.is-moving {
-  outline: 2px solid rgba(242, 184, 75, 0.72);
+  outline: 2px solid rgba(105, 151, 240, 0.72);
 }
 
 .cah-panel-min {
@@ -181,10 +179,10 @@ button:disabled {
 }
 
 .cah-panel-title {
-  color: #f2b84b;
+  color: rgba(247, 244, 237, 0.82);
   font-size: 9px;
   font-weight: 900;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 6px;
   padding-right: 24px;
@@ -195,12 +193,12 @@ button:disabled {
 }
 
 .cah-topbar {
-  top: 12px;
-  left: 12px;
-  right: 92px;
+  top: 10px;
+  left: 58px;
+  right: 58px;
   width: auto;
   min-height: 48px;
-  padding: 7px 34px 7px 10px;
+  padding: 7px 34px 7px 12px;
   transform: none;
 }
 
@@ -216,7 +214,7 @@ button:disabled {
 }
 
 .cah-kicker {
-  color: #f2b84b;
+  color: rgba(160, 188, 245, 0.94);
   font-size: 7px;
   font-weight: 900;
   letter-spacing: 0.18em;
@@ -228,7 +226,7 @@ button:disabled {
 .cah-floating-header h1,
 .cah-submit-modal-card h2 {
   margin: 0;
-  font-size: clamp(17px, 2.5vw, 24px);
+  font-size: clamp(16px, 2.2vw, 21px);
   line-height: 1;
   letter-spacing: 0.02em;
 }
@@ -246,9 +244,11 @@ button:disabled {
 }
 
 .cah-submit-top-btn {
-  background: linear-gradient(135deg, #f2b84b, #e86b2f);
-  color: #211411;
-  border-color: rgba(242, 184, 75, 0.8);
+  background:
+    linear-gradient(180deg, rgba(81, 130, 226, 0.92), rgba(43, 78, 154, 0.92)),
+    rgba(20, 20, 20, 0.9);
+  color: #f7faff;
+  border-color: rgba(105, 151, 240, 0.78);
 }
 
 .cah-ui-toggle {
@@ -257,17 +257,17 @@ button:disabled {
   top: 18px;
   right: 16px;
   border-radius: 999px;
-  border-color: rgba(242, 184, 75, 0.24);
+  border-color: rgba(105, 151, 240, 0.28);
   background:
-    linear-gradient(135deg, rgba(242, 184, 75, 0.18), rgba(232, 107, 47, 0.08)),
+    linear-gradient(180deg, rgba(105, 151, 240, 0.18), rgba(255, 255, 255, 0.04)),
     rgba(10, 10, 10, 0.82);
   backdrop-filter: blur(14px);
 }
 
 .cah-left-rail {
-  left: 14px;
-  top: 96px;
-  width: 148px;
+  left: 10px;
+  top: 70px;
+  width: 174px;
   padding: 10px 32px 10px 10px;
 }
 
@@ -279,22 +279,25 @@ button:disabled {
 }
 
 .cah-right-panel {
-  right: 14px;
-  width: 204px;
+  right: 10px;
+  width: 226px;
   padding: 10px 32px 10px 10px;
 }
 
 .cah-color-panel {
-  top: 96px;
+  bottom: 14px;
 }
 
 .cah-layer-dock {
-  top: 218px;
-  max-height: 300px;
+  top: 70px;
+  max-height: 390px;
 }
 
 .cah-canvas-settings-panel {
-  bottom: 18px;
+  left: 10px;
+  bottom: 14px;
+  right: auto;
+  width: 174px;
 }
 
 .cah-select,
@@ -316,7 +319,7 @@ button:disabled {
 .cah-select:focus,
 .cah-text-input:focus,
 .cah-textarea:focus {
-  border-color: rgba(242, 184, 75, 0.58);
+  border-color: rgba(105, 151, 240, 0.58);
 }
 
 .cah-select,
@@ -349,12 +352,12 @@ button:disabled {
 }
 
 .cah-control b {
-  color: #f2b84b;
+  color: rgba(160, 188, 245, 0.96);
 }
 
 .cah-control input[type="range"] {
   width: 100%;
-  accent-color: #f2b84b;
+  accent-color: #6d94ee;
 }
 
 .cah-color-control input[type="color"] {
@@ -430,16 +433,16 @@ body.cah-submit-child .cah-guardian-wrap {
 }
 
 .cah-layer-item.active {
-  border-color: rgba(242, 184, 75, 0.7);
+  border-color: rgba(105, 151, 240, 0.72);
   background:
-    linear-gradient(180deg, rgba(242, 184, 75, 0.16), rgba(232, 107, 47, 0.07)),
+    linear-gradient(180deg, rgba(81, 130, 226, 0.32), rgba(40, 70, 135, 0.20)),
     rgba(5, 5, 5, 0.42);
 }
 
 .cah-layer-check {
   width: 15px;
   height: 15px;
-  accent-color: #f2b84b;
+  accent-color: #6d94ee;
 }
 
 .cah-layer-name {
@@ -472,24 +475,24 @@ body.cah-submit-child .cah-guardian-wrap {
 .cah-nav-gizmo {
   position: absolute;
   z-index: 40;
-  left: 14px;
-  bottom: 18px;
-  width: 140px;
-  height: 140px;
+  left: 196px;
+  bottom: 14px;
+  width: 126px;
+  height: 126px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background:
-    radial-gradient(circle at center, rgba(242, 184, 75, 0.16), transparent 37%),
+    radial-gradient(circle at center, rgba(105, 151, 240, 0.18), transparent 37%),
     conic-gradient(
       from -22.5deg,
-      rgba(242, 184, 75, 0.12) 0deg 45deg,
-      rgba(232, 107, 47, 0.08) 45deg 90deg,
+      rgba(105, 151, 240, 0.11) 0deg 45deg,
+      rgba(255, 255, 255, 0.045) 45deg 90deg,
       rgba(255, 255, 255, 0.055) 90deg 135deg,
-      rgba(242, 184, 75, 0.12) 135deg 180deg,
-      rgba(232, 107, 47, 0.08) 180deg 225deg,
+      rgba(105, 151, 240, 0.11) 135deg 180deg,
+      rgba(255, 255, 255, 0.045) 180deg 225deg,
       rgba(255, 255, 255, 0.055) 225deg 270deg,
-      rgba(242, 184, 75, 0.12) 270deg 315deg,
-      rgba(232, 107, 47, 0.08) 315deg 360deg
+      rgba(105, 151, 240, 0.11) 270deg 315deg,
+      rgba(255, 255, 255, 0.045) 315deg 360deg
     ),
     rgba(14, 14, 14, 0.78);
   backdrop-filter: blur(18px);
@@ -510,8 +513,8 @@ body.cah-submit-child .cah-guardian-wrap {
   position: absolute;
   min-width: 0;
   padding: 0;
-  height: 27px;
-  width: 32px;
+  height: 25px;
+  width: 30px;
   font-size: 11px;
   border-radius: 6px;
   background:
@@ -524,34 +527,34 @@ body.cah-submit-child .cah-guardian-wrap {
 .cah-gizmo-center {
   left: 50%;
   top: 50%;
-  width: 48px !important;
-  height: 48px !important;
+  width: 42px !important;
+  height: 42px !important;
   transform: translate(-50%, -50%);
   border-radius: 8px !important;
   color: #211411;
-  background: linear-gradient(135deg, #f2b84b, #e86b2f) !important;
-  border-color: rgba(242, 184, 75, 0.85);
+  background: linear-gradient(180deg, #6d94ee, #2f5fb8) !important;
+  border-color: rgba(105, 151, 240, 0.85);
   font-size: 8px !important;
   cursor: move;
 }
 
-.cah-gizmo-up { left: 54px; top: 8px; }
-.cah-gizmo-right { right: 8px; top: 57px; }
-.cah-gizmo-down { left: 54px; bottom: 8px; }
-.cah-gizmo-left { left: 8px; top: 57px; }
-.cah-gizmo-zoom-in { right: 16px; top: 18px; }
-.cah-gizmo-zoom-out { left: 16px; bottom: 18px; }
-.cah-gizmo-rotate-left { left: 16px; top: 18px; }
-.cah-gizmo-rotate-right { right: 16px; bottom: 18px; }
+.cah-gizmo-up { left: 48px; top: 7px; }
+.cah-gizmo-right { right: 7px; top: 50px; }
+.cah-gizmo-down { left: 48px; bottom: 7px; }
+.cah-gizmo-left { left: 7px; top: 50px; }
+.cah-gizmo-zoom-in { right: 14px; top: 16px; }
+.cah-gizmo-zoom-out { left: 14px; bottom: 16px; }
+.cah-gizmo-rotate-left { left: 14px; top: 16px; }
+.cah-gizmo-rotate-right { right: 14px; bottom: 16px; }
 
 .cah-gizmo-reset {
   left: 50%;
-  bottom: 35px;
-  width: 44px !important;
-  height: 21px !important;
+  bottom: 31px;
+  width: 39px !important;
+  height: 19px !important;
   transform: translateX(-50%);
   font-size: 8px !important;
-  color: #f2b84b;
+  color: rgba(160, 188, 245, 0.96);
   background: rgba(10, 10, 10, 0.70) !important;
 }
 
@@ -585,8 +588,8 @@ body.cah-submit-modal-open .cah-submit-modal {
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.13);
   background:
-    radial-gradient(circle at 12% 10%, rgba(242, 184, 75, 0.12), transparent 26%),
-    radial-gradient(circle at 88% 5%, rgba(232, 107, 47, 0.10), transparent 24%),
+    radial-gradient(circle at 12% 10%, rgba(105, 151, 240, 0.12), transparent 26%),
+    radial-gradient(circle at 88% 5%, rgba(255, 255, 255, 0.08), transparent 24%),
     linear-gradient(180deg, rgba(28, 28, 28, 0.96), rgba(9, 9, 9, 0.96));
   box-shadow: 0 28px 100px rgba(0, 0, 0, 0.62);
   padding: 16px;
@@ -664,7 +667,7 @@ body.cah-submit-modal-open .cah-submit-modal {
 .cah-check-row input {
   width: 16px;
   height: 16px;
-  accent-color: #f2b84b;
+  accent-color: #6d94ee;
   margin-top: 1px;
 }
 
@@ -676,15 +679,15 @@ body.cah-submit-modal-open .cah-submit-modal {
 
 .cah-submit-action {
   background:
-    linear-gradient(135deg, rgba(242, 184, 75, 0.98), rgba(232, 107, 47, 0.96));
-  color: #211411;
-  border-color: rgba(242, 184, 75, 0.8);
+    linear-gradient(180deg, rgba(81, 130, 226, 0.98), rgba(43, 78, 154, 0.96));
+  color: #f7faff;
+  border-color: rgba(105, 151, 240, 0.8);
 }
 
 .cah-submit-status {
   min-height: 18px;
   margin-top: 8px;
-  color: #f2b84b;
+  color: rgba(160, 188, 245, 0.96);
   font-size: 10px;
   line-height: 1.35;
   font-weight: 800;
@@ -739,7 +742,7 @@ body.cah-panel-layers-minimized .cah-layers-panel .cah-panel-content {
 
 body.cah-panel-header-minimized .cah-floating-header::before {
   content: "Header";
-  color: #f2b84b;
+  color: rgba(160, 188, 245, 0.96);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.12em;
