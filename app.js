@@ -540,54 +540,7 @@ function drawCharcoalTexture(ctx, point) {
   ctx.restore();
 }
 
-function createSmudgeStamp(sourceCanvas, sampleX, sampleY, sampleSize, radius, strength) {
-  const tempCanvas = document.createElement("canvas");
-  const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
-
-  tempCanvas.width = sampleSize;
-  tempCanvas.height = sampleSize;
-
-  tempCtx.drawImage(
-    sourceCanvas,
-    sampleX,
-    sampleY,
-    sampleSize,
-    sampleSize,
-    0,
-    0,
-    sampleSize,
-    sampleSize
-  );
-
-  tempCtx.globalCompositeOperation = "destination-in";
-
-  const inner = 0.08 + strength * 0.16;
-  const mid = 0.26 + strength * 0.18;
-  const outer = 0.56 + strength * 0.18;
-
-  const gradient = tempCtx.createRadialGradient(
-    radius,
-    radius,
-    radius * inner,
-    radius,
-    radius,
-    radius
-  );
-
-  gradient.addColorStop(0, "rgba(0,0,0,0.95)");
-  gradient.addColorStop(mid, "rgba(0,0,0,0.58)");
-  gradient.addColorStop(outer, "rgba(0,0,0,0.20)");
-  gradient.addColorStop(1, "rgba(0,0,0,0)");
-
-  tempCtx.fillStyle = gradient;
-  tempCtx.fillRect(0, 0, sampleSize, sampleSize);
-
-  tempCtx.globalCompositeOperation = "source-over";
-
-  return tempCanvas;
-}
-
-function drawSoftRoundSmudge(layer, point) {
+function drawFastSmudge(layer, point) {
   if (!lastPoint) {
     lastPoint = point;
     lastMidPoint = point;
@@ -599,22 +552,22 @@ function drawSoftRoundSmudge(layer, point) {
   const opacity = Number(brushOpacity.value) / 100;
   const strength = Number(smudgeStrength.value) / 100;
 
-  const radius = Math.max(8, Math.floor(size * (0.64 + strength * 0.38)));
+  const radius = Math.max(5, Math.floor(size * (0.42 + strength * 0.22)));
   const sampleSize = radius * 2;
 
   const movementX = point.x - lastPoint.x;
   const movementY = point.y - lastPoint.y;
   const distance = Math.hypot(movementX, movementY);
-  const steps = Math.max(1, Math.ceil(distance / Math.max(2, radius * 0.26)));
 
-  const dragLag = 0.16 + strength * 0.58;
-  const alpha = opacity * (0.08 + strength * 0.34);
-  const blur = 0.8 + strength * 1.6;
+  const steps = Math.max(1, Math.min(5, Math.ceil(distance / Math.max(8, radius * 1.15))));
+  const dragLag = 0.12 + strength * 0.38;
+  const alpha = opacity * (0.08 + strength * 0.24);
 
   ctx.save();
   ctx.globalCompositeOperation = "source-over";
   ctx.globalAlpha = alpha;
-  ctx.filter = `blur(${blur}px)`;
+  ctx.imageSmoothingEnabled = true;
+  ctx.filter = "none";
 
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
@@ -631,10 +584,27 @@ function drawSoftRoundSmudge(layer, point) {
     const drawY = Math.floor(currentY - radius);
 
     try {
-      const stamp = createSmudgeStamp(layer.canvas, sampleX, sampleY, sampleSize, radius, strength);
-      ctx.drawImage(stamp, drawX, drawY, sampleSize, sampleSize);
+      ctx.save();
+
+      ctx.beginPath();
+      ctx.arc(currentX, currentY, radius, 0, Math.PI * 2);
+      ctx.clip();
+
+      ctx.drawImage(
+        layer.canvas,
+        sampleX,
+        sampleY,
+        sampleSize,
+        sampleSize,
+        drawX,
+        drawY,
+        sampleSize,
+        sampleSize
+      );
+
+      ctx.restore();
     } catch (error) {
-      /* ignore edge reads */
+      ctx.restore();
     }
   }
 
@@ -650,7 +620,7 @@ function drawSmoothPoint(point) {
   if (!layer || !layer.visible) return;
 
   if (currentTool === "smudge") {
-    drawSoftRoundSmudge(layer, point);
+    drawFastSmudge(layer, point);
     return;
   }
 
