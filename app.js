@@ -34,6 +34,12 @@ const addLayerBtn = document.getElementById("addLayerBtn");
 const deleteLayerBtn = document.getElementById("deleteLayerBtn");
 const layersList = document.getElementById("layersList");
 
+const shell = document.querySelector(".cah-draw-shell");
+const headerPanel = document.querySelector(".cah-floating-header");
+const brushPanel = document.querySelector(".cah-brush-panel");
+const modifierPanel = document.querySelector(".cah-modifier-panel");
+const layersPanel = document.querySelector(".cah-layers-panel");
+
 let layers = [];
 let activeLayerId = null;
 let nextLayerNumber = 1;
@@ -55,9 +61,9 @@ let rotateLastPoint = null;
 let undoStack = [];
 let redoStack = [];
 
-let isDraggingGizmo = false;
-let gizmoPointerId = null;
-let gizmoOffset = null;
+let activeMovingPanel = null;
+let movingPointerId = null;
+let movingOffset = null;
 
 const maxLayers = 5;
 const maxHistory = 30;
@@ -841,86 +847,124 @@ function togglePanelMin(panelName) {
   });
 }
 
-function startGizmoDrag(event) {
+function shouldIgnorePanelDrag(target) {
+  return Boolean(
+    target.closest("button") ||
+    target.closest("input") ||
+    target.closest("select") ||
+    target.closest("textarea") ||
+    target.closest(".cah-layers-list") ||
+    target.closest(".cah-layer-actions") ||
+    target.closest(".cah-mini-button-row")
+  );
+}
+
+function startPanelMove(panel, event) {
+  if (!panel) return;
+  if (event.button !== undefined && event.button !== 0) return;
+  if (shouldIgnorePanelDrag(event.target) && event.target !== gizmoDragHandle) return;
+
   event.preventDefault();
   event.stopPropagation();
 
-  isDraggingGizmo = true;
-  gizmoPointerId = event.pointerId;
+  activeMovingPanel = panel;
+  movingPointerId = event.pointerId;
 
-  const shellRect = document.querySelector(".cah-draw-shell").getBoundingClientRect();
-  const gizmoRect = navGizmo.getBoundingClientRect();
+  const shellRect = shell.getBoundingClientRect();
+  const panelRect = panel.getBoundingClientRect();
 
-  navGizmo.style.left = gizmoRect.left - shellRect.left + "px";
-  navGizmo.style.top = gizmoRect.top - shellRect.top + "px";
-  navGizmo.style.right = "auto";
-  navGizmo.style.bottom = "auto";
+  panel.style.left = panelRect.left - shellRect.left + "px";
+  panel.style.top = panelRect.top - shellRect.top + "px";
+  panel.style.right = "auto";
+  panel.style.bottom = "auto";
 
-  const updatedRect = navGizmo.getBoundingClientRect();
+  const updatedRect = panel.getBoundingClientRect();
 
-  gizmoOffset = {
+  movingOffset = {
     x: event.clientX - updatedRect.left,
     y: event.clientY - updatedRect.top
   };
 
-  navGizmo.classList.add("is-moving");
+  panel.classList.add("is-moving");
 
-  document.addEventListener("pointermove", moveGizmo, { passive: false });
-  document.addEventListener("pointerup", stopGizmoDrag, { passive: false });
-  document.addEventListener("pointercancel", stopGizmoDrag, { passive: false });
+  document.addEventListener("pointermove", movePanel, { passive: false });
+  document.addEventListener("pointerup", stopPanelMove, { passive: false });
+  document.addEventListener("pointercancel", stopPanelMove, { passive: false });
 
   try {
-    gizmoDragHandle.setPointerCapture(event.pointerId);
+    panel.setPointerCapture(event.pointerId);
   } catch (error) {
     /* pointer capture can fail on some browsers */
   }
 }
 
-function moveGizmo(event) {
-  if (!isDraggingGizmo) return;
-  if (gizmoPointerId !== null && event.pointerId !== gizmoPointerId) return;
+function movePanel(event) {
+  if (!activeMovingPanel) return;
+  if (movingPointerId !== null && event.pointerId !== movingPointerId) return;
 
   event.preventDefault();
 
-  const shellRect = document.querySelector(".cah-draw-shell").getBoundingClientRect();
-  const gizmoRect = navGizmo.getBoundingClientRect();
+  const shellRect = shell.getBoundingClientRect();
+  const panelRect = activeMovingPanel.getBoundingClientRect();
 
   const left = clamp(
-    event.clientX - shellRect.left - gizmoOffset.x,
-    8,
-    shellRect.width - gizmoRect.width - 8
+    event.clientX - shellRect.left - movingOffset.x,
+    4,
+    shellRect.width - panelRect.width - 4
   );
 
   const top = clamp(
-    event.clientY - shellRect.top - gizmoOffset.y,
-    8,
-    shellRect.height - gizmoRect.height - 8
+    event.clientY - shellRect.top - movingOffset.y,
+    4,
+    shellRect.height - panelRect.height - 4
   );
 
-  navGizmo.style.left = left + "px";
-  navGizmo.style.top = top + "px";
-  navGizmo.style.right = "auto";
-  navGizmo.style.bottom = "auto";
+  activeMovingPanel.style.left = left + "px";
+  activeMovingPanel.style.top = top + "px";
+  activeMovingPanel.style.right = "auto";
+  activeMovingPanel.style.bottom = "auto";
 }
 
-function stopGizmoDrag(event) {
-  if (!isDraggingGizmo) return;
+function stopPanelMove(event) {
+  if (!activeMovingPanel) return;
 
-  if (event && gizmoPointerId !== null && event.pointerId !== gizmoPointerId) return;
+  if (event && movingPointerId !== null && event.pointerId !== movingPointerId) return;
 
   if (event) {
     event.preventDefault();
   }
 
-  isDraggingGizmo = false;
-  gizmoPointerId = null;
-  gizmoOffset = null;
+  activeMovingPanel.classList.remove("is-moving");
 
-  navGizmo.classList.remove("is-moving");
+  activeMovingPanel = null;
+  movingPointerId = null;
+  movingOffset = null;
 
-  document.removeEventListener("pointermove", moveGizmo);
-  document.removeEventListener("pointerup", stopGizmoDrag);
-  document.removeEventListener("pointercancel", stopGizmoDrag);
+  document.removeEventListener("pointermove", movePanel);
+  document.removeEventListener("pointerup", stopPanelMove);
+  document.removeEventListener("pointercancel", stopPanelMove);
+}
+
+function wirePanelMovement() {
+  if (headerPanel) {
+    headerPanel.addEventListener("pointerdown", (event) => startPanelMove(headerPanel, event));
+  }
+
+  if (brushPanel) {
+    brushPanel.addEventListener("pointerdown", (event) => startPanelMove(brushPanel, event));
+  }
+
+  if (modifierPanel) {
+    modifierPanel.addEventListener("pointerdown", (event) => startPanelMove(modifierPanel, event));
+  }
+
+  if (layersPanel) {
+    layersPanel.addEventListener("pointerdown", (event) => startPanelMove(layersPanel, event));
+  }
+
+  if (gizmoDragHandle && navGizmo) {
+    gizmoDragHandle.addEventListener("pointerdown", (event) => startPanelMove(navGizmo, event));
+  }
 }
 
 brushSize.addEventListener("input", () => {
@@ -965,7 +1009,7 @@ document.querySelectorAll("[data-min-panel]").forEach((button) => {
   });
 });
 
-gizmoDragHandle.addEventListener("pointerdown", startGizmoDrag);
+wirePanelMovement();
 
 canvasViewport.addEventListener("pointerdown", startDrawing);
 canvasViewport.addEventListener("pointermove", draw);
