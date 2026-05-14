@@ -11,7 +11,7 @@
 <body>
   <main class="cah-draw-app">
     <section class="cah-draw-shell">
-      <header class="cah-draw-header">
+      <header class="cah-floating-header">
         <div>
           <div class="cah-kicker">Charlotte Art Hub</div>
           <h1>CAH Draw Studio</h1>
@@ -19,61 +19,59 @@
 
         <div class="cah-header-actions">
           <button id="clearCanvasBtn" type="button">Clear</button>
-          <button id="savePngBtn" type="button">Save PNG</button>
+          <button id="savePngBtn" type="button">Save</button>
         </div>
       </header>
 
-      <section class="cah-toolbar">
-        <label>
-          Color
-          <input id="colorPicker" type="color" value="#111111" />
-        </label>
+      <section class="cah-canvas-area">
+        <div id="canvasViewport" class="cah-canvas-viewport">
+          <div id="layersContainer" class="cah-layer-stack"></div>
+        </div>
+      </section>
 
-        <label>
-          Brush
-          <input id="brushSize" type="range" min="1" max="60" value="8" />
-          <span id="brushSizeText">8</span>
-        </label>
+      <section class="cah-floating-toolbar">
+        <div class="cah-tool-row">
+          <label class="cah-control cah-color-control">
+            <span>Color</span>
+            <input id="colorPicker" type="color" value="#111111" />
+          </label>
 
-        <label>
-          Opacity
-          <input id="brushOpacity" type="range" min="10" max="100" value="100" />
-          <span id="brushOpacityText">100%</span>
-        </label>
+          <label class="cah-control">
+            <span>Brush <b id="brushSizeText">8</b></span>
+            <input id="brushSize" type="range" min="1" max="60" value="8" />
+          </label>
 
-        <div class="cah-tool-buttons">
+          <label class="cah-control">
+            <span>Opacity <b id="brushOpacityText">100%</b></span>
+            <input id="brushOpacity" type="range" min="10" max="100" value="100" />
+          </label>
+        </div>
+
+        <div class="cah-button-row">
           <button id="brushToolBtn" class="active" type="button">Brush</button>
           <button id="eraserToolBtn" type="button">Eraser</button>
           <button id="undoBtn" type="button">Undo</button>
           <button id="redoBtn" type="button">Redo</button>
         </div>
 
-        <div class="cah-view-buttons">
+        <div class="cah-button-row cah-view-buttons">
           <button id="zoomOutBtn" type="button">−</button>
-          <button id="resetViewBtn" type="button">Reset View</button>
+          <button id="resetViewBtn" type="button">Reset</button>
           <button id="zoomInBtn" type="button">+</button>
         </div>
       </section>
 
-      <section class="cah-main-workspace">
-        <section class="cah-canvas-area">
-          <div id="canvasViewport" class="cah-canvas-viewport">
-            <div id="layersContainer" class="cah-layer-stack"></div>
-          </div>
-        </section>
+      <aside class="cah-layers-panel">
+        <div class="cah-layers-title">Layers</div>
 
-        <aside class="cah-layers-panel">
-          <div class="cah-layers-title">Layers</div>
+        <div id="layersList" class="cah-layers-list"></div>
 
-          <div id="layersList" class="cah-layers-list"></div>
-
-          <div class="cah-layer-actions">
-            <button id="addLayerBtn" type="button">Add</button>
-            <button id="deleteLayerBtn" type="button">Delete</button>
-            <button id="toggleLayerBtn" type="button">Hide/Show</button>
-          </div>
-        </aside>
-      </section>
+        <div class="cah-layer-actions">
+          <button id="addLayerBtn" type="button">Add</button>
+          <button id="deleteLayerBtn" type="button">Delete</button>
+          <button id="toggleLayerBtn" type="button">Hide/Show</button>
+        </div>
+      </aside>
 
       <footer class="cah-draw-footer">
         <span>Draw with mouse, finger, or stylus.</span>
