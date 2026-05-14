@@ -46,7 +46,7 @@ button {
     rgba(18, 18, 18, 0.88);
   color: #f7f4ed;
   border-radius: 6px;
-  padding: 7px 9px;
+  padding: 6px 8px;
   font-weight: 800;
   font-size: 10px;
   line-height: 1;
@@ -168,10 +168,10 @@ button:disabled {
 .cah-panel-min {
   position: absolute;
   z-index: 6;
-  top: 7px;
-  right: 7px;
-  width: 22px;
-  height: 22px;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
   padding: 0;
   border-radius: 6px;
   font-size: 13px;
@@ -186,8 +186,8 @@ button:disabled {
   font-weight: 900;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  margin-bottom: 8px;
-  padding-right: 26px;
+  margin-bottom: 6px;
+  padding-right: 24px;
 }
 
 .cah-panel-content {
@@ -200,7 +200,7 @@ button:disabled {
   right: 92px;
   width: auto;
   min-height: 48px;
-  padding: 8px 38px 8px 12px;
+  padding: 7px 34px 7px 10px;
   transform: none;
 }
 
@@ -241,7 +241,7 @@ button:disabled {
 }
 
 .cah-header-actions button {
-  padding: 7px 8px;
+  padding: 6px 7px;
   min-width: 58px;
 }
 
@@ -267,21 +267,21 @@ button:disabled {
 .cah-left-rail {
   left: 14px;
   top: 96px;
-  width: 154px;
-  padding: 12px 36px 12px 12px;
+  width: 148px;
+  padding: 10px 32px 10px 10px;
 }
 
 .cah-tool-button-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 5px;
+  margin-bottom: 6px;
 }
 
 .cah-right-panel {
   right: 14px;
-  width: 220px;
-  padding: 12px 36px 12px 12px;
+  width: 204px;
+  padding: 10px 32px 10px 10px;
 }
 
 .cah-color-panel {
@@ -290,7 +290,7 @@ button:disabled {
 
 .cah-layer-dock {
   top: 218px;
-  max-height: 330px;
+  max-height: 300px;
 }
 
 .cah-canvas-settings-panel {
@@ -321,14 +321,14 @@ button:disabled {
 
 .cah-select,
 .cah-text-input {
-  height: 30px;
-  padding: 0 8px;
+  height: 28px;
+  padding: 0 7px;
 }
 
 .cah-textarea {
-  min-height: 76px;
+  min-height: 64px;
   resize: vertical;
-  padding: 8px;
+  padding: 7px;
   line-height: 1.35;
 }
 
@@ -339,13 +339,13 @@ button:disabled {
 
 .cah-control {
   display: grid;
-  gap: 4px;
+  gap: 3px;
   color: rgba(247, 244, 237, 0.68);
   font-size: 8px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .cah-control b {
@@ -359,7 +359,7 @@ button:disabled {
 
 .cah-color-control input[type="color"] {
   width: 100%;
-  height: 30px;
+  height: 28px;
   border: none;
   border-radius: 6px;
   background: transparent;
@@ -368,7 +368,7 @@ button:disabled {
 
 .cah-color-swatch {
   width: 100%;
-  height: 34px;
+  height: 28px;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow:
@@ -379,8 +379,8 @@ button:disabled {
 .cah-button-stack {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 6px;
-  margin-top: 7px;
+  gap: 5px;
+  margin-top: 5px;
 }
 
 .cah-conditional-control {
@@ -402,13 +402,13 @@ body.cah-submit-child .cah-guardian-wrap {
 
 .cah-layers-list {
   min-height: 0;
-  max-height: 210px;
+  max-height: 190px;
   overflow-y: auto;
   overflow-x: hidden;
   display: grid;
   grid-template-columns: 1fr;
   align-content: start;
-  gap: 6px;
+  gap: 5px;
 }
 
 .cah-layer-item {
@@ -419,13 +419,13 @@ body.cah-submit-child .cah-guardian-wrap {
     linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)),
     rgba(5, 5, 5, 0.42);
   color: #f7f4ed;
-  padding: 6px;
+  padding: 5px;
   font-size: 10px;
   text-align: left;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   box-shadow: none;
 }
 
@@ -445,7 +445,7 @@ body.cah-submit-child .cah-guardian-wrap {
 .cah-layer-name {
   width: 100%;
   min-width: 0;
-  padding: 5px 4px;
+  padding: 4px 3px;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -463,8 +463,8 @@ body.cah-submit-child .cah-guardian-wrap {
 
 .cah-layer-mini {
   min-width: 0;
-  width: 28px;
-  height: 24px;
+  width: 26px;
+  height: 22px;
   padding: 0;
   font-size: 9px;
 }
@@ -476,7 +476,7 @@ body.cah-submit-child .cah-guardian-wrap {
   bottom: 18px;
   width: 140px;
   height: 140px;
-  border-radius: 12px;
+  border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background:
     radial-gradient(circle at center, rgba(242, 184, 75, 0.16), transparent 37%),
@@ -589,7 +589,7 @@ body.cah-submit-modal-open .cah-submit-modal {
     radial-gradient(circle at 88% 5%, rgba(232, 107, 47, 0.10), transparent 24%),
     linear-gradient(180deg, rgba(28, 28, 28, 0.96), rgba(9, 9, 9, 0.96));
   box-shadow: 0 28px 100px rgba(0, 0, 0, 0.62);
-  padding: 18px;
+  padding: 16px;
 }
 
 .cah-submit-modal-header {
@@ -597,7 +597,7 @@ body.cah-submit-modal-open .cah-submit-modal {
   justify-content: space-between;
   align-items: start;
   gap: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .cah-submit-modal-header p {
@@ -618,7 +618,7 @@ body.cah-submit-modal-open .cah-submit-modal {
 
 .cah-submit-preview-wrap {
   width: 100%;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.10);
   background:
@@ -643,7 +643,7 @@ body.cah-submit-modal-open .cah-submit-modal {
 .cah-submit-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .cah-description-control {
