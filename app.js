@@ -92,7 +92,7 @@ let canvasHeight = 1080;
 
 const maxLayers = 5;
 const maxHistory = 30;
-const panelStorageKey = "cahDrawStudioPanelStateV5";
+const panelStorageKey = "cahDrawStudioPanelStateV6";
 
 const panelMap = {
   header: headerPanel,
@@ -1160,6 +1160,16 @@ function togglePanelMin(panelName) {
 }
 
 function isPanelDragHandle(target) {
+  const panel = target.closest(".cah-panel");
+
+  if (!panel) return false;
+
+  const panelName = panel.dataset.panel;
+
+  if (panelName === "header" || panelName === "submit") {
+    return false;
+  }
+
   return Boolean(
     target.id === "gizmoDragHandle" ||
     target.closest(".cah-panel-title")
