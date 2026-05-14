@@ -31,20 +31,20 @@
         </div>
       </section>
 
-      <section class="cah-nav-gizmo" aria-label="Canvas navigation gizmo">
-        <div class="cah-gizmo-title">View</div>
+      <section id="navGizmo" class="cah-nav-gizmo" aria-label="Canvas navigation gizmo">
+        <button id="gizmoDragHandle" class="cah-gizmo-center" type="button">Move</button>
 
-        <div class="cah-gizmo-grid">
-          <button id="panUpBtn" type="button">↑</button>
-          <button id="rotateLeftBtn" type="button">↺</button>
-          <button id="rotateRightBtn" type="button">↻</button>
-          <button id="panLeftBtn" type="button">←</button>
-          <button id="resetViewBtn" type="button">Reset</button>
-          <button id="panRightBtn" type="button">→</button>
-          <button id="zoomOutBtn" type="button">−</button>
-          <button id="panDownBtn" type="button">↓</button>
-          <button id="zoomInBtn" type="button">+</button>
-        </div>
+        <button id="panUpBtn" class="cah-gizmo-wedge cah-gizmo-up" type="button">↑</button>
+        <button id="panRightBtn" class="cah-gizmo-wedge cah-gizmo-right" type="button">→</button>
+        <button id="panDownBtn" class="cah-gizmo-wedge cah-gizmo-down" type="button">↓</button>
+        <button id="panLeftBtn" class="cah-gizmo-wedge cah-gizmo-left" type="button">←</button>
+
+        <button id="zoomInBtn" class="cah-gizmo-wedge cah-gizmo-zoom-in" type="button">+</button>
+        <button id="zoomOutBtn" class="cah-gizmo-wedge cah-gizmo-zoom-out" type="button">−</button>
+        <button id="rotateLeftBtn" class="cah-gizmo-wedge cah-gizmo-rotate-left" type="button">↺</button>
+        <button id="rotateRightBtn" class="cah-gizmo-wedge cah-gizmo-rotate-right" type="button">↻</button>
+
+        <button id="resetViewBtn" class="cah-gizmo-reset" type="button">Reset</button>
       </section>
 
       <section class="cah-floating-toolbar">
@@ -56,7 +56,7 @@
 
           <label class="cah-control">
             <span>Brush <b id="brushSizeText">8</b></span>
-            <input id="brushSize" type="range" min="1" max="60" value="8" />
+            <input id="brushSize" type="range" min="1" max="70" value="8" />
           </label>
 
           <label class="cah-control">
@@ -67,6 +67,9 @@
 
         <div class="cah-button-row">
           <button id="brushToolBtn" class="active" type="button">Brush</button>
+          <button id="inkToolBtn" type="button">Ink</button>
+          <button id="softToolBtn" type="button">Soft</button>
+          <button id="smudgeToolBtn" type="button">Smudge</button>
           <button id="eraserToolBtn" type="button">Eraser</button>
           <button id="panToolBtn" type="button">Pan</button>
           <button id="undoBtn" type="button">Undo</button>
@@ -82,14 +85,8 @@
         <div class="cah-layer-actions">
           <button id="addLayerBtn" type="button">Add</button>
           <button id="deleteLayerBtn" type="button">Delete</button>
-          <button id="toggleLayerBtn" type="button">Hide/Show</button>
         </div>
       </aside>
-
-      <footer class="cah-draw-footer">
-        <span>Brush/Eraser draws. Pan moves the canvas. View gizmo moves, zooms, and rotates.</span>
-        <span id="statusText">Ready</span>
-      </footer>
     </section>
   </main>
 
