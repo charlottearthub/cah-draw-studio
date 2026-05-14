@@ -1,1 +1,21 @@
-[]
+[
+  {
+    "id": "draw_20260514173920_57187a17",
+    "type": "drawing_app_submission",
+    "status": "pending",
+    "source": "CAH Draw Studio",
+    "artistName": "test",
+    "contact": "@test",
+    "title": "test",
+    "description": "test",
+    "medium": "Digital drawing",
+    "ageGroup": "Adult",
+    "guardianName": "",
+    "permissionConfirmed": true,
+    "imageUrl": "https://res.cloudinary.com/dkhxur6ga/image/upload/v1778780361/charlotte-art-hub/draw-studio/pending/draw_20260514173920_57187a17.png",
+    "cloudinaryPublicId": "charlotte-art-hub/draw-studio/pending/draw_20260514173920_57187a17",
+    "width": 1920,
+    "height": 1080,
+    "submittedAt": "2026-05-14T17:39:21.872Z"
+  }
+]
