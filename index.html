@@ -11,6 +11,8 @@
 <body>
   <main class="cah-draw-app">
     <section class="cah-draw-shell">
+      <button id="toggleUiBtn" class="cah-ui-toggle" type="button">Hide UI</button>
+
       <header class="cah-floating-header">
         <div>
           <div class="cah-kicker">Charlotte Art Hub</div>
@@ -50,6 +52,7 @@
         <div class="cah-button-row">
           <button id="brushToolBtn" class="active" type="button">Brush</button>
           <button id="eraserToolBtn" type="button">Eraser</button>
+          <button id="panToolBtn" type="button">Pan</button>
           <button id="undoBtn" type="button">Undo</button>
           <button id="redoBtn" type="button">Redo</button>
         </div>
@@ -74,7 +77,7 @@
       </aside>
 
       <footer class="cah-draw-footer">
-        <span>Draw with mouse, finger, or stylus.</span>
+        <span>Brush/Eraser draws. Pan moves the canvas.</span>
         <span id="statusText">Ready</span>
       </footer>
     </section>
