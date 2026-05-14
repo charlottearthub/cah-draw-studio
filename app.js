@@ -18,6 +18,12 @@ const savePngBtn = document.getElementById("savePngBtn");
 const zoomOutBtn = document.getElementById("zoomOutBtn");
 const resetViewBtn = document.getElementById("resetViewBtn");
 const zoomInBtn = document.getElementById("zoomInBtn");
+const rotateLeftBtn = document.getElementById("rotateLeftBtn");
+const rotateRightBtn = document.getElementById("rotateRightBtn");
+const panUpBtn = document.getElementById("panUpBtn");
+const panDownBtn = document.getElementById("panDownBtn");
+const panLeftBtn = document.getElementById("panLeftBtn");
+const panRightBtn = document.getElementById("panRightBtn");
 const toggleUiBtn = document.getElementById("toggleUiBtn");
 
 const addLayerBtn = document.getElementById("addLayerBtn");
@@ -48,7 +54,8 @@ const maxHistory = 30;
 let view = {
   x: 0,
   y: 0,
-  scale: 1
+  scale: 1,
+  rotation: 0
 };
 
 function setStatus(message) {
@@ -75,35 +82,91 @@ function getSize() {
 }
 
 function applyViewTransform() {
-  layersContainer.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.scale})`;
+  layersContainer.style.transform = `translate(${view.x}px, ${view.y}px) rotate(${view.rotation}deg) scale(${view.scale})`;
+}
+
+function screenToWorld(screenX, screenY) {
+  const rad = (-view.rotation * Math.PI) / 180;
+  const dx = screenX - view.x;
+  const dy = screenY - view.y;
+
+  const rotatedX = dx * Math.cos(rad) - dy * Math.sin(rad);
+  const rotatedY = dx * Math.sin(rad) + dy * Math.cos(rad);
+
+  return {
+    x: rotatedX / view.scale,
+    y: rotatedY / view.scale
+  };
+}
+
+function worldToScreen(worldX, worldY) {
+  const scaledX = worldX * view.scale;
+  const scaledY = worldY * view.scale;
+  const rad = (view.rotation * Math.PI) / 180;
+
+  return {
+    x: view.x + scaledX * Math.cos(rad) - scaledY * Math.sin(rad),
+    y: view.y + scaledX * Math.sin(rad) + scaledY * Math.cos(rad)
+  };
+}
+
+function getViewportCenter() {
+  const rect = canvasViewport.getBoundingClientRect();
+
+  return {
+    x: rect.width / 2,
+    y: rect.height / 2
+  };
 }
 
 function resetView() {
   view.x = 0;
   view.y = 0;
   view.scale = 1;
+  view.rotation = 0;
   applyViewTransform();
   setStatus("View reset");
 }
 
 function zoomAtCenter(factor) {
-  const rect = canvasViewport.getBoundingClientRect();
+  const center = getViewportCenter();
+  const world = screenToWorld(center.x, center.y);
 
-  const centerX = rect.width / 2;
-  const centerY = rect.height / 2;
+  view.scale = clamp(view.scale * factor, 0.35, 4);
 
-  const oldScale = view.scale;
-  const newScale = clamp(oldScale * factor, 0.35, 4);
+  const after = worldToScreen(world.x, world.y);
 
-  const worldX = (centerX - view.x) / oldScale;
-  const worldY = (centerY - view.y) / oldScale;
-
-  view.scale = newScale;
-  view.x = centerX - worldX * newScale;
-  view.y = centerY - worldY * newScale;
+  view.x += center.x - after.x;
+  view.y += center.y - after.y;
 
   applyViewTransform();
   setStatus("Zoom " + Math.round(view.scale * 100) + "%");
+}
+
+function rotateAtCenter(amount) {
+  const center = getViewportCenter();
+  const world = screenToWorld(center.x, center.y);
+
+  view.rotation += amount;
+
+  if (view.rotation >= 360 || view.rotation <= -360) {
+    view.rotation = view.rotation % 360;
+  }
+
+  const after = worldToScreen(world.x, world.y);
+
+  view.x += center.x - after.x;
+  view.y += center.y - after.y;
+
+  applyViewTransform();
+  setStatus("Rotate " + Math.round(view.rotation) + "°");
+}
+
+function panView(dx, dy) {
+  view.x += dx;
+  view.y += dy;
+  applyViewTransform();
+  setStatus("Pan");
 }
 
 function setupCanvas(layer) {
@@ -287,11 +350,7 @@ function redo() {
 
 function getCanvasPoint(event) {
   const rect = canvasViewport.getBoundingClientRect();
-
-  return {
-    x: (event.clientX - rect.left - view.x) / view.scale,
-    y: (event.clientY - rect.top - view.y) / view.scale
-  };
+  return screenToWorld(event.clientX - rect.left, event.clientY - rect.top);
 }
 
 function getScreenPoint(event) {
@@ -589,6 +648,12 @@ savePngBtn.addEventListener("click", savePng);
 
 zoomOutBtn.addEventListener("click", () => zoomAtCenter(0.8));
 zoomInBtn.addEventListener("click", () => zoomAtCenter(1.25));
+rotateLeftBtn.addEventListener("click", () => rotateAtCenter(-15));
+rotateRightBtn.addEventListener("click", () => rotateAtCenter(15));
+panUpBtn.addEventListener("click", () => panView(0, 42));
+panDownBtn.addEventListener("click", () => panView(0, -42));
+panLeftBtn.addEventListener("click", () => panView(42, 0));
+panRightBtn.addEventListener("click", () => panView(-42, 0));
 resetViewBtn.addEventListener("click", resetView);
 toggleUiBtn.addEventListener("click", toggleUi);
 
