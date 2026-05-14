@@ -1,3 +1,4 @@
+const canvasViewport = document.getElementById("canvasViewport");
 const layersContainer = document.getElementById("layersContainer");
 
 const colorPicker = document.getElementById("colorPicker");
@@ -12,6 +13,10 @@ const undoBtn = document.getElementById("undoBtn");
 const redoBtn = document.getElementById("redoBtn");
 const clearCanvasBtn = document.getElementById("clearCanvasBtn");
 const savePngBtn = document.getElementById("savePngBtn");
+
+const zoomOutBtn = document.getElementById("zoomOutBtn");
+const resetViewBtn = document.getElementById("resetViewBtn");
+const zoomInBtn = document.getElementById("zoomInBtn");
 
 const addLayerBtn = document.getElementById("addLayerBtn");
 const deleteLayerBtn = document.getElementById("deleteLayerBtn");
@@ -36,12 +41,54 @@ let redoStack = [];
 const maxLayers = 5;
 const maxHistory = 30;
 
+let view = {
+  x: 0,
+  y: 0,
+  scale: 1
+};
+
 function setStatus(message) {
   statusText.textContent = message;
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function applyViewTransform() {
+  layersContainer.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.scale})`;
+}
+
+function resetView() {
+  view.x = 0;
+  view.y = 0;
+  view.scale = 1;
+  applyViewTransform();
+  setStatus("View reset");
+}
+
+function zoomAtCenter(factor) {
+  const rect = canvasViewport.getBoundingClientRect();
+
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+
+  const oldScale = view.scale;
+  const newScale = clamp(oldScale * factor, 0.35, 4);
+
+  const worldX = (centerX - view.x) / oldScale;
+  const worldY = (centerY - view.y) / oldScale;
+
+  view.scale = newScale;
+  view.x = centerX - worldX * newScale;
+  view.y = centerY - worldY * newScale;
+
+  applyViewTransform();
+  setStatus("Zoom " + Math.round(view.scale * 100) + "%");
+}
+
 function getSize() {
-  const rect = layersContainer.getBoundingClientRect();
+  const rect = canvasViewport.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
 
   return {
@@ -197,6 +244,7 @@ function restoreState(snapshot) {
 
         setActiveLayer(activeLayerId);
         renderLayers();
+        applyViewTransform();
       }
     };
 
@@ -227,11 +275,11 @@ function redo() {
 }
 
 function getPoint(event) {
-  const rect = layersContainer.getBoundingClientRect();
+  const rect = canvasViewport.getBoundingClientRect();
 
   return {
-    x: event.clientX - rect.left,
-    y: event.clientY - rect.top
+    x: (event.clientX - rect.left - view.x) / view.scale,
+    y: (event.clientY - rect.top - view.y) / view.scale
   };
 }
 
@@ -301,6 +349,8 @@ function drawSmoothPoint(point) {
 }
 
 function startDrawing(event) {
+  if (event.isPrimary === false) return;
+
   event.preventDefault();
 
   const layer = getActiveLayer();
@@ -321,7 +371,7 @@ function startDrawing(event) {
   lastPoint = null;
   lastMidPoint = null;
 
-  layersContainer.setPointerCapture?.(event.pointerId);
+  canvasViewport.setPointerCapture?.(event.pointerId);
 
   drawSmoothPoint(getPoint(event));
 }
@@ -470,23 +520,29 @@ redoBtn.addEventListener("click", redo);
 clearCanvasBtn.addEventListener("click", clearCanvas);
 savePngBtn.addEventListener("click", savePng);
 
+zoomOutBtn.addEventListener("click", () => zoomAtCenter(0.8));
+zoomInBtn.addEventListener("click", () => zoomAtCenter(1.25));
+resetViewBtn.addEventListener("click", resetView);
+
 addLayerBtn.addEventListener("click", addLayer);
 deleteLayerBtn.addEventListener("click", deleteLayer);
 toggleLayerBtn.addEventListener("click", toggleLayerVisibility);
 
-layersContainer.addEventListener("pointerdown", startDrawing);
-layersContainer.addEventListener("pointermove", draw);
-layersContainer.addEventListener("pointerup", stopDrawing);
-layersContainer.addEventListener("pointercancel", stopDrawing);
-layersContainer.addEventListener("pointerleave", stopDrawing);
+canvasViewport.addEventListener("pointerdown", startDrawing);
+canvasViewport.addEventListener("pointermove", draw);
+canvasViewport.addEventListener("pointerup", stopDrawing);
+canvasViewport.addEventListener("pointercancel", stopDrawing);
+canvasViewport.addEventListener("pointerleave", stopDrawing);
 
 window.addEventListener("resize", () => {
   if (layers.length > 0) {
     resizeLayers();
+    applyViewTransform();
   }
 });
 
 createLayer("Layer 1");
 nextLayerNumber = 2;
 setTool("brush");
+resetView();
 setStatus("Ready");
