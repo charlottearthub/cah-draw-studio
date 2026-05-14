@@ -98,7 +98,7 @@ let canvasHeight = 1080;
 
 const maxLayers = 5;
 const maxHistory = 30;
-const panelStorageKey = "cahDrawStudioPanelStateV8";
+const panelStorageKey = "cahDrawStudioPanelStateV9";
 
 const panelMap = {
   header: headerPanel,
@@ -1696,6 +1696,22 @@ window.addEventListener("pointerup", (event) => {
 
 window.addEventListener("resize", () => {
   fitCanvasToScreen();
+});
+
+/* ===== LINE GUIDE: PREVENT ACCIDENTAL UI TEXT SELECTION ===== */
+document.addEventListener("selectionchange", () => {
+  const selection = window.getSelection();
+
+  if (!selection) return;
+
+  const activeElement = document.activeElement;
+  const isTypingField =
+    activeElement &&
+    ["INPUT", "TEXTAREA", "SELECT"].includes(activeElement.tagName);
+
+  if (!isTypingField) {
+    selection.removeAllRanges();
+  }
 });
 
 createLayer("Layer 1");
