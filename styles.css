@@ -44,15 +44,15 @@ body {
 
 button {
   appearance: none;
-  border: 1px solid rgba(242, 184, 75, 0.28);
+  border: 1px solid rgba(242, 184, 75, 0.24);
   background:
-    linear-gradient(135deg, rgba(242, 184, 75, 0.12), rgba(232, 107, 47, 0.09)),
+    linear-gradient(135deg, rgba(242, 184, 75, 0.10), rgba(232, 107, 47, 0.08)),
     rgba(20, 10, 8, 0.72);
   color: #fff7ed;
-  border-radius: 8px;
-  padding: 7px 8px;
+  border-radius: 5px;
+  padding: 7px 7px;
   font-weight: 900;
-  font-size: 11px;
+  font-size: 10.5px;
   line-height: 1;
   cursor: pointer;
   user-select: none;
@@ -71,9 +71,9 @@ button.active {
 
 .cah-ui-toggle {
   position: absolute;
-  z-index: 100;
-  top: 84px;
-  right: 12px;
+  z-index: 120;
+  top: 76px;
+  right: 10px;
   border-color: rgba(56, 214, 255, 0.34);
   background:
     linear-gradient(135deg, rgba(56, 214, 255, 0.16), rgba(242, 184, 75, 0.1)),
@@ -82,19 +82,33 @@ button.active {
   backdrop-filter: blur(10px);
 }
 
+.cah-panel-hide {
+  position: absolute;
+  z-index: 5;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 13px;
+  color: rgba(255, 247, 237, 0.78);
+  background: rgba(0, 0, 0, 0.34);
+}
+
 .cah-floating-header {
   position: absolute;
   z-index: 20;
   top: 10px;
   left: 10px;
   right: 10px;
-  height: 58px;
+  height: 54px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 8px 10px;
-  border-radius: 14px;
+  padding: 7px 38px 7px 10px;
+  border-radius: 4px;
   border: 1px solid rgba(255, 247, 237, 0.12);
   background: rgba(20, 10, 8, 0.72);
   backdrop-filter: blur(10px);
@@ -102,7 +116,7 @@ button.active {
 
 .cah-kicker {
   color: #f2b84b;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 900;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -111,14 +125,14 @@ button.active {
 
 .cah-floating-header h1 {
   margin: 0;
-  font-size: clamp(21px, 4vw, 31px);
+  font-size: clamp(19px, 4vw, 28px);
   line-height: 1;
   letter-spacing: 0.03em;
 }
 
 .cah-header-actions {
   display: flex;
-  gap: 7px;
+  gap: 6px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -127,7 +141,7 @@ button.active {
   position: absolute;
   inset: 8px;
   z-index: 1;
-  border-radius: 18px;
+  border-radius: 0;
   overflow: hidden;
   border: 1px solid rgba(255, 247, 237, 0.16);
   background:
@@ -180,7 +194,7 @@ button.active {
   position: absolute;
   z-index: 40;
   right: 12px;
-  top: 132px;
+  top: 122px;
   width: 176px;
   height: 176px;
   border-radius: 50%;
@@ -215,14 +229,20 @@ button.active {
     inset 0 0 28px rgba(0, 0, 0, 0.18);
 }
 
+.cah-gizmo-hide {
+  top: -2px;
+  right: -2px;
+  border-radius: 50%;
+}
+
 .cah-nav-gizmo button {
   position: absolute;
-  border-radius: 12px;
   min-width: 0;
   padding: 0;
   height: 34px;
   width: 42px;
   font-size: 13px;
+  border-radius: 6px;
   background:
     linear-gradient(135deg, rgba(255, 247, 237, 0.09), rgba(242, 184, 75, 0.09)),
     rgba(20, 10, 8, 0.54);
@@ -312,8 +332,8 @@ button.active {
   bottom: 10px;
   display: grid;
   gap: 8px;
-  padding: 9px;
-  border-radius: 16px;
+  padding: 9px 34px 9px 9px;
+  border-radius: 4px;
   border: 1px solid rgba(255, 247, 237, 0.13);
   background: rgba(20, 10, 8, 0.76);
   backdrop-filter: blur(10px);
@@ -330,7 +350,7 @@ button.active {
   display: grid;
   gap: 4px;
   color: rgba(255, 247, 237, 0.72);
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -346,15 +366,15 @@ button.active {
 
 .cah-color-control input[type="color"] {
   width: 100%;
-  height: 30px;
+  height: 28px;
   border: none;
   background: transparent;
 }
 
 .cah-button-row {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 5px;
 }
 
 .cah-layers-panel {
@@ -367,8 +387,8 @@ button.active {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 8px;
-  padding: 9px;
-  border-radius: 16px;
+  padding: 9px 34px 9px 9px;
+  border-radius: 4px;
   border: 1px solid rgba(255, 247, 237, 0.13);
   background: rgba(20, 10, 8, 0.78);
   backdrop-filter: blur(10px);
@@ -392,12 +412,12 @@ button.active {
 
 .cah-layer-item {
   width: 100%;
-  border-radius: 10px;
+  border-radius: 4px;
   border: 1px solid rgba(255, 247, 237, 0.12);
   background: rgba(255, 255, 255, 0.055);
   color: #fff7ed;
   padding: 7px;
-  font-size: 11px;
+  font-size: 10.5px;
   text-align: left;
   display: grid;
   grid-template-columns: auto 1fr;
@@ -411,8 +431,8 @@ button.active {
 }
 
 .cah-layer-check {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   accent-color: #f2b84b;
 }
 
@@ -425,12 +445,12 @@ button.active {
 .cah-layer-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 7px;
+  gap: 6px;
 }
 
 .cah-layer-actions button {
   width: 100%;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 body.cah-ui-hidden .cah-floating-header,
@@ -449,6 +469,15 @@ body.cah-ui-hidden .cah-ui-toggle {
   top: 12px;
   right: 12px;
   opacity: 0.72;
+}
+
+body.cah-panel-header-hidden .cah-floating-header,
+body.cah-panel-tools-hidden .cah-floating-toolbar,
+body.cah-panel-layers-hidden .cah-layers-panel,
+body.cah-panel-gizmo-hidden .cah-nav-gizmo {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
 }
 
 .cah-floating-header,
@@ -479,7 +508,7 @@ body.cah-ui-hidden .cah-ui-toggle {
   }
 
   .cah-ui-toggle {
-    top: 66px;
+    top: 62px;
     right: 8px;
     padding: 7px 9px;
     font-size: 10px;
@@ -489,22 +518,22 @@ body.cah-ui-hidden .cah-ui-toggle {
     top: 7px;
     left: 7px;
     right: 7px;
-    height: 54px;
-    padding: 7px 9px;
-    border-radius: 13px;
+    height: 50px;
+    padding: 7px 34px 7px 9px;
+    border-radius: 0;
   }
 
   .cah-floating-header h1 {
-    font-size: 20px;
+    font-size: 19px;
   }
 
   .cah-kicker {
-    font-size: 8px;
+    font-size: 7.5px;
   }
 
   .cah-header-actions button {
-    padding: 7px 8px;
-    font-size: 10px;
+    padding: 7px 7px;
+    font-size: 9.5px;
   }
 
   .cah-canvas-area {
@@ -514,7 +543,7 @@ body.cah-ui-hidden .cah-ui-toggle {
   }
 
   .cah-nav-gizmo {
-    top: 104px;
+    top: 96px;
     right: 8px;
     width: 138px;
     height: 138px;
@@ -524,7 +553,7 @@ body.cah-ui-hidden .cah-ui-toggle {
     width: 34px;
     height: 27px;
     font-size: 11px;
-    border-radius: 9px;
+    border-radius: 5px;
   }
 
   .cah-gizmo-center {
@@ -584,8 +613,8 @@ body.cah-ui-hidden .cah-ui-toggle {
     left: 7px;
     right: 7px;
     bottom: 7px;
-    padding: 7px;
-    border-radius: 14px;
+    padding: 7px 32px 7px 7px;
+    border-radius: 0;
   }
 
   .cah-tool-row {
@@ -598,7 +627,7 @@ body.cah-ui-hidden .cah-ui-toggle {
   }
 
   .cah-color-control input[type="color"] {
-    height: 28px;
+    height: 26px;
   }
 
   .cah-button-row {
@@ -608,7 +637,7 @@ body.cah-ui-hidden .cah-ui-toggle {
 
   .cah-button-row button {
     padding: 7px 4px;
-    font-size: 9.5px;
+    font-size: 9px;
   }
 
   .cah-layers-panel {
@@ -618,8 +647,8 @@ body.cah-ui-hidden .cah-ui-toggle {
     width: auto;
     max-height: 112px;
     grid-template-rows: auto auto;
-    border-radius: 14px;
-    padding: 7px;
+    border-radius: 0;
+    padding: 7px 32px 7px 7px;
   }
 
   .cah-layers-list {
