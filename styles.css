@@ -34,7 +34,9 @@ body {
 }
 
 button,
-select {
+select,
+input,
+textarea {
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -63,6 +65,11 @@ button.active {
   background: linear-gradient(135deg, #f2b84b, #e86b2f);
   color: #2b1713;
   border-color: rgba(242, 184, 75, 0.85);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .cah-ui-toggle {
@@ -230,15 +237,24 @@ button.active {
   padding: 9px 34px 9px 9px;
 }
 
-.cah-brush-panel {
+.cah-submit-panel {
   left: 10px;
+  top: 182px;
+  width: 286px;
+  max-height: calc(100vh - 202px);
+  overflow-y: auto;
+  padding: 9px 34px 9px 9px;
+}
+
+.cah-brush-panel {
+  left: 318px;
   bottom: 10px;
   width: 210px;
   padding: 9px 34px 9px 9px;
 }
 
 .cah-modifier-panel {
-  left: 230px;
+  left: 540px;
   bottom: 10px;
   width: 260px;
   padding: 9px 34px 9px 9px;
@@ -252,16 +268,34 @@ button.active {
   padding: 9px 34px 9px 9px;
 }
 
-.cah-select {
+.cah-select,
+.cah-text-input,
+.cah-textarea {
   width: 100%;
-  height: 30px;
   border-radius: 4px;
   border: 1px solid rgba(242, 184, 75, 0.26);
   background: rgba(20, 10, 8, 0.88);
   color: #fff7ed;
   font-weight: 900;
   font-size: 11px;
+}
+
+.cah-select,
+.cah-text-input {
+  height: 30px;
   padding: 0 8px;
+}
+
+.cah-textarea {
+  min-height: 66px;
+  resize: vertical;
+  padding: 8px;
+  line-height: 1.35;
+}
+
+.cah-text-input::placeholder,
+.cah-textarea::placeholder {
+  color: rgba(255, 247, 237, 0.42);
 }
 
 .cah-control {
@@ -309,6 +343,49 @@ button.active {
 body.cah-brush-smudge #smudgeStrengthWrap,
 body.cah-brush-blend #blendStrengthWrap {
   display: grid;
+}
+
+.cah-guardian-wrap {
+  display: none;
+}
+
+body.cah-submit-child .cah-guardian-wrap {
+  display: grid;
+}
+
+.cah-check-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 7px;
+  align-items: start;
+  color: rgba(255, 247, 237, 0.78);
+  font-size: 10px;
+  line-height: 1.35;
+  margin: 8px 0;
+}
+
+.cah-check-row input {
+  width: 15px;
+  height: 15px;
+  accent-color: #f2b84b;
+  margin-top: 1px;
+}
+
+.cah-submit-status {
+  min-height: 18px;
+  margin-top: 8px;
+  color: #f2b84b;
+  font-size: 10.5px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.cah-submit-status.error {
+  color: #ff9a7a;
+}
+
+.cah-submit-status.success {
+  color: #aaf0a6;
 }
 
 .cah-layers-list {
@@ -481,6 +558,7 @@ body.cah-brush-blend #blendStrengthWrap {
 
 body.cah-ui-hidden .cah-floating-header,
 body.cah-ui-hidden .cah-canvas-panel,
+body.cah-ui-hidden .cah-submit-panel,
 body.cah-ui-hidden .cah-brush-panel,
 body.cah-ui-hidden .cah-modifier-panel,
 body.cah-ui-hidden .cah-layers-panel {
@@ -501,6 +579,7 @@ body.cah-ui-hidden .cah-ui-toggle {
 
 body.cah-panel-header-minimized .cah-floating-header,
 body.cah-panel-canvas-minimized .cah-canvas-panel,
+body.cah-panel-submit-minimized .cah-submit-panel,
 body.cah-panel-brushes-minimized .cah-brush-panel,
 body.cah-panel-modifiers-minimized .cah-modifier-panel,
 body.cah-panel-layers-minimized .cah-layers-panel {
@@ -511,6 +590,7 @@ body.cah-panel-layers-minimized .cah-layers-panel {
 
 body.cah-panel-header-minimized .cah-floating-header .cah-panel-content,
 body.cah-panel-canvas-minimized .cah-canvas-panel .cah-panel-content,
+body.cah-panel-submit-minimized .cah-submit-panel .cah-panel-content,
 body.cah-panel-brushes-minimized .cah-brush-panel .cah-panel-content,
 body.cah-panel-modifiers-minimized .cah-modifier-panel .cah-panel-content,
 body.cah-panel-layers-minimized .cah-layers-panel .cah-panel-content {
@@ -529,6 +609,7 @@ body.cah-panel-header-minimized .cah-floating-header::before {
 }
 
 body.cah-panel-canvas-minimized .cah-canvas-panel .cah-panel-title,
+body.cah-panel-submit-minimized .cah-submit-panel .cah-panel-title,
 body.cah-panel-brushes-minimized .cah-brush-panel .cah-panel-title,
 body.cah-panel-modifiers-minimized .cah-modifier-panel .cah-panel-title,
 body.cah-panel-layers-minimized .cah-layers-panel .cah-panel-title {
@@ -549,6 +630,7 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
 
 .cah-floating-header,
 .cah-canvas-panel,
+.cah-submit-panel,
 .cah-brush-panel,
 .cah-modifier-panel,
 .cah-layers-panel,
@@ -594,6 +676,13 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
     left: 7px;
     top: 126px;
     width: 200px;
+  }
+
+  .cah-submit-panel {
+    left: 7px;
+    top: 234px;
+    width: 220px;
+    max-height: calc(100vh - 380px);
   }
 
   .cah-nav-gizmo {
@@ -699,6 +788,10 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
 
 @media (max-height: 740px) and (max-width: 820px) {
   .cah-canvas-panel {
+    display: none;
+  }
+
+  .cah-submit-panel {
     display: none;
   }
 
