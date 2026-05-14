@@ -142,6 +142,21 @@ button.active {
   justify-content: flex-end;
 }
 
+.cah-view-buttons {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 64px 1fr 64px;
+  gap: 8px;
+}
+
+.cah-view-buttons button {
+  border-radius: 999px;
+}
+
+#resetViewBtn {
+  color: #f2b84b;
+}
+
 .cah-main-workspace {
   min-height: 0;
   display: grid;
@@ -166,12 +181,23 @@ button.active {
   touch-action: none;
 }
 
-.cah-layer-stack {
+.cah-canvas-viewport {
   position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.cah-layer-stack {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   touch-action: none;
   cursor: crosshair;
+  transform-origin: 0 0;
+  will-change: transform;
 }
 
 .cah-layer-stack canvas {
@@ -297,6 +323,11 @@ button.active {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  .cah-view-buttons {
+    grid-column: 1 / -1;
+    grid-template-columns: 54px 1fr 54px;
   }
 
   .cah-main-workspace {
