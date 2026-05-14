@@ -1,0 +1,16 @@
+{
+  "name": "cah-draw-studio",
+  "version": "1.0.0",
+  "description": "Charlotte Art Hub Draw Studio with drawing submission approval chain",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cloudinary": "^2.5.1",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
