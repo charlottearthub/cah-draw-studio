@@ -1,5 +1,7 @@
 const canvasViewport = document.getElementById("canvasViewport");
 const layersContainer = document.getElementById("layersContainer");
+const navGizmo = document.getElementById("navGizmo");
+const gizmoDragHandle = document.getElementById("gizmoDragHandle");
 
 const colorPicker = document.getElementById("colorPicker");
 const brushSize = document.getElementById("brushSize");
@@ -8,8 +10,12 @@ const brushOpacity = document.getElementById("brushOpacity");
 const brushOpacityText = document.getElementById("brushOpacityText");
 
 const brushToolBtn = document.getElementById("brushToolBtn");
+const inkToolBtn = document.getElementById("inkToolBtn");
+const softToolBtn = document.getElementById("softToolBtn");
+const smudgeToolBtn = document.getElementById("smudgeToolBtn");
 const eraserToolBtn = document.getElementById("eraserToolBtn");
 const panToolBtn = document.getElementById("panToolBtn");
+
 const undoBtn = document.getElementById("undoBtn");
 const redoBtn = document.getElementById("redoBtn");
 const clearCanvasBtn = document.getElementById("clearCanvasBtn");
@@ -28,10 +34,7 @@ const toggleUiBtn = document.getElementById("toggleUiBtn");
 
 const addLayerBtn = document.getElementById("addLayerBtn");
 const deleteLayerBtn = document.getElementById("deleteLayerBtn");
-const toggleLayerBtn = document.getElementById("toggleLayerBtn");
 const layersList = document.getElementById("layersList");
-
-const statusText = document.getElementById("statusText");
 
 let layers = [];
 let activeLayerId = null;
@@ -48,6 +51,10 @@ let panLastPoint = null;
 let undoStack = [];
 let redoStack = [];
 
+let isDraggingGizmo = false;
+let gizmoDragStart = null;
+let gizmoStart = null;
+
 const maxLayers = 5;
 const maxHistory = 30;
 
@@ -59,9 +66,7 @@ let view = {
 };
 
 function setStatus(message) {
-  if (statusText) {
-    statusText.textContent = message;
-  }
+  console.log(message);
 }
 
 function clamp(value, min, max) {
@@ -185,7 +190,7 @@ function setupCanvas(layer) {
 
 function createLayer(name) {
   const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
   const layer = {
     id: "layer-" + Date.now() + "-" + Math.random().toString(16).slice(2),
@@ -226,25 +231,51 @@ function setActiveLayer(id) {
   renderLayers();
 }
 
+function toggleLayerVisibility(layerId) {
+  const layer = layers.find((item) => item.id === layerId);
+
+  if (!layer) return;
+
+  saveHistory();
+
+  layer.visible = !layer.visible;
+  layer.canvas.style.display = layer.visible ? "block" : "none";
+
+  renderLayers();
+}
+
 function renderLayers() {
   layersList.innerHTML = "";
 
   [...layers].reverse().forEach((layer) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "cah-layer-item" + (layer.id === activeLayerId ? " active" : "");
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = "cah-layer-item" + (layer.id === activeLayerId ? " active" : "");
 
-    button.innerHTML = `
-      <span>${layer.name}</span>
-      <span class="eye">${layer.visible ? "On" : "Off"}</span>
-    `;
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = layer.visible;
+    checkbox.className = "cah-layer-check";
+    checkbox.title = "Layer visibility";
 
-    button.addEventListener("click", () => {
+    checkbox.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleLayerVisibility(layer.id);
+    });
+
+    const name = document.createElement("span");
+    name.className = "cah-layer-name";
+    name.textContent = layer.name;
+
+    row.appendChild(checkbox);
+    row.appendChild(name);
+
+    row.addEventListener("click", () => {
       setActiveLayer(layer.id);
       setStatus(layer.name + " selected");
     });
 
-    layersList.appendChild(button);
+    layersList.appendChild(row);
   });
 }
 
@@ -281,7 +312,7 @@ function restoreState(snapshot) {
 
   snapshot.forEach((savedLayer) => {
     const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
     const layer = {
       id: savedLayer.id,
@@ -312,7 +343,7 @@ function restoreState(snapshot) {
       loaded += 1;
 
       if (loaded === snapshot.length) {
-        if (!layers.find((l) => l.id === activeLayerId) && layers[0]) {
+        if (!layers.find((layerItem) => layerItem.id === activeLayerId) && layers[0]) {
           activeLayerId = layers[0].id;
         }
 
@@ -372,7 +403,6 @@ function prepareBrush(ctx) {
   const opacity = Number(brushOpacity.value) / 100;
 
   ctx.globalAlpha = opacity;
-  ctx.lineWidth = size;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
@@ -380,22 +410,78 @@ function prepareBrush(ctx) {
     ctx.globalCompositeOperation = "destination-out";
     ctx.strokeStyle = "rgba(0,0,0,1)";
     ctx.fillStyle = "rgba(0,0,0,1)";
-  } else {
-    ctx.globalCompositeOperation = "source-over";
-    ctx.strokeStyle = colorPicker.value;
-    ctx.fillStyle = colorPicker.value;
+    ctx.lineWidth = size;
+    return;
   }
+
+  ctx.globalCompositeOperation = "source-over";
+  ctx.strokeStyle = colorPicker.value;
+  ctx.fillStyle = colorPicker.value;
+
+  if (currentTool === "ink") {
+    ctx.lineWidth = Math.max(1, size * 0.72);
+    ctx.globalAlpha = Math.min(1, opacity + 0.1);
+    return;
+  }
+
+  if (currentTool === "soft") {
+    ctx.lineWidth = size * 1.8;
+    ctx.globalAlpha = opacity * 0.28;
+    return;
+  }
+
+  ctx.lineWidth = size;
 }
 
 function finishBrush(ctx) {
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = "source-over";
+  ctx.shadowBlur = 0;
+}
+
+function drawSmudge(layer, point) {
+  if (!lastPoint) {
+    lastPoint = point;
+    lastMidPoint = point;
+    return;
+  }
+
+  const ctx = layer.ctx;
+  const size = Number(brushSize.value);
+  const opacity = Number(brushOpacity.value) / 100;
+  const radius = Math.max(4, Math.floor(size / 2));
+  const sampleSize = radius * 2;
+
+  const sx = Math.floor(lastPoint.x - radius);
+  const sy = Math.floor(lastPoint.y - radius);
+  const dx = Math.floor(point.x - radius);
+  const dy = Math.floor(point.y - radius);
+
+  try {
+    const imageData = ctx.getImageData(sx, sy, sampleSize, sampleSize);
+
+    ctx.save();
+    ctx.globalAlpha = opacity * 0.42;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.putImageData(imageData, dx, dy);
+    ctx.restore();
+  } catch (error) {
+    /* canvas bounds can throw near edges */
+  }
+
+  lastPoint = point;
+  lastMidPoint = point;
 }
 
 function drawSmoothPoint(point) {
   const layer = getActiveLayer();
 
   if (!layer || !layer.visible) return;
+
+  if (currentTool === "smudge") {
+    drawSmudge(layer, point);
+    return;
+  }
 
   const ctx = layer.ctx;
   prepareBrush(ctx);
@@ -516,14 +602,15 @@ function setTool(tool) {
   currentTool = tool;
 
   brushToolBtn.classList.toggle("active", tool === "brush");
+  inkToolBtn.classList.toggle("active", tool === "ink");
+  softToolBtn.classList.toggle("active", tool === "soft");
+  smudgeToolBtn.classList.toggle("active", tool === "smudge");
   eraserToolBtn.classList.toggle("active", tool === "eraser");
   panToolBtn.classList.toggle("active", tool === "pan");
 
   layersContainer.classList.toggle("pan-active", tool === "pan");
 
-  if (tool === "brush") setStatus("Brush selected");
-  if (tool === "eraser") setStatus("Eraser selected");
-  if (tool === "pan") setStatus("Pan selected");
+  setStatus(tool + " selected");
 }
 
 function addLayer() {
@@ -557,19 +644,6 @@ function deleteLayer() {
 
   setActiveLayer(layers[layers.length - 1].id);
   setStatus("Layer deleted");
-}
-
-function toggleLayerVisibility() {
-  const activeLayer = getActiveLayer();
-  if (!activeLayer) return;
-
-  saveHistory();
-
-  activeLayer.visible = !activeLayer.visible;
-  activeLayer.canvas.style.display = activeLayer.visible ? "block" : "none";
-
-  renderLayers();
-  setStatus(activeLayer.visible ? "Layer shown" : "Layer hidden");
 }
 
 function clearCanvas() {
@@ -629,6 +703,54 @@ function toggleUi() {
   setStatus(isHidden ? "UI hidden" : "UI shown");
 }
 
+function startGizmoDrag(event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  isDraggingGizmo = true;
+
+  const rect = navGizmo.getBoundingClientRect();
+
+  gizmoDragStart = {
+    x: event.clientX,
+    y: event.clientY
+  };
+
+  gizmoStart = {
+    left: rect.left,
+    top: rect.top
+  };
+
+  gizmoDragHandle.setPointerCapture?.(event.pointerId);
+}
+
+function moveGizmo(event) {
+  if (!isDraggingGizmo) return;
+
+  event.preventDefault();
+
+  const dx = event.clientX - gizmoDragStart.x;
+  const dy = event.clientY - gizmoDragStart.y;
+
+  const shellRect = document.querySelector(".cah-draw-shell").getBoundingClientRect();
+  const gizmoRect = navGizmo.getBoundingClientRect();
+
+  const left = clamp(gizmoStart.left + dx - shellRect.left, 8, shellRect.width - gizmoRect.width - 8);
+  const top = clamp(gizmoStart.top + dy - shellRect.top, 8, shellRect.height - gizmoRect.height - 8);
+
+  navGizmo.style.left = left + "px";
+  navGizmo.style.top = top + "px";
+  navGizmo.style.right = "auto";
+}
+
+function stopGizmoDrag(event) {
+  if (!isDraggingGizmo) return;
+
+  event.preventDefault();
+
+  isDraggingGizmo = false;
+}
+
 brushSize.addEventListener("input", () => {
   brushSizeText.textContent = brushSize.value;
 });
@@ -638,6 +760,9 @@ brushOpacity.addEventListener("input", () => {
 });
 
 brushToolBtn.addEventListener("click", () => setTool("brush"));
+inkToolBtn.addEventListener("click", () => setTool("ink"));
+softToolBtn.addEventListener("click", () => setTool("soft"));
+smudgeToolBtn.addEventListener("click", () => setTool("smudge"));
 eraserToolBtn.addEventListener("click", () => setTool("eraser"));
 panToolBtn.addEventListener("click", () => setTool("pan"));
 
@@ -659,7 +784,11 @@ toggleUiBtn.addEventListener("click", toggleUi);
 
 addLayerBtn.addEventListener("click", addLayer);
 deleteLayerBtn.addEventListener("click", deleteLayer);
-toggleLayerBtn.addEventListener("click", toggleLayerVisibility);
+
+gizmoDragHandle.addEventListener("pointerdown", startGizmoDrag);
+window.addEventListener("pointermove", moveGizmo);
+window.addEventListener("pointerup", stopGizmoDrag);
+window.addEventListener("pointercancel", stopGizmoDrag);
 
 canvasViewport.addEventListener("pointerdown", startDrawing);
 canvasViewport.addEventListener("pointermove", draw);
