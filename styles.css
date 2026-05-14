@@ -1055,3 +1055,14 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
   user-select: none !important;
   -webkit-touch-callout: none !important;
 }
+/* iPad touch control / palm rejection support */
+.cah-canvas-area,
+.cah-canvas-viewport,
+.cah-layer-stack,
+.cah-canvas-stage {
+  touch-action: none !important;
+  overscroll-behavior: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
