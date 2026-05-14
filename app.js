@@ -9,6 +9,7 @@ const brushOpacityText = document.getElementById("brushOpacityText");
 
 const brushToolBtn = document.getElementById("brushToolBtn");
 const eraserToolBtn = document.getElementById("eraserToolBtn");
+const panToolBtn = document.getElementById("panToolBtn");
 const undoBtn = document.getElementById("undoBtn");
 const redoBtn = document.getElementById("redoBtn");
 const clearCanvasBtn = document.getElementById("clearCanvasBtn");
@@ -17,6 +18,7 @@ const savePngBtn = document.getElementById("savePngBtn");
 const zoomOutBtn = document.getElementById("zoomOutBtn");
 const resetViewBtn = document.getElementById("resetViewBtn");
 const zoomInBtn = document.getElementById("zoomInBtn");
+const toggleUiBtn = document.getElementById("toggleUiBtn");
 
 const addLayerBtn = document.getElementById("addLayerBtn");
 const deleteLayerBtn = document.getElementById("deleteLayerBtn");
@@ -31,9 +33,11 @@ let nextLayerNumber = 1;
 
 let currentTool = "brush";
 let isDrawing = false;
+let isPanning = false;
 
 let lastPoint = null;
 let lastMidPoint = null;
+let panLastPoint = null;
 
 let undoStack = [];
 let redoStack = [];
@@ -274,12 +278,19 @@ function redo() {
   setStatus("Redo");
 }
 
-function getPoint(event) {
+function getCanvasPoint(event) {
   const rect = canvasViewport.getBoundingClientRect();
 
   return {
     x: (event.clientX - rect.left - view.x) / view.scale,
     y: (event.clientY - rect.top - view.y) / view.scale
+  };
+}
+
+function getScreenPoint(event) {
+  return {
+    x: event.clientX,
+    y: event.clientY
   };
 }
 
@@ -353,6 +364,15 @@ function startDrawing(event) {
 
   event.preventDefault();
 
+  if (currentTool === "pan") {
+    isPanning = true;
+    panLastPoint = getScreenPoint(event);
+    layersContainer.classList.add("pan-dragging");
+    canvasViewport.setPointerCapture?.(event.pointerId);
+    setStatus("Panning");
+    return;
+  }
+
   const layer = getActiveLayer();
 
   if (!layer) {
@@ -373,10 +393,24 @@ function startDrawing(event) {
 
   canvasViewport.setPointerCapture?.(event.pointerId);
 
-  drawSmoothPoint(getPoint(event));
+  drawSmoothPoint(getCanvasPoint(event));
 }
 
 function draw(event) {
+  if (isPanning) {
+    event.preventDefault();
+
+    const currentPoint = getScreenPoint(event);
+
+    view.x += currentPoint.x - panLastPoint.x;
+    view.y += currentPoint.y - panLastPoint.y;
+
+    panLastPoint = currentPoint;
+
+    applyViewTransform();
+    return;
+  }
+
   if (!isDrawing) return;
 
   event.preventDefault();
@@ -386,11 +420,20 @@ function draw(event) {
     : [event];
 
   events.forEach((pointerEvent) => {
-    drawSmoothPoint(getPoint(pointerEvent));
+    drawSmoothPoint(getCanvasPoint(pointerEvent));
   });
 }
 
 function stopDrawing(event) {
+  if (isPanning) {
+    event.preventDefault();
+    isPanning = false;
+    panLastPoint = null;
+    layersContainer.classList.remove("pan-dragging");
+    setStatus("Pan saved");
+    return;
+  }
+
   if (!isDrawing) return;
 
   event.preventDefault();
@@ -407,8 +450,13 @@ function setTool(tool) {
 
   brushToolBtn.classList.toggle("active", tool === "brush");
   eraserToolBtn.classList.toggle("active", tool === "eraser");
+  panToolBtn.classList.toggle("active", tool === "pan");
 
-  setStatus(tool === "brush" ? "Brush selected" : "Eraser selected");
+  layersContainer.classList.toggle("pan-active", tool === "pan");
+
+  if (tool === "brush") setStatus("Brush selected");
+  if (tool === "eraser") setStatus("Eraser selected");
+  if (tool === "pan") setStatus("Pan selected");
 }
 
 function addLayer() {
@@ -504,6 +552,12 @@ function resizeLayers() {
   restoreState(snapshots);
 }
 
+function toggleUi() {
+  const isHidden = document.body.classList.toggle("cah-ui-hidden");
+  toggleUiBtn.textContent = isHidden ? "Show UI" : "Hide UI";
+  setStatus(isHidden ? "UI hidden" : "UI shown");
+}
+
 brushSize.addEventListener("input", () => {
   brushSizeText.textContent = brushSize.value;
 });
@@ -514,6 +568,7 @@ brushOpacity.addEventListener("input", () => {
 
 brushToolBtn.addEventListener("click", () => setTool("brush"));
 eraserToolBtn.addEventListener("click", () => setTool("eraser"));
+panToolBtn.addEventListener("click", () => setTool("pan"));
 
 undoBtn.addEventListener("click", undo);
 redoBtn.addEventListener("click", redo);
@@ -523,6 +578,7 @@ savePngBtn.addEventListener("click", savePng);
 zoomOutBtn.addEventListener("click", () => zoomAtCenter(0.8));
 zoomInBtn.addEventListener("click", () => zoomAtCenter(1.25));
 resetViewBtn.addEventListener("click", resetView);
+toggleUiBtn.addEventListener("click", toggleUi);
 
 addLayerBtn.addEventListener("click", addLayer);
 deleteLayerBtn.addEventListener("click", deleteLayer);
