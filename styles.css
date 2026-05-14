@@ -32,7 +32,7 @@ body {
   width: min(100%, 1400px);
   height: min(100%, 920px);
   position: relative;
-  border-radius: 24px;
+  border-radius: 20px;
   border: 1px solid rgba(242, 184, 75, 0.28);
   background:
     radial-gradient(circle at 12% 14%, rgba(143, 36, 31, 0.22), transparent 32%),
@@ -42,6 +42,11 @@ body {
   overflow: hidden;
 }
 
+button,
+select {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 button {
   appearance: none;
   border: 1px solid rgba(242, 184, 75, 0.24);
@@ -49,7 +54,7 @@ button {
     linear-gradient(135deg, rgba(242, 184, 75, 0.10), rgba(232, 107, 47, 0.08)),
     rgba(20, 10, 8, 0.72);
   color: #fff7ed;
-  border-radius: 5px;
+  border-radius: 4px;
   padding: 7px 7px;
   font-weight: 900;
   font-size: 10.5px;
@@ -72,7 +77,7 @@ button.active {
 .cah-ui-toggle {
   position: absolute;
   z-index: 120;
-  top: 76px;
+  top: 68px;
   right: 10px;
   border-color: rgba(56, 214, 255, 0.34);
   background:
@@ -82,18 +87,32 @@ button.active {
   backdrop-filter: blur(10px);
 }
 
-.cah-panel-hide {
+.cah-panel-min {
   position: absolute;
-  z-index: 5;
+  z-index: 6;
   top: 6px;
   right: 6px;
   width: 22px;
   height: 22px;
   padding: 0;
   border-radius: 4px;
-  font-size: 13px;
-  color: rgba(255, 247, 237, 0.78);
+  font-size: 14px;
+  color: rgba(255, 247, 237, 0.82);
   background: rgba(0, 0, 0, 0.34);
+}
+
+.cah-panel-title {
+  color: #f2b84b;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-right: 26px;
+}
+
+.cah-panel-content {
+  width: 100%;
 }
 
 .cah-floating-header {
@@ -102,16 +121,19 @@ button.active {
   top: 10px;
   left: 10px;
   right: 10px;
-  height: 54px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+  height: 50px;
   padding: 7px 38px 7px 10px;
   border-radius: 4px;
   border: 1px solid rgba(255, 247, 237, 0.12);
   background: rgba(20, 10, 8, 0.72);
   backdrop-filter: blur(10px);
+}
+
+.cah-floating-header .cah-panel-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 
 .cah-kicker {
@@ -194,7 +216,7 @@ button.active {
   position: absolute;
   z-index: 40;
   right: 12px;
-  top: 122px;
+  top: 112px;
   width: 176px;
   height: 176px;
   border-radius: 50%;
@@ -223,13 +245,9 @@ button.active {
 
 .cah-nav-gizmo.is-moving {
   outline: 2px solid rgba(242, 184, 75, 0.7);
-  box-shadow:
-    0 16px 42px rgba(0, 0, 0, 0.42),
-    0 0 22px rgba(242, 184, 75, 0.18),
-    inset 0 0 28px rgba(0, 0, 0, 0.18);
 }
 
-.cah-gizmo-hide {
+.cah-gizmo-min {
   top: -2px;
   right: -2px;
   border-radius: 50%;
@@ -324,26 +342,55 @@ button.active {
   transform: translateX(-50%) scale(0.97);
 }
 
-.cah-floating-toolbar {
+.cah-brush-panel,
+.cah-modifier-panel,
+.cah-layers-panel {
   position: absolute;
-  z-index: 22;
-  left: 10px;
-  right: 210px;
-  bottom: 10px;
-  display: grid;
-  gap: 8px;
+  z-index: 24;
+  width: 210px;
   padding: 9px 34px 9px 9px;
   border-radius: 4px;
   border: 1px solid rgba(255, 247, 237, 0.13);
-  background: rgba(20, 10, 8, 0.76);
+  background: rgba(20, 10, 8, 0.78);
   backdrop-filter: blur(10px);
 }
 
-.cah-tool-row {
+.cah-brush-panel {
+  left: 10px;
+  bottom: 10px;
+}
+
+.cah-modifier-panel {
+  left: 230px;
+  bottom: 10px;
+  width: 310px;
+}
+
+.cah-layers-panel {
+  right: 10px;
+  bottom: 10px;
+  width: 196px;
+  max-height: 300px;
+}
+
+.cah-brush-select {
+  width: 100%;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid rgba(242, 184, 75, 0.26);
+  background: rgba(20, 10, 8, 0.84);
+  color: #fff7ed;
+  font-weight: 900;
+  font-size: 11px;
+  padding: 0 8px;
+  margin-bottom: 7px;
+}
+
+.cah-mini-button-row {
   display: grid;
-  grid-template-columns: 84px 1fr 1fr;
-  gap: 8px;
-  align-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-top: 5px;
 }
 
 .cah-control {
@@ -354,6 +401,7 @@ button.active {
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  margin-bottom: 8px;
 }
 
 .cah-control b {
@@ -371,39 +419,9 @@ button.active {
   background: transparent;
 }
 
-.cah-button-row {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 5px;
-}
-
-.cah-layers-panel {
-  position: absolute;
-  z-index: 23;
-  right: 10px;
-  bottom: 10px;
-  width: 196px;
-  max-height: 300px;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 8px;
-  padding: 9px 34px 9px 9px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 247, 237, 0.13);
-  background: rgba(20, 10, 8, 0.78);
-  backdrop-filter: blur(10px);
-}
-
-.cah-layers-title {
-  color: #f2b84b;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 .cah-layers-list {
   min-height: 0;
+  max-height: 190px;
   overflow-y: auto;
   display: grid;
   align-content: start;
@@ -446,15 +464,16 @@ button.active {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
+  margin-top: 8px;
 }
 
 .cah-layer-actions button {
   width: 100%;
-  border-radius: 4px;
 }
 
 body.cah-ui-hidden .cah-floating-header,
-body.cah-ui-hidden .cah-floating-toolbar,
+body.cah-ui-hidden .cah-brush-panel,
+body.cah-ui-hidden .cah-modifier-panel,
 body.cah-ui-hidden .cah-layers-panel {
   opacity: 0;
   pointer-events: none;
@@ -471,22 +490,59 @@ body.cah-ui-hidden .cah-ui-toggle {
   opacity: 0.72;
 }
 
-body.cah-panel-header-hidden .cah-floating-header,
-body.cah-panel-tools-hidden .cah-floating-toolbar,
-body.cah-panel-layers-hidden .cah-layers-panel,
-body.cah-panel-gizmo-hidden .cah-nav-gizmo {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(12px);
+body.cah-panel-header-minimized .cah-floating-header {
+  width: 92px;
+  right: auto;
+  height: 36px;
+  overflow: hidden;
+}
+
+body.cah-panel-header-minimized .cah-floating-header .cah-panel-content {
+  display: none;
+}
+
+body.cah-panel-brushes-minimized .cah-brush-panel,
+body.cah-panel-modifiers-minimized .cah-modifier-panel,
+body.cah-panel-layers-minimized .cah-layers-panel {
+  width: 92px;
+  height: 36px;
+  overflow: hidden;
+}
+
+body.cah-panel-brushes-minimized .cah-brush-panel .cah-panel-content,
+body.cah-panel-modifiers-minimized .cah-modifier-panel .cah-panel-content,
+body.cah-panel-layers-minimized .cah-layers-panel .cah-panel-content {
+  display: none;
+}
+
+body.cah-panel-brushes-minimized .cah-brush-panel .cah-panel-title,
+body.cah-panel-modifiers-minimized .cah-modifier-panel .cah-panel-title,
+body.cah-panel-layers-minimized .cah-layers-panel .cah-panel-title {
+  margin: 4px 0 0;
+  padding-right: 28px;
+}
+
+body.cah-panel-gizmo-minimized .cah-nav-gizmo {
+  width: 72px;
+  height: 36px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
+  display: none;
 }
 
 .cah-floating-header,
-.cah-floating-toolbar,
+.cah-brush-panel,
+.cah-modifier-panel,
 .cah-layers-panel,
 .cah-nav-gizmo {
   transition:
     opacity 0.18s ease,
-    transform 0.18s ease;
+    transform 0.18s ease,
+    width 0.18s ease,
+    height 0.18s ease;
 }
 
 @media (max-width: 820px) {
@@ -609,46 +665,24 @@ body.cah-panel-gizmo-hidden .cah-nav-gizmo {
     font-size: 8px !important;
   }
 
-  .cah-floating-toolbar {
+  .cah-brush-panel {
     left: 7px;
-    right: 7px;
     bottom: 7px;
-    padding: 7px 32px 7px 7px;
-    border-radius: 0;
+    width: 176px;
   }
 
-  .cah-tool-row {
-    grid-template-columns: 64px 1fr 1fr;
-    gap: 7px;
-  }
-
-  .cah-control {
-    font-size: 8px;
-  }
-
-  .cah-color-control input[type="color"] {
-    height: 26px;
-  }
-
-  .cah-button-row {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-  }
-
-  .cah-button-row button {
-    padding: 7px 4px;
-    font-size: 9px;
+  .cah-modifier-panel {
+    left: 190px;
+    bottom: 7px;
+    width: calc(100% - 197px);
   }
 
   .cah-layers-panel {
     left: 7px;
     right: 7px;
-    bottom: 142px;
+    bottom: 138px;
     width: auto;
-    max-height: 112px;
-    grid-template-rows: auto auto;
-    border-radius: 0;
-    padding: 7px 32px 7px 7px;
+    max-height: 108px;
   }
 
   .cah-layers-list {
@@ -681,12 +715,16 @@ body.cah-panel-gizmo-hidden .cah-nav-gizmo {
 
 @media (max-height: 740px) and (max-width: 820px) {
   .cah-layers-panel {
-    bottom: 126px;
-    max-height: 96px;
+    bottom: 120px;
+    max-height: 92px;
   }
 
-  .cah-tool-row {
+  .cah-modifier-panel {
     display: none;
+  }
+
+  .cah-brush-panel {
+    width: calc(100% - 14px);
   }
 
   .cah-nav-gizmo {
