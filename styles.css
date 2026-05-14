@@ -29,8 +29,8 @@ body {
 }
 
 .cah-draw-shell {
-  width: min(100%, 1200px);
-  height: min(100%, 860px);
+  width: min(100%, 1240px);
+  height: min(100%, 900px);
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 10px;
@@ -142,6 +142,13 @@ button.active {
   justify-content: flex-end;
 }
 
+.cah-main-workspace {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  gap: 10px;
+}
+
 .cah-canvas-area {
   min-height: 0;
   position: relative;
@@ -159,12 +166,80 @@ button.active {
   touch-action: none;
 }
 
-#drawCanvas {
-  display: block;
+.cah-layer-stack {
+  position: relative;
   width: 100%;
   height: 100%;
   touch-action: none;
   cursor: crosshair;
+}
+
+.cah-layer-stack canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.cah-layers-panel {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 247, 237, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.cah-layers-title {
+  color: #f2b84b;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cah-layers-list {
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+}
+
+.cah-layer-item {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 247, 237, 0.12);
+  background: rgba(255, 255, 255, 0.055);
+  color: #fff7ed;
+  padding: 9px;
+  font-size: 12px;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cah-layer-item.active {
+  border-color: rgba(242, 184, 75, 0.68);
+  background: rgba(242, 184, 75, 0.12);
+}
+
+.cah-layer-item .eye {
+  color: #f2b84b;
+}
+
+.cah-layer-actions {
+  display: grid;
+  gap: 7px;
+}
+
+.cah-layer-actions button {
+  width: 100%;
+  border-radius: 14px;
 }
 
 .cah-draw-footer {
@@ -199,7 +274,7 @@ button.active {
 
   .cah-draw-shell {
     height: calc(100vh - 16px);
-    min-height: 680px;
+    min-height: 720px;
     border-radius: 18px;
     padding: 8px;
     gap: 8px;
@@ -222,6 +297,30 @@ button.active {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  .cah-main-workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .cah-layers-panel {
+    grid-template-rows: auto auto;
+  }
+
+  .cah-layers-list {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 2px;
+  }
+
+  .cah-layer-item {
+    min-width: 110px;
+  }
+
+  .cah-layer-actions {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   button {
