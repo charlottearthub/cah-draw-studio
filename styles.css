@@ -986,3 +986,450 @@ button,
   -webkit-user-drag: none !important;
   user-drag: none !important;
 }
+
+/* Tablet art-app layout */
+.cah-app-bar {
+  left: 56px;
+  right: 56px;
+  top: 10px;
+  height: 46px;
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cah-project-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.cah-project-block h1 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.cah-project-block span {
+  display: block;
+  margin-top: 3px;
+  color: rgba(247, 244, 237, 0.54);
+  font-size: 10px;
+}
+
+.cah-icon-button {
+  width: 30px;
+  height: 30px;
+  min-width: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.cah-tool-rail {
+  left: 10px;
+  top: 70px;
+  bottom: 14px;
+  width: 50px;
+  padding: 7px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+}
+
+.cah-tool-button {
+  height: 45px;
+  min-width: 0;
+  padding: 4px 2px;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.cah-tool-button span {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.cah-tool-button b {
+  font-size: 8px;
+  line-height: 1;
+  font-weight: 700;
+  color: rgba(247, 244, 237, 0.72);
+}
+
+.cah-tool-button.active b {
+  color: #fff;
+}
+
+.cah-rail-color {
+  width: 30px;
+  height: 30px;
+  min-width: 0;
+  padding: 0;
+  border-radius: 50%;
+  margin: auto auto 4px;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  background: #111;
+}
+
+.cah-brush-library {
+  left: 68px;
+  top: 70px;
+  width: 300px;
+  max-height: 430px;
+  padding: 10px 34px 10px 10px;
+}
+
+.cah-brush-library-grid {
+  display: grid;
+  grid-template-columns: 105px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.cah-brush-categories,
+.cah-brush-list {
+  display: grid;
+  gap: 5px;
+}
+
+.cah-brush-categories button {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 7px;
+  text-align: left;
+  background: transparent;
+  box-shadow: none;
+  color: rgba(247, 244, 237, 0.72);
+}
+
+.cah-brush-categories button.active {
+  background: rgba(105, 151, 240, 0.18);
+  color: #fff;
+}
+
+.cah-brush-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.cah-brush-card {
+  min-width: 0;
+  height: 54px;
+  padding: 5px 6px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 3px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.cah-brush-card span {
+  font-size: 9px;
+  color: rgba(247, 244, 237, 0.72);
+}
+
+.cah-brush-card.active {
+  outline: 1px solid rgba(105, 151, 240, 0.8);
+  background: rgba(81, 130, 226, 0.18);
+}
+
+.stroke {
+  display: block;
+  width: 100%;
+  height: 24px;
+  border-radius: 999px;
+  opacity: 0.9;
+}
+
+.stroke-soft { background: radial-gradient(ellipse at center, rgba(255,255,255,0.95), rgba(255,255,255,0.2) 42%, transparent 70%); filter: blur(1px); }
+.stroke-ink { background: linear-gradient(175deg, transparent 30%, rgba(255,255,255,0.95) 46%, rgba(255,255,255,0.35) 54%, transparent 70%); }
+.stroke-charcoal { background: repeating-linear-gradient(170deg, transparent 0 5px, rgba(255,255,255,0.6) 5px 8px, transparent 8px 14px); filter: blur(0.5px); }
+.stroke-marker { background: linear-gradient(175deg, transparent 25%, rgba(255,255,255,0.62) 38%, rgba(255,255,255,0.9) 55%, transparent 72%); filter: blur(1.5px); }
+.stroke-blend { background: radial-gradient(ellipse at center, rgba(255,255,255,0.7), rgba(255,255,255,0.14) 55%, transparent 75%); filter: blur(2px); }
+.stroke-pencil { background: linear-gradient(175deg, transparent 38%, rgba(255,255,255,0.7) 48%, transparent 58%); }
+.stroke-water { background: radial-gradient(ellipse at center, rgba(180,210,255,0.65), rgba(255,255,255,0.22) 48%, transparent 72%); filter: blur(2px); }
+.stroke-smudge { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), rgba(255,255,255,0.72), rgba(255,255,255,0.14), transparent); filter: blur(2px); }
+
+.cah-hidden-select {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cah-brush-settings {
+  left: 96px;
+  bottom: 70px;
+  width: 250px;
+  padding: 10px 34px 10px 10px;
+}
+
+.cah-brush-preview {
+  height: 48px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  background:
+    radial-gradient(ellipse at center, rgba(255,255,255,0.72), rgba(255,255,255,0.16) 48%, transparent 72%),
+    rgba(255, 255, 255, 0.025);
+  filter: blur(0.4px);
+}
+
+.cah-brush-settings .cah-control {
+  margin-bottom: 7px;
+}
+
+.cah-brush-settings button:last-child {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.cah-layers-panel {
+  right: 58px;
+  top: 70px;
+  width: 250px;
+  max-height: 540px;
+  padding: 10px 34px 10px 10px;
+}
+
+.cah-panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cah-layer-top-add {
+  width: 24px;
+  height: 24px;
+  min-width: 0;
+  padding: 0;
+}
+
+.cah-layer-opacity {
+  margin-top: 8px;
+}
+
+.cah-layers-list {
+  max-height: 375px;
+}
+
+.cah-layer-item {
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  min-height: 44px;
+}
+
+.cah-layer-name::before {
+  content: "";
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  margin-right: 7px;
+  vertical-align: middle;
+  border-radius: 3px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02)),
+    rgba(120, 130, 145, 0.35);
+}
+
+.cah-color-panel {
+  right: 58px;
+  bottom: 22px;
+  width: 250px;
+  padding: 10px 34px 10px 10px;
+}
+
+.cah-color-picker-ui {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.cah-color-wheel {
+  position: relative;
+  width: 172px;
+  height: 172px;
+  border-radius: 50%;
+  background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  touch-action: none;
+}
+
+.cah-color-wheel::after {
+  content: "";
+  position: absolute;
+  inset: 26px;
+  border-radius: 50%;
+  background: rgba(18, 18, 18, 0.92);
+}
+
+.cah-color-square {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: 92px;
+  height: 92px;
+  transform: translate(-50%, -50%);
+  border-radius: 4px;
+  background:
+    linear-gradient(0deg, #000, transparent),
+    linear-gradient(90deg, #fff, hsl(220, 100%, 50%));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22);
+  touch-action: none;
+}
+
+.cah-color-wheel-handle,
+.cah-color-square-handle {
+  position: absolute;
+  z-index: 4;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.cah-color-square-handle {
+  left: 92%;
+  top: 7%;
+}
+
+.cah-native-color {
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.cah-swatch-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  width: 100%;
+}
+
+.cah-swatch-row button {
+  height: 20px;
+  min-width: 0;
+  padding: 0;
+  border-radius: 3px;
+}
+
+.cah-canvas-panel {
+  left: 96px;
+  bottom: 14px;
+  right: auto;
+  width: 250px;
+  padding: 10px 34px 10px 10px;
+}
+
+.cah-nav-gizmo {
+  left: auto;
+  right: 324px;
+  bottom: 22px;
+}
+
+body.cah-ui-hidden .cah-tool-rail,
+body.cah-ui-hidden .cah-brush-library,
+body.cah-ui-hidden .cah-brush-settings,
+body.cah-ui-hidden .cah-layers-panel,
+body.cah-ui-hidden .cah-color-panel,
+body.cah-ui-hidden .cah-canvas-panel,
+body.cah-ui-hidden .cah-app-bar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.cah-panel-settings-minimized .cah-brush-settings,
+body.cah-panel-brushes-minimized .cah-brush-library,
+body.cah-panel-color-minimized .cah-color-panel,
+body.cah-panel-layers-minimized .cah-layers-panel,
+body.cah-panel-canvas-minimized .cah-canvas-panel {
+  width: 105px;
+  height: 42px;
+  overflow: hidden;
+}
+
+body.cah-panel-settings-minimized .cah-brush-settings .cah-panel-content,
+body.cah-panel-settings-minimized .cah-brush-settings .cah-brush-preview,
+body.cah-panel-settings-minimized .cah-brush-settings .cah-control,
+body.cah-panel-settings-minimized .cah-brush-settings #resetBrushSettingsBtn,
+body.cah-panel-brushes-minimized .cah-brush-library .cah-brush-library-grid,
+body.cah-panel-color-minimized .cah-color-panel .cah-color-picker-ui,
+body.cah-panel-layers-minimized .cah-layers-panel .cah-select,
+body.cah-panel-layers-minimized .cah-layers-panel .cah-layer-opacity,
+body.cah-panel-layers-minimized .cah-layers-panel .cah-layers-list,
+body.cah-panel-canvas-minimized .cah-canvas-panel .cah-control,
+body.cah-panel-canvas-minimized .cah-canvas-panel #applyCanvasPresetBtn {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  .cah-app-bar {
+    left: 56px;
+    right: 10px;
+  }
+
+  .cah-brush-library {
+    width: 260px;
+  }
+
+  .cah-brush-settings,
+  .cah-canvas-panel {
+    width: 220px;
+  }
+
+  .cah-layers-panel,
+  .cah-color-panel {
+    right: 10px;
+    width: 220px;
+  }
+
+  .cah-nav-gizmo {
+    right: 240px;
+  }
+}
+
+@media (max-width: 820px) {
+  .cah-app-bar {
+    left: 8px;
+    right: 8px;
+    top: 8px;
+  }
+
+  .cah-tool-rail {
+    left: 8px;
+    top: 62px;
+    width: 46px;
+  }
+
+  .cah-brush-library {
+    left: 62px;
+    top: 62px;
+    width: min(280px, calc(100vw - 74px));
+  }
+
+  .cah-brush-settings,
+  .cah-canvas-panel {
+    left: 62px;
+    width: min(240px, calc(100vw - 74px));
+  }
+
+  .cah-layers-panel,
+  .cah-color-panel {
+    right: 8px;
+    width: min(230px, calc(100vw - 74px));
+  }
+}
