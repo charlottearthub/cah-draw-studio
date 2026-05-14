@@ -418,15 +418,15 @@ function prepareBrush(ctx) {
   const size = Number(brushSize.value);
   const opacity = Number(brushOpacity.value) / 100;
   const color = hexToRgba(colorPicker.value, opacity);
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha = activeMode === "erase" ? opacity : 1;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.shadowBlur = 0;
   ctx.shadowColor = "transparent";
   ctx.filter = "none";
   ctx.globalCompositeOperation = activeMode === "erase" ? "destination-out" : "source-over";
-  ctx.strokeStyle = activeMode === "erase" ? `rgba(0,0,0,${opacity})` : color;
-  ctx.fillStyle = activeMode === "erase" ? `rgba(0,0,0,${opacity})` : color;
+  ctx.strokeStyle = activeMode === "erase" ? "#000000" : color;
+  ctx.fillStyle = activeMode === "erase" ? "#000000" : color;
 
   if (selectedBrush === "ink") ctx.lineWidth = Math.max(1, size * 0.68);
   else if (selectedBrush === "pencil") ctx.lineWidth = Math.max(1, size * 0.46);
@@ -501,14 +501,14 @@ function drawFastSmudge(layer, point) {
   const size = Number(brushSize.value);
   const opacity = Number(brushOpacity.value) / 100;
   const strength = Number(smudgeStrength.value) / 100;
-  const radius = Math.max(4, Math.floor(size * (0.34 + strength * 0.16)));
+  const radius = Math.max(5, Math.floor(size * (0.42 + strength * 0.22)));
   const sampleSize = radius * 2;
   const movementX = point.x - lastPoint.x;
   const movementY = point.y - lastPoint.y;
   const distance = Math.hypot(movementX, movementY);
-  const steps = Math.max(1, Math.min(3, Math.ceil(distance / Math.max(14, radius * 1.9))));
-  const dragLag = 0.08 + strength * 0.28;
-  const alpha = opacity * (0.06 + strength * 0.18);
+  const steps = Math.max(1, Math.min(5, Math.ceil(distance / Math.max(10, radius * 1.35))));
+  const dragLag = 0.18 + strength * 0.52;
+  const alpha = opacity * (0.08 + strength * 0.26);
   ctx.save();
   ctx.globalCompositeOperation = "source-over";
   ctx.globalAlpha = alpha;
