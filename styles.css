@@ -1072,3 +1072,41 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
   bottom: 12px !important;
   transform: none !important;
 }
+/* Stop accidental text selection / blue highlighting in Draw Studio */
+html,
+body,
+.cah-draw-app,
+.cah-draw-shell,
+.cah-panel,
+.cah-panel *,
+.cah-canvas-area,
+.cah-canvas-viewport,
+.cah-canvas-stage,
+.cah-layer-stack,
+.cah-nav-gizmo,
+.cah-nav-gizmo * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Keep form fields usable */
+input,
+textarea,
+select,
+input *,
+textarea *,
+select * {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Prevent drag images / ghost selection */
+button,
+.cah-panel-title,
+.cah-layer-item,
+.cah-gizmo-center {
+  -webkit-user-drag: none !important;
+  user-drag: none !important;
+}
