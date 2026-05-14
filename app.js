@@ -92,7 +92,7 @@ let canvasHeight = 1080;
 
 const maxLayers = 5;
 const maxHistory = 30;
-const panelStorageKey = "cahDrawStudioPanelStateV4";
+const panelStorageKey = "cahDrawStudioPanelStateV5";
 
 const panelMap = {
   header: headerPanel,
@@ -129,7 +129,7 @@ function clamp(value, min, max) {
 }
 
 function hexToRgba(hex, alpha) {
-  const cleanHex = hex.replace("#");
+  const cleanHex = hex.replace("#", "");
 
   const r = parseInt(cleanHex.substring(0, 2), 16);
   const g = parseInt(cleanHex.substring(2, 4), 16);
