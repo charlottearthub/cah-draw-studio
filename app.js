@@ -47,11 +47,14 @@ let nextLayerNumber = 1;
 let currentTool = "brush";
 let isDrawing = false;
 let isPanning = false;
+let isRotating = false;
 let isRightMousePanning = false;
+let isMiddleMouseRotating = false;
 
 let lastPoint = null;
 let lastMidPoint = null;
 let panLastPoint = null;
+let rotateLastPoint = null;
 
 let undoStack = [];
 let redoStack = [];
@@ -605,8 +608,10 @@ function startDrawing(event) {
   event.preventDefault();
 
   if (event.button === 1) {
-    const point = getViewportPoint(event.clientX, event.clientY);
-    rotateAtViewportPoint(15, point.x, point.y);
+    isRotating = true;
+    isMiddleMouseRotating = true;
+    rotateLastPoint = getScreenPoint(event);
+    canvasViewport.setPointerCapture?.(event.pointerId);
     return;
   }
 
@@ -636,6 +641,21 @@ function startDrawing(event) {
 }
 
 function draw(event) {
+  if (isRotating) {
+    event.preventDefault();
+
+    const currentPoint = getScreenPoint(event);
+    const dx = currentPoint.x - rotateLastPoint.x;
+    const dy = currentPoint.y - rotateLastPoint.y;
+
+    const rotationAmount = dx * 0.35 + dy * 0.12;
+
+    rotateAtCenter(rotationAmount);
+
+    rotateLastPoint = currentPoint;
+    return;
+  }
+
   if (isPanning) {
     event.preventDefault();
 
@@ -664,6 +684,15 @@ function draw(event) {
 }
 
 function stopDrawing(event) {
+  if (isRotating) {
+    event.preventDefault();
+
+    isRotating = false;
+    isMiddleMouseRotating = false;
+    rotateLastPoint = null;
+    return;
+  }
+
   if (isPanning) {
     event.preventDefault();
 
@@ -694,6 +723,12 @@ function handleWheel(event) {
 
 function preventCanvasContextMenu(event) {
   event.preventDefault();
+}
+
+function preventMiddleMouseAutoScroll(event) {
+  if (event.button === 1) {
+    event.preventDefault();
+  }
 }
 
 function setTool(tool) {
@@ -937,9 +972,16 @@ canvasViewport.addEventListener("pointercancel", stopDrawing);
 canvasViewport.addEventListener("pointerleave", stopDrawing);
 canvasViewport.addEventListener("wheel", handleWheel, { passive: false });
 canvasViewport.addEventListener("contextmenu", preventCanvasContextMenu);
+canvasViewport.addEventListener("auxclick", preventMiddleMouseAutoScroll);
 
-window.addEventListener("mouseup", () => {
-  if (isRightMousePanning) {
+window.addEventListener("pointerup", (event) => {
+  if (isMiddleMouseRotating && event.button === 1) {
+    isRotating = false;
+    isMiddleMouseRotating = false;
+    rotateLastPoint = null;
+  }
+
+  if (isRightMousePanning && event.button === 2) {
     isPanning = false;
     isRightMousePanning = false;
     panLastPoint = null;
