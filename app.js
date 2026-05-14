@@ -22,6 +22,16 @@ const panToolBtn = document.getElementById("panToolBtn");
 const canvasPresetSelect = document.getElementById("canvasPresetSelect");
 const applyCanvasPresetBtn = document.getElementById("applyCanvasPresetBtn");
 
+const submitArtistName = document.getElementById("submitArtistName");
+const submitContact = document.getElementById("submitContact");
+const submitTitle = document.getElementById("submitTitle");
+const submitAgeGroup = document.getElementById("submitAgeGroup");
+const submitGuardianName = document.getElementById("submitGuardianName");
+const submitDescription = document.getElementById("submitDescription");
+const submitPermission = document.getElementById("submitPermission");
+const submitDrawingBtn = document.getElementById("submitDrawingBtn");
+const submitStatus = document.getElementById("submitStatus");
+
 const undoBtn = document.getElementById("undoBtn");
 const redoBtn = document.getElementById("redoBtn");
 const clearCanvasBtn = document.getElementById("clearCanvasBtn");
@@ -46,6 +56,7 @@ const layersList = document.getElementById("layersList");
 const shell = document.querySelector(".cah-draw-shell");
 const headerPanel = document.querySelector(".cah-floating-header");
 const canvasPanel = document.querySelector(".cah-canvas-panel");
+const submitPanel = document.querySelector(".cah-submit-panel");
 const brushPanel = document.querySelector(".cah-brush-panel");
 const modifierPanel = document.querySelector(".cah-modifier-panel");
 const layersPanel = document.querySelector(".cah-layers-panel");
@@ -62,6 +73,7 @@ let isPanning = false;
 let isRotating = false;
 let isRightMousePanning = false;
 let isMiddleMouseRotating = false;
+let isSubmitting = false;
 
 let lastPoint = null;
 let lastMidPoint = null;
@@ -80,11 +92,12 @@ let canvasHeight = 1080;
 
 const maxLayers = 5;
 const maxHistory = 30;
-const panelStorageKey = "cahDrawStudioPanelStateV2";
+const panelStorageKey = "cahDrawStudioPanelStateV3";
 
 const panelMap = {
   header: headerPanel,
   canvas: canvasPanel,
+  submit: submitPanel,
   brushes: brushPanel,
   modifiers: modifierPanel,
   layers: layersPanel,
@@ -100,6 +113,15 @@ let view = {
 
 function setStatus(message) {
   console.log(message);
+}
+
+function setSubmitStatus(message, type = "") {
+  submitStatus.textContent = message;
+  submitStatus.className = "cah-submit-status";
+
+  if (type) {
+    submitStatus.classList.add(type);
+  }
 }
 
 function clamp(value, min, max) {
@@ -239,7 +261,7 @@ function panView(dx, dy) {
   applyViewTransform();
 }
 
-function setupCanvas(layer, preserveImage = null) {
+function setupCanvas(layer) {
   layer.canvas.width = canvasWidth;
   layer.canvas.height = canvasHeight;
   layer.canvas.style.width = canvasWidth + "px";
@@ -249,10 +271,6 @@ function setupCanvas(layer, preserveImage = null) {
   layer.ctx.lineCap = "round";
   layer.ctx.lineJoin = "round";
   layer.ctx.imageSmoothingEnabled = true;
-
-  if (preserveImage) {
-    layer.ctx.drawImage(preserveImage, 0, 0, canvasWidth, canvasHeight);
-  }
 }
 
 function createLayer(name) {
@@ -959,7 +977,7 @@ function clearCanvas() {
   });
 }
 
-function savePng() {
+function createExportCanvas() {
   const exportCanvas = document.createElement("canvas");
   const exportCtx = exportCanvas.getContext("2d");
 
@@ -973,6 +991,12 @@ function savePng() {
     if (!layer.visible) return;
     exportCtx.drawImage(layer.canvas, 0, 0);
   });
+
+  return exportCanvas;
+}
+
+function savePng() {
+  const exportCanvas = createExportCanvas();
 
   const link = document.createElement("a");
   link.download = "cah-drawing.png";
@@ -1017,6 +1041,94 @@ function applyCanvasPreset() {
   fitCanvasToScreen();
 }
 
+function updateSubmitAgeGroup() {
+  document.body.classList.toggle("cah-submit-child", submitAgeGroup.value === "Child");
+}
+
+function validateSubmissionForm() {
+  const artistName = submitArtistName.value.trim();
+  const title = submitTitle.value.trim();
+  const ageGroup = submitAgeGroup.value;
+  const guardianName = submitGuardianName.value.trim();
+
+  if (!artistName) {
+    return "Please add an artist name.";
+  }
+
+  if (!title) {
+    return "Please add a title.";
+  }
+
+  if (ageGroup === "Child" && !guardianName) {
+    return "Please add a parent or guardian name for child submissions.";
+  }
+
+  if (!submitPermission.checked) {
+    return "Please confirm permission before submitting.";
+  }
+
+  return "";
+}
+
+async function submitDrawing() {
+  if (isSubmitting) return;
+
+  const validationError = validateSubmissionForm();
+
+  if (validationError) {
+    setSubmitStatus(validationError, "error");
+    return;
+  }
+
+  try {
+    isSubmitting = true;
+    submitDrawingBtn.disabled = true;
+    setSubmitStatus("Preparing drawing...");
+
+    const exportCanvas = createExportCanvas();
+    const imageDataUrl = exportCanvas.toDataURL("image/png");
+
+    const payload = {
+      imageDataUrl,
+      artistName: submitArtistName.value.trim(),
+      contact: submitContact.value.trim(),
+      title: submitTitle.value.trim(),
+      description: submitDescription.value.trim(),
+      ageGroup: submitAgeGroup.value,
+      guardianName: submitGuardianName.value.trim(),
+      permissionConfirmed: submitPermission.checked
+    };
+
+    setSubmitStatus("Submitting for review...");
+
+    const response = await fetch("/api/drawing-submissions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json().catch(() => null);
+
+    if (!response.ok || !result || !result.ok) {
+      throw new Error(result?.error || "Submission failed.");
+    }
+
+    setSubmitStatus("Submitted. It is now waiting for CAH review.", "success");
+
+    submitTitle.value = "";
+    submitDescription.value = "";
+    submitPermission.checked = false;
+  } catch (error) {
+    console.error(error);
+    setSubmitStatus("Submission failed. Check Render logs if this keeps happening.", "error");
+  } finally {
+    isSubmitting = false;
+    submitDrawingBtn.disabled = false;
+  }
+}
+
 function toggleUi() {
   const isHidden = document.body.classList.toggle("cah-ui-hidden");
   toggleUiBtn.textContent = isHidden ? "Show UI" : "Hide UI";
@@ -1025,6 +1137,7 @@ function toggleUi() {
     document.body.classList.remove(
       "cah-panel-header-minimized",
       "cah-panel-canvas-minimized",
+      "cah-panel-submit-minimized",
       "cah-panel-brushes-minimized",
       "cah-panel-modifiers-minimized",
       "cah-panel-layers-minimized",
@@ -1053,7 +1166,8 @@ function shouldIgnorePanelDrag(target) {
     target.closest("select") ||
     target.closest("textarea") ||
     target.closest(".cah-layers-list") ||
-    target.closest(".cah-button-stack")
+    target.closest(".cah-button-stack") ||
+    target.closest(".cah-check-row")
   );
 }
 
@@ -1162,6 +1276,7 @@ function savePanelState() {
   const minimized = {
     header: document.body.classList.contains("cah-panel-header-minimized"),
     canvas: document.body.classList.contains("cah-panel-canvas-minimized"),
+    submit: document.body.classList.contains("cah-panel-submit-minimized"),
     brushes: document.body.classList.contains("cah-panel-brushes-minimized"),
     modifiers: document.body.classList.contains("cah-panel-modifiers-minimized"),
     layers: document.body.classList.contains("cah-panel-layers-minimized"),
@@ -1231,6 +1346,7 @@ function resetPanels() {
   document.body.classList.remove(
     "cah-panel-header-minimized",
     "cah-panel-canvas-minimized",
+    "cah-panel-submit-minimized",
     "cah-panel-brushes-minimized",
     "cah-panel-modifiers-minimized",
     "cah-panel-layers-minimized",
@@ -1274,6 +1390,9 @@ eraserToolBtn.addEventListener("click", () => setTool("eraser"));
 panToolBtn.addEventListener("click", () => setTool("pan"));
 
 applyCanvasPresetBtn.addEventListener("click", applyCanvasPreset);
+
+submitAgeGroup.addEventListener("change", updateSubmitAgeGroup);
+submitDrawingBtn.addEventListener("click", submitDrawing);
 
 undoBtn.addEventListener("click", undo);
 redoBtn.addEventListener("click", redo);
@@ -1336,4 +1455,5 @@ window.addEventListener("resize", () => {
 createLayer("Layer 1");
 nextLayerNumber = 2;
 selectBrush("brush");
+updateSubmitAgeGroup();
 fitCanvasToScreen();
