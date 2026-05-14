@@ -11,7 +11,11 @@ const brushOpacityText = document.getElementById("brushOpacityText");
 
 const brushToolBtn = document.getElementById("brushToolBtn");
 const inkToolBtn = document.getElementById("inkToolBtn");
+const pencilToolBtn = document.getElementById("pencilToolBtn");
+const markerToolBtn = document.getElementById("markerToolBtn");
 const softToolBtn = document.getElementById("softToolBtn");
+const watercolorToolBtn = document.getElementById("watercolorToolBtn");
+const charcoalToolBtn = document.getElementById("charcoalToolBtn");
 const smudgeToolBtn = document.getElementById("smudgeToolBtn");
 const eraserToolBtn = document.getElementById("eraserToolBtn");
 const panToolBtn = document.getElementById("panToolBtn");
@@ -52,8 +56,8 @@ let undoStack = [];
 let redoStack = [];
 
 let isDraggingGizmo = false;
-let gizmoDragStart = null;
-let gizmoStart = null;
+let gizmoPointerId = null;
+let gizmoOffset = null;
 
 const maxLayers = 5;
 const maxHistory = 30;
@@ -130,7 +134,6 @@ function resetView() {
   view.scale = 1;
   view.rotation = 0;
   applyViewTransform();
-  setStatus("View reset");
 }
 
 function zoomAtCenter(factor) {
@@ -145,7 +148,6 @@ function zoomAtCenter(factor) {
   view.y += center.y - after.y;
 
   applyViewTransform();
-  setStatus("Zoom " + Math.round(view.scale * 100) + "%");
 }
 
 function rotateAtCenter(amount) {
@@ -164,14 +166,12 @@ function rotateAtCenter(amount) {
   view.y += center.y - after.y;
 
   applyViewTransform();
-  setStatus("Rotate " + Math.round(view.rotation) + "°");
 }
 
 function panView(dx, dy) {
   view.x += dx;
   view.y += dy;
   applyViewTransform();
-  setStatus("Pan");
 }
 
 function setupCanvas(layer) {
@@ -272,7 +272,6 @@ function renderLayers() {
 
     row.addEventListener("click", () => {
       setActiveLayer(layer.id);
-      setStatus(layer.name + " selected");
     });
 
     layersList.appendChild(row);
@@ -358,25 +357,17 @@ function restoreState(snapshot) {
 }
 
 function undo() {
-  if (undoStack.length === 0) {
-    setStatus("Nothing to undo");
-    return;
-  }
+  if (undoStack.length === 0) return;
 
   redoStack.push(captureState());
   restoreState(undoStack.pop());
-  setStatus("Undo");
 }
 
 function redo() {
-  if (redoStack.length === 0) {
-    setStatus("Nothing to redo");
-    return;
-  }
+  if (redoStack.length === 0) return;
 
   undoStack.push(captureState());
   restoreState(redoStack.pop());
-  setStatus("Redo");
 }
 
 function getCanvasPoint(event) {
@@ -405,6 +396,8 @@ function prepareBrush(ctx) {
   ctx.globalAlpha = opacity;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = "transparent";
 
   if (currentTool === "eraser") {
     ctx.globalCompositeOperation = "destination-out";
@@ -419,14 +412,42 @@ function prepareBrush(ctx) {
   ctx.fillStyle = colorPicker.value;
 
   if (currentTool === "ink") {
-    ctx.lineWidth = Math.max(1, size * 0.72);
-    ctx.globalAlpha = Math.min(1, opacity + 0.1);
+    ctx.lineWidth = Math.max(1, size * 0.68);
+    ctx.globalAlpha = Math.min(1, opacity + 0.12);
+    return;
+  }
+
+  if (currentTool === "pencil") {
+    ctx.lineWidth = Math.max(1, size * 0.46);
+    ctx.globalAlpha = opacity * 0.62;
+    return;
+  }
+
+  if (currentTool === "marker") {
+    ctx.lineWidth = size * 1.15;
+    ctx.globalAlpha = opacity * 0.72;
     return;
   }
 
   if (currentTool === "soft") {
-    ctx.lineWidth = size * 1.8;
-    ctx.globalAlpha = opacity * 0.28;
+    ctx.lineWidth = size * 1.9;
+    ctx.globalAlpha = opacity * 0.24;
+    ctx.shadowBlur = size * 0.65;
+    ctx.shadowColor = colorPicker.value;
+    return;
+  }
+
+  if (currentTool === "watercolor") {
+    ctx.lineWidth = size * 2.2;
+    ctx.globalAlpha = opacity * 0.18;
+    ctx.shadowBlur = size * 0.45;
+    ctx.shadowColor = colorPicker.value;
+    return;
+  }
+
+  if (currentTool === "charcoal") {
+    ctx.lineWidth = size * 1.35;
+    ctx.globalAlpha = opacity * 0.54;
     return;
   }
 
@@ -437,9 +458,39 @@ function finishBrush(ctx) {
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = "source-over";
   ctx.shadowBlur = 0;
+  ctx.shadowColor = "transparent";
 }
 
-function drawSmudge(layer, point) {
+function drawCharcoalTexture(ctx, point) {
+  const size = Number(brushSize.value);
+  const opacity = Number(brushOpacity.value) / 100;
+  const count = Math.max(4, Math.floor(size / 2));
+
+  ctx.save();
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = colorPicker.value;
+  ctx.globalAlpha = opacity * 0.24;
+
+  for (let i = 0; i < count; i += 1) {
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.random() * size * 0.42;
+    const radius = Math.random() * Math.max(1, size * 0.09);
+
+    ctx.beginPath();
+    ctx.arc(
+      point.x + Math.cos(angle) * distance,
+      point.y + Math.sin(angle) * distance,
+      radius,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawSoftRoundSmudge(layer, point) {
   if (!lastPoint) {
     lastPoint = point;
     lastMidPoint = point;
@@ -449,7 +500,7 @@ function drawSmudge(layer, point) {
   const ctx = layer.ctx;
   const size = Number(brushSize.value);
   const opacity = Number(brushOpacity.value) / 100;
-  const radius = Math.max(4, Math.floor(size / 2));
+  const radius = Math.max(6, Math.floor(size * 0.72));
   const sampleSize = radius * 2;
 
   const sx = Math.floor(lastPoint.x - radius);
@@ -458,15 +509,26 @@ function drawSmudge(layer, point) {
   const dy = Math.floor(point.y - radius);
 
   try {
-    const imageData = ctx.getImageData(sx, sy, sampleSize, sampleSize);
+    const sample = ctx.getImageData(sx, sy, sampleSize, sampleSize);
+
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+
+    tempCanvas.width = sampleSize;
+    tempCanvas.height = sampleSize;
+    tempCtx.putImageData(sample, 0, 0);
 
     ctx.save();
-    ctx.globalAlpha = opacity * 0.42;
+    ctx.globalAlpha = opacity * 0.38;
     ctx.globalCompositeOperation = "source-over";
-    ctx.putImageData(imageData, dx, dy);
+    ctx.filter = "blur(2px)";
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(tempCanvas, dx, dy);
     ctx.restore();
   } catch (error) {
-    /* canvas bounds can throw near edges */
+    /* ignore edge reads */
   }
 
   lastPoint = point;
@@ -479,7 +541,7 @@ function drawSmoothPoint(point) {
   if (!layer || !layer.visible) return;
 
   if (currentTool === "smudge") {
-    drawSmudge(layer, point);
+    drawSoftRoundSmudge(layer, point);
     return;
   }
 
@@ -494,6 +556,10 @@ function drawSmoothPoint(point) {
     ctx.arc(point.x, point.y, Number(brushSize.value) / 2, 0, Math.PI * 2);
     ctx.fill();
 
+    if (currentTool === "charcoal") {
+      drawCharcoalTexture(ctx, point);
+    }
+
     finishBrush(ctx);
     return;
   }
@@ -504,6 +570,10 @@ function drawSmoothPoint(point) {
   ctx.moveTo(lastMidPoint.x, lastMidPoint.y);
   ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, mid.x, mid.y);
   ctx.stroke();
+
+  if (currentTool === "charcoal") {
+    drawCharcoalTexture(ctx, point);
+  }
 
   lastPoint = point;
   lastMidPoint = mid;
@@ -521,21 +591,12 @@ function startDrawing(event) {
     panLastPoint = getScreenPoint(event);
     layersContainer.classList.add("pan-dragging");
     canvasViewport.setPointerCapture?.(event.pointerId);
-    setStatus("Panning");
     return;
   }
 
   const layer = getActiveLayer();
 
-  if (!layer) {
-    setStatus("No active layer");
-    return;
-  }
-
-  if (!layer.visible) {
-    setStatus("Active layer is hidden");
-    return;
-  }
+  if (!layer || !layer.visible) return;
 
   saveHistory();
 
@@ -582,8 +643,6 @@ function stopDrawing(event) {
     isPanning = false;
     panLastPoint = null;
     layersContainer.classList.remove("pan-dragging");
-
-    setStatus("Pan saved");
     return;
   }
 
@@ -594,8 +653,6 @@ function stopDrawing(event) {
   isDrawing = false;
   lastPoint = null;
   lastMidPoint = null;
-
-  setStatus("Saved stroke");
 }
 
 function setTool(tool) {
@@ -603,21 +660,20 @@ function setTool(tool) {
 
   brushToolBtn.classList.toggle("active", tool === "brush");
   inkToolBtn.classList.toggle("active", tool === "ink");
+  pencilToolBtn.classList.toggle("active", tool === "pencil");
+  markerToolBtn.classList.toggle("active", tool === "marker");
   softToolBtn.classList.toggle("active", tool === "soft");
+  watercolorToolBtn.classList.toggle("active", tool === "watercolor");
+  charcoalToolBtn.classList.toggle("active", tool === "charcoal");
   smudgeToolBtn.classList.toggle("active", tool === "smudge");
   eraserToolBtn.classList.toggle("active", tool === "eraser");
   panToolBtn.classList.toggle("active", tool === "pan");
 
   layersContainer.classList.toggle("pan-active", tool === "pan");
-
-  setStatus(tool + " selected");
 }
 
 function addLayer() {
-  if (layers.length >= maxLayers) {
-    setStatus("5 layer max");
-    return;
-  }
+  if (layers.length >= maxLayers) return;
 
   saveHistory();
 
@@ -625,14 +681,10 @@ function addLayer() {
   nextLayerNumber += 1;
 
   setActiveLayer(layer.id);
-  setStatus(layer.name + " added");
 }
 
 function deleteLayer() {
-  if (layers.length <= 1) {
-    setStatus("Keep at least one layer");
-    return;
-  }
+  if (layers.length <= 1) return;
 
   const activeLayer = getActiveLayer();
   if (!activeLayer) return;
@@ -643,7 +695,6 @@ function deleteLayer() {
   layers = layers.filter((layer) => layer.id !== activeLayer.id);
 
   setActiveLayer(layers[layers.length - 1].id);
-  setStatus("Layer deleted");
 }
 
 function clearCanvas() {
@@ -654,8 +705,6 @@ function clearCanvas() {
   layers.forEach((layer) => {
     layer.ctx.clearRect(0, 0, size.cssWidth, size.cssHeight);
   });
-
-  setStatus("Canvas cleared");
 }
 
 function savePng() {
@@ -679,8 +728,6 @@ function savePng() {
   link.download = "cah-drawing.png";
   link.href = exportCanvas.toDataURL("image/png");
   link.click();
-
-  setStatus("PNG saved");
 }
 
 function resizeLayers() {
@@ -697,10 +744,20 @@ function resizeLayers() {
 
 function toggleUi() {
   const isHidden = document.body.classList.toggle("cah-ui-hidden");
-
   toggleUiBtn.textContent = isHidden ? "Show UI" : "Hide UI";
 
-  setStatus(isHidden ? "UI hidden" : "UI shown");
+  if (!isHidden) {
+    document.body.classList.remove(
+      "cah-panel-header-hidden",
+      "cah-panel-tools-hidden",
+      "cah-panel-layers-hidden",
+      "cah-panel-gizmo-hidden"
+    );
+  }
+}
+
+function hidePanel(panelName) {
+  document.body.classList.add("cah-panel-" + panelName + "-hidden");
 }
 
 function startGizmoDrag(event) {
@@ -708,47 +765,81 @@ function startGizmoDrag(event) {
   event.stopPropagation();
 
   isDraggingGizmo = true;
-
-  const rect = navGizmo.getBoundingClientRect();
-
-  gizmoDragStart = {
-    x: event.clientX,
-    y: event.clientY
-  };
-
-  gizmoStart = {
-    left: rect.left,
-    top: rect.top
-  };
-
-  gizmoDragHandle.setPointerCapture?.(event.pointerId);
-}
-
-function moveGizmo(event) {
-  if (!isDraggingGizmo) return;
-
-  event.preventDefault();
-
-  const dx = event.clientX - gizmoDragStart.x;
-  const dy = event.clientY - gizmoDragStart.y;
+  gizmoPointerId = event.pointerId;
 
   const shellRect = document.querySelector(".cah-draw-shell").getBoundingClientRect();
   const gizmoRect = navGizmo.getBoundingClientRect();
 
-  const left = clamp(gizmoStart.left + dx - shellRect.left, 8, shellRect.width - gizmoRect.width - 8);
-  const top = clamp(gizmoStart.top + dy - shellRect.top, 8, shellRect.height - gizmoRect.height - 8);
+  navGizmo.style.left = gizmoRect.left - shellRect.left + "px";
+  navGizmo.style.top = gizmoRect.top - shellRect.top + "px";
+  navGizmo.style.right = "auto";
+  navGizmo.style.bottom = "auto";
+
+  const updatedRect = navGizmo.getBoundingClientRect();
+
+  gizmoOffset = {
+    x: event.clientX - updatedRect.left,
+    y: event.clientY - updatedRect.top
+  };
+
+  navGizmo.classList.add("is-moving");
+
+  document.addEventListener("pointermove", moveGizmo, { passive: false });
+  document.addEventListener("pointerup", stopGizmoDrag, { passive: false });
+  document.addEventListener("pointercancel", stopGizmoDrag, { passive: false });
+
+  try {
+    gizmoDragHandle.setPointerCapture(event.pointerId);
+  } catch (error) {
+    /* pointer capture can fail on some browsers */
+  }
+}
+
+function moveGizmo(event) {
+  if (!isDraggingGizmo) return;
+  if (gizmoPointerId !== null && event.pointerId !== gizmoPointerId) return;
+
+  event.preventDefault();
+
+  const shellRect = document.querySelector(".cah-draw-shell").getBoundingClientRect();
+  const gizmoRect = navGizmo.getBoundingClientRect();
+
+  const left = clamp(
+    event.clientX - shellRect.left - gizmoOffset.x,
+    8,
+    shellRect.width - gizmoRect.width - 8
+  );
+
+  const top = clamp(
+    event.clientY - shellRect.top - gizmoOffset.y,
+    8,
+    shellRect.height - gizmoRect.height - 8
+  );
 
   navGizmo.style.left = left + "px";
   navGizmo.style.top = top + "px";
   navGizmo.style.right = "auto";
+  navGizmo.style.bottom = "auto";
 }
 
 function stopGizmoDrag(event) {
   if (!isDraggingGizmo) return;
 
-  event.preventDefault();
+  if (event && gizmoPointerId !== null && event.pointerId !== gizmoPointerId) return;
+
+  if (event) {
+    event.preventDefault();
+  }
 
   isDraggingGizmo = false;
+  gizmoPointerId = null;
+  gizmoOffset = null;
+
+  navGizmo.classList.remove("is-moving");
+
+  document.removeEventListener("pointermove", moveGizmo);
+  document.removeEventListener("pointerup", stopGizmoDrag);
+  document.removeEventListener("pointercancel", stopGizmoDrag);
 }
 
 brushSize.addEventListener("input", () => {
@@ -761,7 +852,11 @@ brushOpacity.addEventListener("input", () => {
 
 brushToolBtn.addEventListener("click", () => setTool("brush"));
 inkToolBtn.addEventListener("click", () => setTool("ink"));
+pencilToolBtn.addEventListener("click", () => setTool("pencil"));
+markerToolBtn.addEventListener("click", () => setTool("marker"));
 softToolBtn.addEventListener("click", () => setTool("soft"));
+watercolorToolBtn.addEventListener("click", () => setTool("watercolor"));
+charcoalToolBtn.addEventListener("click", () => setTool("charcoal"));
 smudgeToolBtn.addEventListener("click", () => setTool("smudge"));
 eraserToolBtn.addEventListener("click", () => setTool("eraser"));
 panToolBtn.addEventListener("click", () => setTool("pan"));
@@ -785,10 +880,14 @@ toggleUiBtn.addEventListener("click", toggleUi);
 addLayerBtn.addEventListener("click", addLayer);
 deleteLayerBtn.addEventListener("click", deleteLayer);
 
+document.querySelectorAll("[data-hide-panel]").forEach((button) => {
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    hidePanel(button.dataset.hidePanel);
+  });
+});
+
 gizmoDragHandle.addEventListener("pointerdown", startGizmoDrag);
-window.addEventListener("pointermove", moveGizmo);
-window.addEventListener("pointerup", stopGizmoDrag);
-window.addEventListener("pointercancel", stopGizmoDrag);
 
 canvasViewport.addEventListener("pointerdown", startDrawing);
 canvasViewport.addEventListener("pointermove", draw);
@@ -807,4 +906,3 @@ createLayer("Layer 1");
 nextLayerNumber = 2;
 setTool("brush");
 resetView();
-setStatus("Ready");
