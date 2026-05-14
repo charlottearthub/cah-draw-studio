@@ -13,7 +13,9 @@
     <section class="cah-draw-shell">
       <button id="toggleUiBtn" class="cah-ui-toggle" type="button">Hide UI</button>
 
-      <header class="cah-floating-header">
+      <header class="cah-floating-header" data-panel="header">
+        <button class="cah-panel-hide" data-hide-panel="header" type="button">×</button>
+
         <div>
           <div class="cah-kicker">Charlotte Art Hub</div>
           <h1>CAH Draw Studio</h1>
@@ -31,7 +33,9 @@
         </div>
       </section>
 
-      <section id="navGizmo" class="cah-nav-gizmo" aria-label="Canvas navigation gizmo">
+      <section id="navGizmo" class="cah-nav-gizmo" data-panel="gizmo" aria-label="Canvas navigation gizmo">
+        <button class="cah-panel-hide cah-gizmo-hide" data-hide-panel="gizmo" type="button">×</button>
+
         <button id="gizmoDragHandle" class="cah-gizmo-center" type="button">Move</button>
 
         <button id="panUpBtn" class="cah-gizmo-wedge cah-gizmo-up" type="button">↑</button>
@@ -47,7 +51,9 @@
         <button id="resetViewBtn" class="cah-gizmo-reset" type="button">Reset</button>
       </section>
 
-      <section class="cah-floating-toolbar">
+      <section class="cah-floating-toolbar" data-panel="tools">
+        <button class="cah-panel-hide" data-hide-panel="tools" type="button">×</button>
+
         <div class="cah-tool-row">
           <label class="cah-control cah-color-control">
             <span>Color</span>
@@ -56,7 +62,7 @@
 
           <label class="cah-control">
             <span>Brush <b id="brushSizeText">8</b></span>
-            <input id="brushSize" type="range" min="1" max="70" value="8" />
+            <input id="brushSize" type="range" min="1" max="80" value="8" />
           </label>
 
           <label class="cah-control">
@@ -68,7 +74,11 @@
         <div class="cah-button-row">
           <button id="brushToolBtn" class="active" type="button">Brush</button>
           <button id="inkToolBtn" type="button">Ink</button>
+          <button id="pencilToolBtn" type="button">Pencil</button>
+          <button id="markerToolBtn" type="button">Marker</button>
           <button id="softToolBtn" type="button">Soft</button>
+          <button id="watercolorToolBtn" type="button">Wash</button>
+          <button id="charcoalToolBtn" type="button">Charcoal</button>
           <button id="smudgeToolBtn" type="button">Smudge</button>
           <button id="eraserToolBtn" type="button">Eraser</button>
           <button id="panToolBtn" type="button">Pan</button>
@@ -77,7 +87,9 @@
         </div>
       </section>
 
-      <aside class="cah-layers-panel">
+      <aside class="cah-layers-panel" data-panel="layers">
+        <button class="cah-panel-hide" data-hide-panel="layers" type="button">×</button>
+
         <div class="cah-layers-title">Layers</div>
 
         <div id="layersList" class="cah-layers-list"></div>
