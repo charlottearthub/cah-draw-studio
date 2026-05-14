@@ -5,11 +5,20 @@ const navGizmo = document.getElementById("navGizmo");
 const gizmoDragHandle = document.getElementById("gizmoDragHandle");
 
 const colorPicker = document.getElementById("colorPicker");
-const colorSwatch = document.getElementById("colorSwatch");
+const railColorButton = document.getElementById("railColorButton");
+const colorWheel = document.getElementById("colorWheel");
+const colorWheelHandle = document.getElementById("colorWheelHandle");
+const colorSquare = document.getElementById("colorSquare");
+const colorSquareHandle = document.getElementById("colorSquareHandle");
 const brushSize = document.getElementById("brushSize");
 const brushSizeText = document.getElementById("brushSizeText");
 const brushOpacity = document.getElementById("brushOpacity");
 const brushOpacityText = document.getElementById("brushOpacityText");
+const brushFlow = document.getElementById("brushFlow");
+const brushFlowText = document.getElementById("brushFlowText");
+const brushSpacing = document.getElementById("brushSpacing");
+const brushSpacingText = document.getElementById("brushSpacingText");
+const resetBrushSettingsBtn = document.getElementById("resetBrushSettingsBtn");
 const smudgeStrength = document.getElementById("smudgeStrength");
 const smudgeStrengthText = document.getElementById("smudgeStrengthText");
 const blendStrength = document.getElementById("blendStrength");
@@ -54,11 +63,13 @@ const panLeftBtn = document.getElementById("panLeftBtn");
 const panRightBtn = document.getElementById("panRightBtn");
 const toggleUiBtn = document.getElementById("toggleUiBtn");
 const layersList = document.getElementById("layersList");
+const addLayerTopBtn = document.getElementById("addLayerTopBtn");
 
 const shell = document.querySelector(".cah-draw-shell");
-const headerPanel = document.querySelector(".cah-floating-header");
+const headerPanel = document.querySelector(".cah-app-bar");
 const canvasPanel = document.querySelector(".cah-canvas-panel");
-const brushPanel = document.querySelector(".cah-brush-panel");
+const brushPanel = document.querySelector(".cah-brush-library");
+const settingsPanel = document.querySelector(".cah-brush-settings");
 const colorPanel = document.querySelector(".cah-color-panel");
 const layersPanel = document.querySelector(".cah-layers-panel");
 
@@ -90,6 +101,9 @@ let movingPointerId = null;
 let movingOffset = null;
 let canvasWidth = 1920;
 let canvasHeight = 1080;
+let pickerHue = 220;
+let pickerSaturation = 92;
+let pickerValue = 93;
 
 const maxLayers = 5;
 const maxHistory = 30;
@@ -98,6 +112,7 @@ const panelMap = {
   header: headerPanel,
   canvas: canvasPanel,
   brushes: brushPanel,
+  settings: settingsPanel,
   color: colorPanel,
   layers: layersPanel,
   gizmo: navGizmo
@@ -115,6 +130,52 @@ function hexToRgba(hex, alpha) {
   const g = parseInt(cleanHex.substring(2, 4), 16);
   const b = parseInt(cleanHex.substring(4, 6), 16);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function hsvToHex(h, s, v) {
+  const sat = s / 100;
+  const val = v / 100;
+  const c = val * sat;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = val - c;
+  let r = 0;
+  let g = 0;
+  let b = 0;
+
+  if (h < 60) [r, g, b] = [c, x, 0];
+  else if (h < 120) [r, g, b] = [x, c, 0];
+  else if (h < 180) [r, g, b] = [0, c, x];
+  else if (h < 240) [r, g, b] = [0, x, c];
+  else if (h < 300) [r, g, b] = [x, 0, c];
+  else [r, g, b] = [c, 0, x];
+
+  const toHex = (value) => Math.round((value + m) * 255).toString(16).padStart(2, "0");
+  return "#" + toHex(r) + toHex(g) + toHex(b);
+}
+
+function hexToHsv(hex) {
+  const cleanHex = hex.replace("#", "");
+  const r = parseInt(cleanHex.substring(0, 2), 16) / 255;
+  const g = parseInt(cleanHex.substring(2, 4), 16) / 255;
+  const b = parseInt(cleanHex.substring(4, 6), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const delta = max - min;
+  let h = 0;
+
+  if (delta !== 0) {
+    if (max === r) h = 60 * (((g - b) / delta) % 6);
+    else if (max === g) h = 60 * ((b - r) / delta + 2);
+    else h = 60 * ((r - g) / delta + 4);
+  }
+
+  if (h < 0) h += 360;
+
+  return {
+    h,
+    s: max === 0 ? 0 : (delta / max) * 100,
+    v: max * 100
+  };
 }
 
 function setSubmitStatus(message, type = "") {
@@ -227,7 +288,8 @@ function createLayer(name, afterLayerId = null) {
     name,
     canvas,
     ctx,
-    visible: true
+    visible: true,
+    locked: false
   };
   canvas.style.position = "absolute";
   canvas.style.inset = "0";
@@ -287,6 +349,13 @@ function toggleLayerVisibility(layerId) {
   renderLayers();
 }
 
+function toggleLayerLock(layerId) {
+  const layer = layers.find((item) => item.id === layerId);
+  if (!layer) return;
+  layer.locked = !layer.locked;
+  renderLayers();
+}
+
 function renderLayers() {
   layersList.innerHTML = "";
   [...layers].reverse().forEach((layer) => {
@@ -331,7 +400,17 @@ function renderLayers() {
       deleteLayerById(layer.id);
     });
 
-    row.append(checkbox, name, addButton, deleteButton);
+    const lockButton = document.createElement("button");
+    lockButton.type = "button";
+    lockButton.className = "cah-layer-mini";
+    lockButton.textContent = layer.locked ? "🔒" : "🔓";
+    lockButton.title = layer.locked ? "Unlock layer" : "Lock layer";
+    lockButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleLayerLock(layer.id);
+    });
+
+    row.append(checkbox, name, lockButton, addButton, deleteButton);
     layersList.appendChild(row);
   });
 }
@@ -344,6 +423,7 @@ function captureState() {
       id: layer.id,
       name: layer.name,
       visible: layer.visible,
+      locked: layer.locked,
       data: layer.canvas.toDataURL("image/png")
     }))
   };
@@ -370,7 +450,14 @@ function restoreState(snapshot) {
   savedLayers.forEach((savedLayer) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    const layer = { id: savedLayer.id, name: savedLayer.name, canvas, ctx, visible: savedLayer.visible };
+    const layer = {
+      id: savedLayer.id,
+      name: savedLayer.name,
+      canvas,
+      ctx,
+      visible: savedLayer.visible,
+      locked: Boolean(savedLayer.locked)
+    };
     canvas.style.position = "absolute";
     canvas.style.inset = "0";
     canvas.style.pointerEvents = "none";
@@ -416,7 +503,7 @@ function midpoint(a, b) {
 
 function prepareBrush(ctx) {
   const size = Number(brushSize.value);
-  const opacity = Number(brushOpacity.value) / 100;
+  const opacity = (Number(brushOpacity.value) / 100) * (Number(brushFlow.value) / 100);
   const color = hexToRgba(colorPicker.value, opacity);
   ctx.globalAlpha = activeMode === "erase" ? opacity : 1;
   ctx.lineCap = "round";
@@ -608,7 +695,7 @@ function drawNormalStroke(point) {
 
 function drawSmoothPoint(point) {
   const layer = getActiveLayer();
-  if (!layer || !layer.visible) return;
+  if (!layer || !layer.visible || layer.locked) return;
   if (selectedBrush === "smudge") {
     drawFastSmudge(layer, point);
   } else if (selectedBrush === "blend") {
@@ -758,17 +845,20 @@ function startDrawing(event) {
     canvasViewport.setPointerCapture?.(event.pointerId);
     return;
   }
-  if (event.button === 2) {
+  if (event.button === 2 || activeMode === "hand" || activeMode === "transform") {
     isPanning = true;
-    isRightMousePanning = true;
+    isRightMousePanning = event.button === 2;
     panLastPoint = { x: event.clientX, y: event.clientY };
     canvasStage.classList.add("pan-dragging");
     canvasViewport.setPointerCapture?.(event.pointerId);
     return;
   }
+  if (!["draw", "erase", "smudge"].includes(activeMode)) {
+    return;
+  }
   if (!shouldStartDrawFromPointer(event)) return;
   const layer = getActiveLayer();
-  if (!layer || !layer.visible) return;
+  if (!layer || !layer.visible || layer.locked) return;
   saveHistory();
   isDrawing = true;
   activeDrawPointerId = event.pointerId;
@@ -858,13 +948,18 @@ function updateBrushBodyClass() {
 
 function setMode(mode) {
   activeMode = mode;
-  drawToolBtn.classList.toggle("active", mode === "draw");
-  eraserToolBtn.classList.toggle("active", mode === "erase");
+  document.querySelectorAll("[data-tool-mode]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.toolMode === mode);
+  });
   updateBrushBodyClass();
 }
 
 function selectBrush(brushName) {
   selectedBrush = brushName;
+  brushSelect.value = brushName;
+  document.querySelectorAll(".cah-brush-card").forEach((button) => {
+    button.classList.toggle("active", button.dataset.brush === brushName);
+  });
   updateBrushBodyClass();
 }
 
@@ -1002,6 +1097,7 @@ function toggleUi() {
       "cah-panel-header-minimized",
       "cah-panel-canvas-minimized",
       "cah-panel-brushes-minimized",
+      "cah-panel-settings-minimized",
       "cah-panel-color-minimized",
       "cah-panel-layers-minimized",
       "cah-panel-gizmo-minimized"
@@ -1147,6 +1243,7 @@ function resetPanels() {
     "cah-panel-header-minimized",
     "cah-panel-canvas-minimized",
     "cah-panel-brushes-minimized",
+    "cah-panel-settings-minimized",
     "cah-panel-color-minimized",
     "cah-panel-layers-minimized",
     "cah-panel-gizmo-minimized"
@@ -1190,7 +1287,74 @@ function stopGizmoPan(event) {
 }
 
 function updateColorSwatch() {
-  colorSwatch.style.background = colorPicker.value;
+  if (railColorButton) railColorButton.style.background = colorPicker.value;
+  if (colorSquare) {
+    colorSquare.style.background = `
+      linear-gradient(0deg, #000, transparent),
+      linear-gradient(90deg, #fff, hsl(${pickerHue}, 100%, 50%))
+    `;
+  }
+}
+
+function syncPickerFromHex(hex) {
+  const hsv = hexToHsv(hex);
+  pickerHue = hsv.h;
+  pickerSaturation = hsv.s;
+  pickerValue = hsv.v;
+  updateColorHandles();
+  updateColorSwatch();
+}
+
+function updateColorHandles() {
+  if (colorWheelHandle && colorWheel) {
+    const rect = colorWheel.getBoundingClientRect();
+    const radius = rect.width / 2;
+    const angle = (pickerHue - 90) * (Math.PI / 180);
+    colorWheelHandle.style.left = radius + Math.cos(angle) * (radius - 9) + "px";
+    colorWheelHandle.style.top = radius + Math.sin(angle) * (radius - 9) + "px";
+  }
+
+  if (colorSquareHandle) {
+    colorSquareHandle.style.left = pickerSaturation + "%";
+    colorSquareHandle.style.top = 100 - pickerValue + "%";
+  }
+}
+
+function setColorFromPicker() {
+  colorPicker.value = hsvToHex(pickerHue, pickerSaturation, pickerValue);
+  updateColorHandles();
+  updateColorSwatch();
+}
+
+function pickHueFromEvent(event) {
+  const rect = colorWheel.getBoundingClientRect();
+  const x = event.clientX - rect.left - rect.width / 2;
+  const y = event.clientY - rect.top - rect.height / 2;
+  pickerHue = (Math.atan2(y, x) * 180) / Math.PI + 90;
+  if (pickerHue < 0) pickerHue += 360;
+  setColorFromPicker();
+}
+
+function pickSquareFromEvent(event) {
+  const rect = colorSquare.getBoundingClientRect();
+  pickerSaturation = clamp(((event.clientX - rect.left) / rect.width) * 100, 0, 100);
+  pickerValue = clamp(100 - ((event.clientY - rect.top) / rect.height) * 100, 0, 100);
+  setColorFromPicker();
+}
+
+function resetBrushSettings() {
+  brushSize.value = 8;
+  brushOpacity.value = 100;
+  brushFlow.value = 100;
+  brushSpacing.value = 12;
+  smudgeStrength.value = 35;
+  blendStrength.value = 45;
+  brushSizeText.textContent = brushSize.value;
+  brushOpacityText.textContent = brushOpacity.value + "%";
+  brushFlowText.textContent = brushFlow.value + "%";
+  brushSpacingText.textContent = brushSpacing.value + "%";
+  smudgeStrengthText.textContent = smudgeStrength.value + "%";
+  blendStrengthText.textContent = blendStrength.value + "%";
 }
 
 brushSize.addEventListener("input", () => {
@@ -1199,16 +1363,64 @@ brushSize.addEventListener("input", () => {
 brushOpacity.addEventListener("input", () => {
   brushOpacityText.textContent = brushOpacity.value + "%";
 });
+brushFlow.addEventListener("input", () => {
+  brushFlowText.textContent = brushFlow.value + "%";
+});
+brushSpacing.addEventListener("input", () => {
+  brushSpacingText.textContent = brushSpacing.value + "%";
+});
 smudgeStrength.addEventListener("input", () => {
   smudgeStrengthText.textContent = smudgeStrength.value + "%";
 });
 blendStrength.addEventListener("input", () => {
   blendStrengthText.textContent = blendStrength.value + "%";
 });
-colorPicker.addEventListener("input", updateColorSwatch);
 brushSelect.addEventListener("change", () => selectBrush(brushSelect.value));
-drawToolBtn.addEventListener("click", () => setMode("draw"));
-eraserToolBtn.addEventListener("click", () => setMode("erase"));
+resetBrushSettingsBtn.addEventListener("click", resetBrushSettings);
+document.querySelectorAll("[data-tool-mode]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const mode = button.dataset.toolMode;
+    if (mode === "smudge") {
+      selectBrush("smudge");
+      setMode("smudge");
+      return;
+    }
+    setMode(mode);
+  });
+});
+document.querySelectorAll(".cah-brush-card").forEach((button) => {
+  button.addEventListener("click", () => {
+    selectBrush(button.dataset.brush);
+    if (activeMode !== "erase") {
+      setMode(button.dataset.brush === "smudge" ? "smudge" : "draw");
+    }
+  });
+});
+document.querySelectorAll("[data-swatch]").forEach((button) => {
+  button.addEventListener("click", () => {
+    colorPicker.value = button.dataset.swatch;
+    syncPickerFromHex(colorPicker.value);
+  });
+});
+addLayerTopBtn.addEventListener("click", () => addLayerAfter(activeLayerId));
+colorPicker.addEventListener("input", () => syncPickerFromHex(colorPicker.value));
+colorWheel.addEventListener("pointerdown", (event) => {
+  colorWheel.setPointerCapture?.(event.pointerId);
+  pickHueFromEvent(event);
+  colorWheel.addEventListener("pointermove", pickHueFromEvent);
+});
+colorWheel.addEventListener("pointerup", () => {
+  colorWheel.removeEventListener("pointermove", pickHueFromEvent);
+});
+colorSquare.addEventListener("pointerdown", (event) => {
+  event.stopPropagation();
+  colorSquare.setPointerCapture?.(event.pointerId);
+  pickSquareFromEvent(event);
+  colorSquare.addEventListener("pointermove", pickSquareFromEvent);
+});
+colorSquare.addEventListener("pointerup", () => {
+  colorSquare.removeEventListener("pointermove", pickSquareFromEvent);
+});
 applyCanvasPresetBtn.addEventListener("click", applyCanvasPreset);
 openSubmitModalBtn.addEventListener("click", openSubmitModal);
 closeSubmitModalBtn.addEventListener("click", closeSubmitModal);
@@ -1252,7 +1464,7 @@ document.addEventListener("selectionchange", () => {
 
 wirePanelMovement();
 loadPanelState();
-updateColorSwatch();
+syncPickerFromHex(colorPicker.value);
 
 gizmoDragHandle.addEventListener("pointerdown", startGizmoPan);
 gizmoDragHandle.addEventListener("pointermove", moveGizmoPan);
@@ -1289,7 +1501,7 @@ window.addEventListener("resize", fitCanvasToScreen);
 
 createLayer("Layer 1");
 nextLayerNumber = 2;
-selectBrush("brush");
+selectBrush("soft");
 setMode("draw");
 updateSubmitAgeGroup();
 fitCanvasToScreen();
