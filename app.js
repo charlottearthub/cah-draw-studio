@@ -98,7 +98,7 @@ let canvasHeight = 1080;
 
 const maxLayers = 5;
 const maxHistory = 30;
-const panelStorageKey = "cahDrawStudioPanelStateV7";
+const panelStorageKey = "cahDrawStudioPanelStateV8";
 
 const panelMap = {
   header: headerPanel,
@@ -1396,7 +1396,7 @@ function isPanelDragHandle(target) {
 
   const panelName = panel.dataset.panel;
 
-  if (panelName === "header" || panelName === "submit") {
+  if (panelName === "header") {
     return false;
   }
 
