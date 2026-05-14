@@ -284,12 +284,12 @@ button:disabled {
   padding: 12px 36px 12px 12px;
 }
 
-.cah-brush-settings-panel {
+.cah-color-panel {
   top: 96px;
 }
 
 .cah-layer-dock {
-  top: 286px;
+  top: 218px;
   max-height: 330px;
 }
 
@@ -366,6 +366,16 @@ button:disabled {
   cursor: pointer;
 }
 
+.cah-color-swatch {
+  width: 100%;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 5px 14px rgba(0, 0, 0, 0.16);
+}
+
 .cah-button-stack {
   display: grid;
   grid-template-columns: 1fr;
@@ -409,13 +419,13 @@ body.cah-submit-child .cah-guardian-wrap {
     linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)),
     rgba(5, 5, 5, 0.42);
   color: #f7f4ed;
-  padding: 7px;
+  padding: 6px;
   font-size: 10px;
   text-align: left;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   box-shadow: none;
 }
 
@@ -433,9 +443,30 @@ body.cah-submit-child .cah-guardian-wrap {
 }
 
 .cah-layer-name {
+  width: 100%;
+  min-width: 0;
+  padding: 5px 4px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font-size: 10px;
+  text-align: left;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.cah-layer-name:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cah-layer-mini {
+  min-width: 0;
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  font-size: 9px;
 }
 
 .cah-nav-gizmo {
@@ -670,7 +701,7 @@ body.cah-submit-modal-open .cah-submit-modal {
 body.cah-ui-hidden .cah-floating-header,
 body.cah-ui-hidden .cah-canvas-panel,
 body.cah-ui-hidden .cah-brush-panel,
-body.cah-ui-hidden .cah-modifier-panel,
+body.cah-ui-hidden .cah-color-panel,
 body.cah-ui-hidden .cah-layers-panel {
   opacity: 0;
   pointer-events: none;
@@ -690,7 +721,7 @@ body.cah-ui-hidden .cah-ui-toggle {
 body.cah-panel-header-minimized .cah-floating-header,
 body.cah-panel-canvas-minimized .cah-canvas-panel,
 body.cah-panel-brushes-minimized .cah-brush-panel,
-body.cah-panel-modifiers-minimized .cah-modifier-panel,
+body.cah-panel-color-minimized .cah-color-panel,
 body.cah-panel-layers-minimized .cah-layers-panel {
   width: 105px;
   height: 42px;
@@ -701,7 +732,7 @@ body.cah-panel-layers-minimized .cah-layers-panel {
 body.cah-panel-header-minimized .cah-floating-header .cah-panel-content,
 body.cah-panel-canvas-minimized .cah-canvas-panel .cah-panel-content,
 body.cah-panel-brushes-minimized .cah-brush-panel .cah-panel-content,
-body.cah-panel-modifiers-minimized .cah-modifier-panel .cah-panel-content,
+body.cah-panel-color-minimized .cah-color-panel .cah-panel-content,
 body.cah-panel-layers-minimized .cah-layers-panel .cah-panel-content {
   display: none;
 }
@@ -719,7 +750,7 @@ body.cah-panel-header-minimized .cah-floating-header::before {
 
 body.cah-panel-canvas-minimized .cah-canvas-panel .cah-panel-title,
 body.cah-panel-brushes-minimized .cah-brush-panel .cah-panel-title,
-body.cah-panel-modifiers-minimized .cah-modifier-panel .cah-panel-title,
+body.cah-panel-color-minimized .cah-color-panel .cah-panel-title,
 body.cah-panel-layers-minimized .cah-layers-panel .cah-panel-title {
   margin: 5px 0 0;
   padding-right: 30px;
@@ -739,7 +770,7 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
 .cah-floating-header,
 .cah-canvas-panel,
 .cah-brush-panel,
-.cah-modifier-panel,
+.cah-color-panel,
 .cah-layers-panel,
 .cah-nav-gizmo {
   transition:
@@ -768,12 +799,12 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
     top: 132px;
   }
 
-  .cah-brush-settings-panel {
+  .cah-color-panel {
     top: 132px;
   }
 
   .cah-layer-dock {
-    top: 322px;
+    top: 254px;
   }
 
   .cah-submit-grid {
@@ -824,7 +855,7 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
     padding: 12px 38px 12px 12px;
   }
 
-  .cah-brush-settings-panel {
+  .cah-color-panel {
     top: 142px;
   }
 
@@ -897,7 +928,7 @@ body.cah-panel-gizmo-minimized .cah-nav-gizmo .cah-gizmo-content {
     display: none;
   }
 
-  .cah-brush-settings-panel {
+  .cah-color-panel {
     display: none;
   }
 
