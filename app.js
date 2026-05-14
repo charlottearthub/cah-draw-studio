@@ -92,7 +92,7 @@ let canvasHeight = 1080;
 
 const maxLayers = 5;
 const maxHistory = 30;
-const panelStorageKey = "cahDrawStudioPanelStateV3";
+const panelStorageKey = "cahDrawStudioPanelStateV4";
 
 const panelMap = {
   header: headerPanel,
@@ -129,7 +129,7 @@ function clamp(value, min, max) {
 }
 
 function hexToRgba(hex, alpha) {
-  const cleanHex = hex.replace("#", "");
+  const cleanHex = hex.replace("#");
 
   const r = parseInt(cleanHex.substring(0, 2), 16);
   const g = parseInt(cleanHex.substring(2, 4), 16);
@@ -1159,22 +1159,21 @@ function togglePanelMin(panelName) {
   savePanelState();
 }
 
-function shouldIgnorePanelDrag(target) {
+function isPanelDragHandle(target) {
   return Boolean(
-    target.closest("button") ||
-    target.closest("input") ||
-    target.closest("select") ||
-    target.closest("textarea") ||
-    target.closest(".cah-layers-list") ||
-    target.closest(".cah-button-stack") ||
-    target.closest(".cah-check-row")
+    target.id === "gizmoDragHandle" ||
+    target.closest(".cah-panel-title")
   );
+}
+
+function shouldIgnorePanelDrag(target) {
+  return !isPanelDragHandle(target);
 }
 
 function startPanelMove(panel, event) {
   if (!panel) return;
   if (event.button !== undefined && event.button !== 0) return;
-  if (shouldIgnorePanelDrag(event.target) && event.target !== gizmoDragHandle) return;
+  if (shouldIgnorePanelDrag(event.target)) return;
 
   event.preventDefault();
   event.stopPropagation();
@@ -1189,6 +1188,7 @@ function startPanelMove(panel, event) {
   panel.style.top = panelRect.top - shellRect.top + "px";
   panel.style.right = "auto";
   panel.style.bottom = "auto";
+  panel.style.transform = "none";
 
   const updatedRect = panel.getBoundingClientRect();
 
@@ -1235,6 +1235,7 @@ function movePanel(event) {
   activeMovingPanel.style.top = top + "px";
   activeMovingPanel.style.right = "auto";
   activeMovingPanel.style.bottom = "auto";
+  activeMovingPanel.style.transform = "none";
 }
 
 function stopPanelMove(event) {
@@ -1269,7 +1270,8 @@ function savePanelState() {
       left: panel.style.left || "",
       top: panel.style.top || "",
       right: panel.style.right || "",
-      bottom: panel.style.bottom || ""
+      bottom: panel.style.bottom || "",
+      transform: panel.style.transform || ""
     };
   });
 
@@ -1311,6 +1313,7 @@ function loadPanelState() {
       if (state.top) panel.style.top = state.top;
       if (state.right !== undefined) panel.style.right = state.right;
       if (state.bottom !== undefined) panel.style.bottom = state.bottom;
+      if (state.transform !== undefined) panel.style.transform = state.transform;
     });
   }
 
@@ -1341,6 +1344,7 @@ function resetPanels() {
     panel.style.top = "";
     panel.style.right = "";
     panel.style.bottom = "";
+    panel.style.transform = "";
   });
 
   document.body.classList.remove(
