@@ -243,7 +243,11 @@ button.active {
   user-select: none;
 }
 
-.cah-nav-gizmo.is-moving {
+.cah-nav-gizmo.is-moving,
+.cah-floating-header.is-moving,
+.cah-brush-panel.is-moving,
+.cah-modifier-panel.is-moving,
+.cah-layers-panel.is-moving {
   outline: 2px solid rgba(242, 184, 75, 0.7);
 }
 
