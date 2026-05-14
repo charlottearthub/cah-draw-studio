@@ -1,4 +1,5 @@
 const canvasViewport = document.getElementById("canvasViewport");
+const canvasStage = document.getElementById("canvasStage");
 const layersContainer = document.getElementById("layersContainer");
 const navGizmo = document.getElementById("navGizmo");
 const gizmoDragHandle = document.getElementById("gizmoDragHandle");
@@ -10,11 +11,16 @@ const brushOpacity = document.getElementById("brushOpacity");
 const brushOpacityText = document.getElementById("brushOpacityText");
 const smudgeStrength = document.getElementById("smudgeStrength");
 const smudgeStrengthText = document.getElementById("smudgeStrengthText");
+const blendStrength = document.getElementById("blendStrength");
+const blendStrengthText = document.getElementById("blendStrengthText");
 
 const brushSelect = document.getElementById("brushSelect");
 const drawToolBtn = document.getElementById("drawToolBtn");
 const eraserToolBtn = document.getElementById("eraserToolBtn");
 const panToolBtn = document.getElementById("panToolBtn");
+
+const canvasPresetSelect = document.getElementById("canvasPresetSelect");
+const applyCanvasPresetBtn = document.getElementById("applyCanvasPresetBtn");
 
 const undoBtn = document.getElementById("undoBtn");
 const redoBtn = document.getElementById("redoBtn");
@@ -39,6 +45,7 @@ const layersList = document.getElementById("layersList");
 
 const shell = document.querySelector(".cah-draw-shell");
 const headerPanel = document.querySelector(".cah-floating-header");
+const canvasPanel = document.querySelector(".cah-canvas-panel");
 const brushPanel = document.querySelector(".cah-brush-panel");
 const modifierPanel = document.querySelector(".cah-modifier-panel");
 const layersPanel = document.querySelector(".cah-layers-panel");
@@ -68,12 +75,16 @@ let activeMovingPanel = null;
 let movingPointerId = null;
 let movingOffset = null;
 
+let canvasWidth = 1920;
+let canvasHeight = 1080;
+
 const maxLayers = 5;
 const maxHistory = 30;
-const panelStorageKey = "cahDrawStudioPanelStateV1";
+const panelStorageKey = "cahDrawStudioPanelStateV2";
 
 const panelMap = {
   header: headerPanel,
+  canvas: canvasPanel,
   brushes: brushPanel,
   modifiers: modifierPanel,
   layers: layersPanel,
@@ -105,21 +116,34 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function getSize() {
+function getViewportSize() {
   const rect = canvasViewport.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
 
   return {
-    cssWidth: Math.max(1, Math.floor(rect.width)),
-    cssHeight: Math.max(1, Math.floor(rect.height)),
-    pixelWidth: Math.max(1, Math.floor(rect.width * dpr)),
-    pixelHeight: Math.max(1, Math.floor(rect.height * dpr)),
-    dpr
+    width: rect.width,
+    height: rect.height
   };
 }
 
 function applyViewTransform() {
-  layersContainer.style.transform = `translate(${view.x}px, ${view.y}px) rotate(${view.rotation}deg) scale(${view.scale})`;
+  canvasStage.style.width = canvasWidth + "px";
+  canvasStage.style.height = canvasHeight + "px";
+  canvasStage.style.transform = `translate(${view.x}px, ${view.y}px) rotate(${view.rotation}deg) scale(${view.scale})`;
+}
+
+function fitCanvasToScreen() {
+  const viewport = getViewportSize();
+
+  const scaleX = viewport.width / canvasWidth;
+  const scaleY = viewport.height / canvasHeight;
+  const fitScale = Math.min(scaleX, scaleY) * 0.82;
+
+  view.scale = clamp(fitScale, 0.05, 2);
+  view.rotation = 0;
+  view.x = viewport.width / 2 - (canvasWidth * view.scale) / 2;
+  view.y = viewport.height / 2 - (canvasHeight * view.scale) / 2;
+
+  applyViewTransform();
 }
 
 function screenToWorld(screenX, screenY) {
@@ -148,11 +172,11 @@ function worldToScreen(worldX, worldY) {
 }
 
 function getViewportCenter() {
-  const rect = canvasViewport.getBoundingClientRect();
+  const viewport = getViewportSize();
 
   return {
-    x: rect.width / 2,
-    y: rect.height / 2
+    x: viewport.width / 2,
+    y: viewport.height / 2
   };
 }
 
@@ -166,17 +190,13 @@ function getViewportPoint(clientX, clientY) {
 }
 
 function resetView() {
-  view.x = 0;
-  view.y = 0;
-  view.scale = 1;
-  view.rotation = 0;
-  applyViewTransform();
+  fitCanvasToScreen();
 }
 
 function zoomAtViewportPoint(factor, viewportX, viewportY) {
   const world = screenToWorld(viewportX, viewportY);
 
-  view.scale = clamp(view.scale * factor, 0.25, 8);
+  view.scale = clamp(view.scale * factor, 0.03, 12);
 
   const after = worldToScreen(world.x, world.y);
 
@@ -219,18 +239,20 @@ function panView(dx, dy) {
   applyViewTransform();
 }
 
-function setupCanvas(layer) {
-  const size = getSize();
+function setupCanvas(layer, preserveImage = null) {
+  layer.canvas.width = canvasWidth;
+  layer.canvas.height = canvasHeight;
+  layer.canvas.style.width = canvasWidth + "px";
+  layer.canvas.style.height = canvasHeight + "px";
 
-  layer.canvas.width = size.pixelWidth;
-  layer.canvas.height = size.pixelHeight;
-  layer.canvas.style.width = size.cssWidth + "px";
-  layer.canvas.style.height = size.cssHeight + "px";
-
-  layer.ctx.setTransform(size.dpr, 0, 0, size.dpr, 0, 0);
+  layer.ctx.setTransform(1, 0, 0, 1, 0, 0);
   layer.ctx.lineCap = "round";
   layer.ctx.lineJoin = "round";
   layer.ctx.imageSmoothingEnabled = true;
+
+  if (preserveImage) {
+    layer.ctx.drawImage(preserveImage, 0, 0, canvasWidth, canvasHeight);
+  }
 }
 
 function createLayer(name) {
@@ -247,8 +269,6 @@ function createLayer(name) {
 
   canvas.style.position = "absolute";
   canvas.style.inset = "0";
-  canvas.style.width = "100%";
-  canvas.style.height = "100%";
   canvas.style.pointerEvents = "none";
 
   layersContainer.appendChild(canvas);
@@ -324,12 +344,16 @@ function renderLayers() {
 }
 
 function captureState() {
-  return layers.map((layer) => ({
-    id: layer.id,
-    name: layer.name,
-    visible: layer.visible,
-    data: layer.canvas.toDataURL("image/png")
-  }));
+  return {
+    canvasWidth,
+    canvasHeight,
+    layers: layers.map((layer) => ({
+      id: layer.id,
+      name: layer.name,
+      visible: layer.visible,
+      data: layer.canvas.toDataURL("image/png")
+    }))
+  };
 }
 
 function saveHistory() {
@@ -349,12 +373,16 @@ function saveHistory() {
 function restoreState(snapshot) {
   if (!snapshot) return;
 
+  canvasWidth = snapshot.canvasWidth || canvasWidth;
+  canvasHeight = snapshot.canvasHeight || canvasHeight;
+
   layersContainer.innerHTML = "";
   layers = [];
 
   let loaded = 0;
+  const savedLayers = snapshot.layers || snapshot;
 
-  snapshot.forEach((savedLayer) => {
+  savedLayers.forEach((savedLayer) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
@@ -368,8 +396,6 @@ function restoreState(snapshot) {
 
     canvas.style.position = "absolute";
     canvas.style.inset = "0";
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
     canvas.style.pointerEvents = "none";
 
     layersContainer.appendChild(canvas);
@@ -380,13 +406,12 @@ function restoreState(snapshot) {
     const image = new Image();
 
     image.onload = () => {
-      const size = getSize();
-      ctx.clearRect(0, 0, size.cssWidth, size.cssHeight);
-      ctx.drawImage(image, 0, 0, size.cssWidth, size.cssHeight);
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.drawImage(image, 0, 0, canvasWidth, canvasHeight);
 
       loaded += 1;
 
-      if (loaded === snapshot.length) {
+      if (loaded === savedLayers.length) {
         if (!layers.find((layerItem) => layerItem.id === activeLayerId) && layers[0]) {
           activeLayerId = layers[0].id;
         }
@@ -417,7 +442,12 @@ function redo() {
 
 function getCanvasPoint(event) {
   const rect = canvasViewport.getBoundingClientRect();
-  return screenToWorld(event.clientX - rect.left, event.clientY - rect.top);
+  const point = screenToWorld(event.clientX - rect.left, event.clientY - rect.top);
+
+  return {
+    x: clamp(point.x, 0, canvasWidth),
+    y: clamp(point.y, 0, canvasHeight)
+  };
 }
 
 function getScreenPoint(event) {
@@ -444,6 +474,7 @@ function prepareBrush(ctx) {
   ctx.lineJoin = "round";
   ctx.shadowBlur = 0;
   ctx.shadowColor = "transparent";
+  ctx.filter = "none";
 
   if (currentTool === "eraser") {
     ctx.globalCompositeOperation = "destination-out";
@@ -509,6 +540,7 @@ function finishBrush(ctx) {
   ctx.globalCompositeOperation = "source-over";
   ctx.shadowBlur = 0;
   ctx.shadowColor = "transparent";
+  ctx.filter = "none";
 }
 
 function drawCharcoalTexture(ctx, point) {
@@ -552,16 +584,16 @@ function drawFastSmudge(layer, point) {
   const opacity = Number(brushOpacity.value) / 100;
   const strength = Number(smudgeStrength.value) / 100;
 
-  const radius = Math.max(5, Math.floor(size * (0.42 + strength * 0.22)));
+  const radius = Math.max(4, Math.floor(size * (0.34 + strength * 0.16)));
   const sampleSize = radius * 2;
 
   const movementX = point.x - lastPoint.x;
   const movementY = point.y - lastPoint.y;
   const distance = Math.hypot(movementX, movementY);
 
-  const steps = Math.max(1, Math.min(5, Math.ceil(distance / Math.max(8, radius * 1.15))));
-  const dragLag = 0.12 + strength * 0.38;
-  const alpha = opacity * (0.08 + strength * 0.24);
+  const steps = Math.max(1, Math.min(3, Math.ceil(distance / Math.max(14, radius * 1.9))));
+  const dragLag = 0.08 + strength * 0.28;
+  const alpha = opacity * (0.06 + strength * 0.18);
 
   ctx.save();
   ctx.globalCompositeOperation = "source-over";
@@ -585,7 +617,73 @@ function drawFastSmudge(layer, point) {
 
     try {
       ctx.save();
+      ctx.beginPath();
+      ctx.arc(currentX, currentY, radius, 0, Math.PI * 2);
+      ctx.clip();
 
+      ctx.drawImage(
+        layer.canvas,
+        sampleX,
+        sampleY,
+        sampleSize,
+        sampleSize,
+        drawX,
+        drawY,
+        sampleSize,
+        sampleSize
+      );
+
+      ctx.restore();
+    } catch (error) {
+      ctx.restore();
+    }
+  }
+
+  ctx.restore();
+
+  lastPoint = point;
+  lastMidPoint = point;
+}
+
+function drawFastBlend(layer, point) {
+  if (!lastPoint) {
+    lastPoint = point;
+    lastMidPoint = point;
+    return;
+  }
+
+  const ctx = layer.ctx;
+  const size = Number(brushSize.value);
+  const opacity = Number(brushOpacity.value) / 100;
+  const strength = Number(blendStrength.value) / 100;
+
+  const radius = Math.max(5, Math.floor(size * (0.45 + strength * 0.2)));
+  const sampleSize = radius * 2;
+
+  const movementX = point.x - lastPoint.x;
+  const movementY = point.y - lastPoint.y;
+  const distance = Math.hypot(movementX, movementY);
+  const steps = Math.max(1, Math.min(3, Math.ceil(distance / Math.max(14, radius * 1.8))));
+
+  ctx.save();
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = opacity * (0.05 + strength * 0.18);
+  ctx.imageSmoothingEnabled = true;
+  ctx.filter = "blur(1px)";
+
+  for (let i = 1; i <= steps; i += 1) {
+    const t = i / steps;
+
+    const currentX = lastPoint.x + movementX * t;
+    const currentY = lastPoint.y + movementY * t;
+
+    const sampleX = Math.floor(currentX - radius);
+    const sampleY = Math.floor(currentY - radius);
+    const drawX = Math.floor(currentX - radius);
+    const drawY = Math.floor(currentY - radius);
+
+    try {
+      ctx.save();
       ctx.beginPath();
       ctx.arc(currentX, currentY, radius, 0, Math.PI * 2);
       ctx.clip();
@@ -621,6 +719,11 @@ function drawSmoothPoint(point) {
 
   if (currentTool === "smudge") {
     drawFastSmudge(layer, point);
+    return;
+  }
+
+  if (currentTool === "blend") {
+    drawFastBlend(layer, point);
     return;
   }
 
@@ -677,7 +780,7 @@ function startDrawing(event) {
     isPanning = true;
     isRightMousePanning = event.button === 2;
     panLastPoint = getScreenPoint(event);
-    layersContainer.classList.add("pan-dragging");
+    canvasStage.classList.add("pan-dragging");
     canvasViewport.setPointerCapture?.(event.pointerId);
     return;
   }
@@ -757,7 +860,7 @@ function stopDrawing(event) {
     isPanning = false;
     isRightMousePanning = false;
     panLastPoint = null;
-    layersContainer.classList.remove("pan-dragging");
+    canvasStage.classList.remove("pan-dragging");
     return;
   }
 
@@ -789,6 +892,18 @@ function preventMiddleMouseAutoScroll(event) {
   }
 }
 
+function updateBrushBodyClass() {
+  document.body.classList.remove("cah-brush-smudge", "cah-brush-blend");
+
+  if (selectedBrush === "smudge") {
+    document.body.classList.add("cah-brush-smudge");
+  }
+
+  if (selectedBrush === "blend") {
+    document.body.classList.add("cah-brush-blend");
+  }
+}
+
 function setTool(tool) {
   currentTool = tool;
 
@@ -796,7 +911,7 @@ function setTool(tool) {
   eraserToolBtn.classList.toggle("active", tool === "eraser");
   panToolBtn.classList.toggle("active", tool === "pan");
 
-  layersContainer.classList.toggle("pan-active", tool === "pan");
+  canvasStage.classList.toggle("pan-active", tool === "pan");
 }
 
 function selectBrush(brushName) {
@@ -806,7 +921,9 @@ function selectBrush(brushName) {
   drawToolBtn.classList.add("active");
   eraserToolBtn.classList.remove("active");
   panToolBtn.classList.remove("active");
-  layersContainer.classList.remove("pan-active");
+  canvasStage.classList.remove("pan-active");
+
+  updateBrushBodyClass();
 }
 
 function addLayer() {
@@ -837,24 +954,20 @@ function deleteLayer() {
 function clearCanvas() {
   saveHistory();
 
-  const size = getSize();
-
   layers.forEach((layer) => {
-    layer.ctx.clearRect(0, 0, size.cssWidth, size.cssHeight);
+    layer.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   });
 }
 
 function savePng() {
-  const size = getSize();
-
   const exportCanvas = document.createElement("canvas");
   const exportCtx = exportCanvas.getContext("2d");
 
-  exportCanvas.width = size.pixelWidth;
-  exportCanvas.height = size.pixelHeight;
+  exportCanvas.width = canvasWidth;
+  exportCanvas.height = canvasHeight;
 
   exportCtx.fillStyle = "#fffaf4";
-  exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+  exportCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
   layers.forEach((layer) => {
     if (!layer.visible) return;
@@ -867,16 +980,41 @@ function savePng() {
   link.click();
 }
 
-function resizeLayers() {
-  if (layers.length === 0) return;
+function applyCanvasPreset() {
+  const value = canvasPresetSelect.value;
+  const [width, height] = value.split("x").map(Number);
 
-  const snapshots = captureState();
+  if (!width || !height) return;
 
-  layers.forEach((layer) => {
+  const shouldResize = window.confirm("Apply this canvas size? This will scale your current drawing to the new canvas.");
+  if (!shouldResize) return;
+
+  saveHistory();
+
+  const oldLayers = layers.map((layer) => ({
+    layer,
+    image: layer.canvas
+  }));
+
+  canvasWidth = width;
+  canvasHeight = height;
+
+  canvasStage.style.width = canvasWidth + "px";
+  canvasStage.style.height = canvasHeight + "px";
+
+  oldLayers.forEach(({ layer, image }) => {
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+
+    tempCanvas.width = image.width;
+    tempCanvas.height = image.height;
+    tempCtx.drawImage(image, 0, 0);
+
     setupCanvas(layer);
+    layer.ctx.drawImage(tempCanvas, 0, 0, canvasWidth, canvasHeight);
   });
 
-  restoreState(snapshots);
+  fitCanvasToScreen();
 }
 
 function toggleUi() {
@@ -886,6 +1024,7 @@ function toggleUi() {
   if (!isHidden) {
     document.body.classList.remove(
       "cah-panel-header-minimized",
+      "cah-panel-canvas-minimized",
       "cah-panel-brushes-minimized",
       "cah-panel-modifiers-minimized",
       "cah-panel-layers-minimized",
@@ -914,8 +1053,7 @@ function shouldIgnorePanelDrag(target) {
     target.closest("select") ||
     target.closest("textarea") ||
     target.closest(".cah-layers-list") ||
-    target.closest(".cah-layer-actions") ||
-    target.closest(".cah-mini-button-row")
+    target.closest(".cah-button-stack")
   );
 }
 
@@ -1023,6 +1161,7 @@ function savePanelState() {
 
   const minimized = {
     header: document.body.classList.contains("cah-panel-header-minimized"),
+    canvas: document.body.classList.contains("cah-panel-canvas-minimized"),
     brushes: document.body.classList.contains("cah-panel-brushes-minimized"),
     modifiers: document.body.classList.contains("cah-panel-modifiers-minimized"),
     layers: document.body.classList.contains("cah-panel-layers-minimized"),
@@ -1091,6 +1230,7 @@ function resetPanels() {
 
   document.body.classList.remove(
     "cah-panel-header-minimized",
+    "cah-panel-canvas-minimized",
     "cah-panel-brushes-minimized",
     "cah-panel-modifiers-minimized",
     "cah-panel-layers-minimized",
@@ -1103,25 +1243,10 @@ function resetPanels() {
 }
 
 function wirePanelMovement() {
-  if (headerPanel) {
-    headerPanel.addEventListener("pointerdown", (event) => startPanelMove(headerPanel, event));
-  }
-
-  if (brushPanel) {
-    brushPanel.addEventListener("pointerdown", (event) => startPanelMove(brushPanel, event));
-  }
-
-  if (modifierPanel) {
-    modifierPanel.addEventListener("pointerdown", (event) => startPanelMove(modifierPanel, event));
-  }
-
-  if (layersPanel) {
-    layersPanel.addEventListener("pointerdown", (event) => startPanelMove(layersPanel, event));
-  }
-
-  if (gizmoDragHandle && navGizmo) {
-    gizmoDragHandle.addEventListener("pointerdown", (event) => startPanelMove(navGizmo, event));
-  }
+  Object.values(panelMap).forEach((panel) => {
+    if (!panel) return;
+    panel.addEventListener("pointerdown", (event) => startPanelMove(panel, event));
+  });
 }
 
 brushSize.addEventListener("input", () => {
@@ -1136,6 +1261,10 @@ smudgeStrength.addEventListener("input", () => {
   smudgeStrengthText.textContent = smudgeStrength.value + "%";
 });
 
+blendStrength.addEventListener("input", () => {
+  blendStrengthText.textContent = blendStrength.value + "%";
+});
+
 brushSelect.addEventListener("change", () => {
   selectBrush(brushSelect.value);
 });
@@ -1143,6 +1272,8 @@ brushSelect.addEventListener("change", () => {
 drawToolBtn.addEventListener("click", () => selectBrush(selectedBrush));
 eraserToolBtn.addEventListener("click", () => setTool("eraser"));
 panToolBtn.addEventListener("click", () => setTool("pan"));
+
+applyCanvasPresetBtn.addEventListener("click", applyCanvasPreset);
 
 undoBtn.addEventListener("click", undo);
 redoBtn.addEventListener("click", redo);
@@ -1194,18 +1325,15 @@ window.addEventListener("pointerup", (event) => {
     isPanning = false;
     isRightMousePanning = false;
     panLastPoint = null;
-    layersContainer.classList.remove("pan-dragging");
+    canvasStage.classList.remove("pan-dragging");
   }
 });
 
 window.addEventListener("resize", () => {
-  if (layers.length > 0) {
-    resizeLayers();
-    applyViewTransform();
-  }
+  fitCanvasToScreen();
 });
 
 createLayer("Layer 1");
 nextLayerNumber = 2;
 selectBrush("brush");
-resetView();
+fitCanvasToScreen();
