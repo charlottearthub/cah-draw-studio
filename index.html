@@ -14,16 +14,18 @@
       <button id="toggleUiBtn" class="cah-ui-toggle" type="button">Hide UI</button>
 
       <header class="cah-floating-header" data-panel="header">
-        <button class="cah-panel-hide" data-hide-panel="header" type="button">×</button>
+        <button class="cah-panel-min" data-min-panel="header" type="button">−</button>
 
-        <div>
-          <div class="cah-kicker">Charlotte Art Hub</div>
-          <h1>CAH Draw Studio</h1>
-        </div>
+        <div class="cah-panel-content">
+          <div>
+            <div class="cah-kicker">Charlotte Art Hub</div>
+            <h1>CAH Draw Studio</h1>
+          </div>
 
-        <div class="cah-header-actions">
-          <button id="clearCanvasBtn" type="button">Clear</button>
-          <button id="savePngBtn" type="button">Save</button>
+          <div class="cah-header-actions">
+            <button id="clearCanvasBtn" type="button">Clear</button>
+            <button id="savePngBtn" type="button">Save</button>
+          </div>
         </div>
       </header>
 
@@ -34,27 +36,61 @@
       </section>
 
       <section id="navGizmo" class="cah-nav-gizmo" data-panel="gizmo" aria-label="Canvas navigation gizmo">
-        <button class="cah-panel-hide cah-gizmo-hide" data-hide-panel="gizmo" type="button">×</button>
+        <button class="cah-panel-min cah-gizmo-min" data-min-panel="gizmo" type="button">−</button>
 
-        <button id="gizmoDragHandle" class="cah-gizmo-center" type="button">Move</button>
+        <div class="cah-gizmo-content">
+          <button id="gizmoDragHandle" class="cah-gizmo-center" type="button">Move</button>
 
-        <button id="panUpBtn" class="cah-gizmo-wedge cah-gizmo-up" type="button">↑</button>
-        <button id="panRightBtn" class="cah-gizmo-wedge cah-gizmo-right" type="button">→</button>
-        <button id="panDownBtn" class="cah-gizmo-wedge cah-gizmo-down" type="button">↓</button>
-        <button id="panLeftBtn" class="cah-gizmo-wedge cah-gizmo-left" type="button">←</button>
+          <button id="panUpBtn" class="cah-gizmo-wedge cah-gizmo-up" type="button">↑</button>
+          <button id="panRightBtn" class="cah-gizmo-wedge cah-gizmo-right" type="button">→</button>
+          <button id="panDownBtn" class="cah-gizmo-wedge cah-gizmo-down" type="button">↓</button>
+          <button id="panLeftBtn" class="cah-gizmo-wedge cah-gizmo-left" type="button">←</button>
 
-        <button id="zoomInBtn" class="cah-gizmo-wedge cah-gizmo-zoom-in" type="button">+</button>
-        <button id="zoomOutBtn" class="cah-gizmo-wedge cah-gizmo-zoom-out" type="button">−</button>
-        <button id="rotateLeftBtn" class="cah-gizmo-wedge cah-gizmo-rotate-left" type="button">↺</button>
-        <button id="rotateRightBtn" class="cah-gizmo-wedge cah-gizmo-rotate-right" type="button">↻</button>
+          <button id="zoomInBtn" class="cah-gizmo-wedge cah-gizmo-zoom-in" type="button">+</button>
+          <button id="zoomOutBtn" class="cah-gizmo-wedge cah-gizmo-zoom-out" type="button">−</button>
+          <button id="rotateLeftBtn" class="cah-gizmo-wedge cah-gizmo-rotate-left" type="button">↺</button>
+          <button id="rotateRightBtn" class="cah-gizmo-wedge cah-gizmo-rotate-right" type="button">↻</button>
 
-        <button id="resetViewBtn" class="cah-gizmo-reset" type="button">Reset</button>
+          <button id="resetViewBtn" class="cah-gizmo-reset" type="button">Reset</button>
+        </div>
       </section>
 
-      <section class="cah-floating-toolbar" data-panel="tools">
-        <button class="cah-panel-hide" data-hide-panel="tools" type="button">×</button>
+      <section class="cah-brush-panel" data-panel="brushes">
+        <button class="cah-panel-min" data-min-panel="brushes" type="button">−</button>
 
-        <div class="cah-tool-row">
+        <div class="cah-panel-title">Brushes</div>
+
+        <div class="cah-panel-content">
+          <select id="brushSelect" class="cah-brush-select">
+            <option value="brush">Brush</option>
+            <option value="ink">Ink</option>
+            <option value="pencil">Pencil</option>
+            <option value="marker">Marker</option>
+            <option value="soft">Soft</option>
+            <option value="watercolor">Wash</option>
+            <option value="charcoal">Charcoal</option>
+            <option value="smudge">Smudge</option>
+          </select>
+
+          <div class="cah-mini-button-row">
+            <button id="drawToolBtn" class="active" type="button">Draw</button>
+            <button id="eraserToolBtn" type="button">Eraser</button>
+            <button id="panToolBtn" type="button">Pan</button>
+          </div>
+
+          <div class="cah-mini-button-row">
+            <button id="undoBtn" type="button">Undo</button>
+            <button id="redoBtn" type="button">Redo</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="cah-modifier-panel" data-panel="modifiers">
+        <button class="cah-panel-min" data-min-panel="modifiers" type="button">−</button>
+
+        <div class="cah-panel-title">Modifiers</div>
+
+        <div class="cah-panel-content">
           <label class="cah-control cah-color-control">
             <span>Color</span>
             <input id="colorPicker" type="color" value="#111111" />
@@ -70,33 +106,20 @@
             <input id="brushOpacity" type="range" min="10" max="100" value="100" />
           </label>
         </div>
-
-        <div class="cah-button-row">
-          <button id="brushToolBtn" class="active" type="button">Brush</button>
-          <button id="inkToolBtn" type="button">Ink</button>
-          <button id="pencilToolBtn" type="button">Pencil</button>
-          <button id="markerToolBtn" type="button">Marker</button>
-          <button id="softToolBtn" type="button">Soft</button>
-          <button id="watercolorToolBtn" type="button">Wash</button>
-          <button id="charcoalToolBtn" type="button">Charcoal</button>
-          <button id="smudgeToolBtn" type="button">Smudge</button>
-          <button id="eraserToolBtn" type="button">Eraser</button>
-          <button id="panToolBtn" type="button">Pan</button>
-          <button id="undoBtn" type="button">Undo</button>
-          <button id="redoBtn" type="button">Redo</button>
-        </div>
       </section>
 
       <aside class="cah-layers-panel" data-panel="layers">
-        <button class="cah-panel-hide" data-hide-panel="layers" type="button">×</button>
+        <button class="cah-panel-min" data-min-panel="layers" type="button">−</button>
 
-        <div class="cah-layers-title">Layers</div>
+        <div class="cah-panel-title">Layers</div>
 
-        <div id="layersList" class="cah-layers-list"></div>
+        <div class="cah-panel-content">
+          <div id="layersList" class="cah-layers-list"></div>
 
-        <div class="cah-layer-actions">
-          <button id="addLayerBtn" type="button">Add</button>
-          <button id="deleteLayerBtn" type="button">Delete</button>
+          <div class="cah-layer-actions">
+            <button id="addLayerBtn" type="button">Add</button>
+            <button id="deleteLayerBtn" type="button">Delete</button>
+          </div>
         </div>
       </aside>
     </section>
