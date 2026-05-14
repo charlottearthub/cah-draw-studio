@@ -49,8 +49,22 @@
         </div>
       </section>
 
-      <section class="cah-canvas-area">
-        <canvas id="drawCanvas"></canvas>
+      <section class="cah-main-workspace">
+        <section class="cah-canvas-area">
+          <div id="layersContainer" class="cah-layer-stack"></div>
+        </section>
+
+        <aside class="cah-layers-panel">
+          <div class="cah-layers-title">Layers</div>
+
+          <div id="layersList" class="cah-layers-list"></div>
+
+          <div class="cah-layer-actions">
+            <button id="addLayerBtn" type="button">Add</button>
+            <button id="deleteLayerBtn" type="button">Delete</button>
+            <button id="toggleLayerBtn" type="button">Hide/Show</button>
+          </div>
+        </aside>
       </section>
 
       <footer class="cah-draw-footer">
