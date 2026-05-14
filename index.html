@@ -31,6 +31,22 @@
         </div>
       </section>
 
+      <section class="cah-nav-gizmo" aria-label="Canvas navigation gizmo">
+        <div class="cah-gizmo-title">View</div>
+
+        <div class="cah-gizmo-grid">
+          <button id="panUpBtn" type="button">↑</button>
+          <button id="rotateLeftBtn" type="button">↺</button>
+          <button id="rotateRightBtn" type="button">↻</button>
+          <button id="panLeftBtn" type="button">←</button>
+          <button id="resetViewBtn" type="button">Reset</button>
+          <button id="panRightBtn" type="button">→</button>
+          <button id="zoomOutBtn" type="button">−</button>
+          <button id="panDownBtn" type="button">↓</button>
+          <button id="zoomInBtn" type="button">+</button>
+        </div>
+      </section>
+
       <section class="cah-floating-toolbar">
         <div class="cah-tool-row">
           <label class="cah-control cah-color-control">
@@ -56,12 +72,6 @@
           <button id="undoBtn" type="button">Undo</button>
           <button id="redoBtn" type="button">Redo</button>
         </div>
-
-        <div class="cah-button-row cah-view-buttons">
-          <button id="zoomOutBtn" type="button">−</button>
-          <button id="resetViewBtn" type="button">Reset</button>
-          <button id="zoomInBtn" type="button">+</button>
-        </div>
       </section>
 
       <aside class="cah-layers-panel">
@@ -77,7 +87,7 @@
       </aside>
 
       <footer class="cah-draw-footer">
-        <span>Brush/Eraser draws. Pan moves the canvas.</span>
+        <span>Brush/Eraser draws. Pan moves the canvas. View gizmo moves, zooms, and rotates.</span>
         <span id="statusText">Ready</span>
       </footer>
     </section>
