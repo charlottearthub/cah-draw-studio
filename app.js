@@ -809,6 +809,158 @@ function addStrokeTextureSamples(ctx, fromPoint, toPoint) {
   }
 }
 
+function usesShapedDabs() {
+  return [
+    "flat",
+    "bright",
+    "filbert",
+    "round",
+    "fan",
+    "glaze",
+    "shader",
+    "catTongue",
+    "egbert",
+    "mop"
+  ].includes(selectedBrush);
+}
+
+function getBrushDabSpacing(size) {
+  const spacing = Number(brushSpacing.value) / 100;
+
+  if (selectedBrush === "fan") return Math.max(3, size * Math.max(0.08, spacing * 0.55));
+  if (selectedBrush === "glaze" || selectedBrush === "mop") return Math.max(4, size * Math.max(0.10, spacing * 0.70));
+  if (selectedBrush === "round") return Math.max(2, size * Math.max(0.08, spacing * 0.55));
+
+  return Math.max(2, size * Math.max(0.07, spacing * 0.45));
+}
+
+function setDabPaint(ctx) {
+  const opacity = (Number(brushOpacity.value) / 100) * (Number(brushFlow.value) / 100);
+
+  ctx.globalCompositeOperation = activeMode === "erase" ? "destination-out" : "source-over";
+  ctx.globalAlpha = activeMode === "erase" ? opacity : 1;
+  ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity);
+  ctx.strokeStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = "transparent";
+  ctx.filter = "none";
+}
+
+function drawOrientedRect(ctx, width, height) {
+  ctx.fillRect(-width / 2, -height / 2, width, height);
+}
+
+function drawCatTongueShape(ctx, width, height) {
+  ctx.beginPath();
+  ctx.moveTo(width * 0.5, 0);
+  ctx.quadraticCurveTo(width * 0.16, -height * 0.5, -width * 0.45, -height * 0.45);
+  ctx.quadraticCurveTo(-width * 0.62, 0, -width * 0.45, height * 0.45);
+  ctx.quadraticCurveTo(width * 0.16, height * 0.5, width * 0.5, 0);
+  ctx.fill();
+}
+
+function drawFanDab(ctx, size) {
+  const opacity = (Number(brushOpacity.value) / 100) * (Number(brushFlow.value) / 100);
+  ctx.lineWidth = Math.max(0.7, size * 0.035);
+  ctx.strokeStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.55);
+
+  for (let i = -4; i <= 4; i += 1) {
+    const spread = i / 4;
+    const angle = spread * 0.48;
+    const length = size * (0.68 + Math.random() * 0.22);
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.22, 0);
+    ctx.quadraticCurveTo(
+      length * 0.25,
+      spread * size * 0.22,
+      Math.cos(angle) * length,
+      Math.sin(angle) * length
+    );
+    ctx.stroke();
+  }
+}
+
+function drawBrushDab(ctx, point, angle) {
+  const size = Number(brushSize.value);
+  const opacity = (Number(brushOpacity.value) / 100) * (Number(brushFlow.value) / 100);
+
+  ctx.save();
+  ctx.translate(point.x, point.y);
+  ctx.rotate(angle);
+  setDabPaint(ctx);
+
+  if (selectedBrush === "flat") {
+    ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.82);
+    drawOrientedRect(ctx, size * 1.75, Math.max(2, size * 0.34));
+  } else if (selectedBrush === "bright") {
+    ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.92);
+    drawOrientedRect(ctx, size * 1.32, Math.max(2, size * 0.40));
+    ctx.globalAlpha *= 0.34;
+    for (let i = -2; i <= 2; i += 1) {
+      ctx.fillRect(-size * 0.64, i * size * 0.085, size * 1.28, Math.max(1, size * 0.018));
+    }
+  } else if (selectedBrush === "filbert") {
+    ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.72);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size * 0.78, Math.max(2, size * 0.30), 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (selectedBrush === "round") {
+    ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.86);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, Math.max(1.2, size * 0.26), Math.max(1.2, size * 0.26), 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (selectedBrush === "fan") {
+    drawFanDab(ctx, size);
+  } else if (selectedBrush === "glaze") {
+    ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.16;
+    ctx.filter = "blur(" + Math.max(1, size * 0.05) + "px)";
+    ctx.fillStyle = activeMode === "erase" ? "#000" : colorPicker.value;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size * 1.22, size * 0.34, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (selectedBrush === "shader") {
+    ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.9);
+    drawOrientedRect(ctx, size * 1.05, Math.max(2, size * 0.30));
+  } else if (selectedBrush === "catTongue") {
+    ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.76);
+    drawCatTongueShape(ctx, size * 1.35, Math.max(3, size * 0.58));
+  } else if (selectedBrush === "egbert") {
+    ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.68);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size * 1.05, Math.max(2, size * 0.24), 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (selectedBrush === "mop") {
+    ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.20;
+    ctx.filter = "blur(" + Math.max(1, size * 0.09) + "px)";
+    ctx.fillStyle = activeMode === "erase" ? "#000" : colorPicker.value;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size * 0.78, size * 0.44, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawShapedDabs(fromPoint, toPoint) {
+  const layer = getActiveLayer();
+  if (!layer || !layer.visible || layer.locked) return;
+
+  const ctx = layer.ctx;
+  const size = Number(brushSize.value);
+  const distance = Math.hypot(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y);
+  const angle = Math.atan2(toPoint.y - fromPoint.y, toPoint.x - fromPoint.x);
+  const stepSize = getBrushDabSpacing(size);
+  const steps = Math.max(1, Math.ceil(distance / stepSize));
+
+  for (let i = 1; i <= steps; i += 1) {
+    const t = i / steps;
+    drawBrushDab(ctx, {
+      x: fromPoint.x + (toPoint.x - fromPoint.x) * t,
+      y: fromPoint.y + (toPoint.y - fromPoint.y) * t
+    }, angle);
+  }
+}
+
 function drawFastSmudge(layer, point) {
   if (activeMode === "erase") {
     drawNormalStroke(point);
@@ -966,7 +1118,22 @@ function drawFastBlend(layer, point) {
 
 function drawNormalStroke(point) {
   const layer = getActiveLayer();
-  if (!layer || !layer.visible) return;
+  if (!layer || !layer.visible || layer.locked) return;
+
+  if (usesShapedDabs()) {
+    if (!lastPoint) {
+      lastPoint = point;
+      lastMidPoint = point;
+      drawBrushDab(layer.ctx, point, 0);
+      return;
+    }
+
+    drawShapedDabs(lastPoint, point);
+    lastPoint = point;
+    lastMidPoint = point;
+    return;
+  }
+
   const ctx = layer.ctx;
   prepareBrush(ctx);
   if (!lastPoint) {
