@@ -94,6 +94,8 @@ let lastPoint = null;
 let lastMidPoint = null;
 let panLastPoint = null;
 let rotateLastPoint = null;
+let smudgeBufferCanvas = null;
+let smudgeBufferCtx = null;
 let undoStack = [];
 let redoStack = [];
 let activeMovingPanel = null;
@@ -516,10 +518,10 @@ function prepareBrush(ctx) {
   ctx.fillStyle = activeMode === "erase" ? "#000000" : color;
 
   if (selectedBrush === "ink") ctx.lineWidth = Math.max(1, size * 0.68);
-  else if (selectedBrush === "pencil") ctx.lineWidth = Math.max(1, size * 0.46);
+  else if (selectedBrush === "pencil") ctx.lineWidth = Math.max(0.8, size * 0.34);
   else if (selectedBrush === "marker") ctx.lineWidth = size * 1.15;
   else if (selectedBrush === "soft") ctx.lineWidth = size * 1.9;
-  else if (selectedBrush === "watercolor") ctx.lineWidth = size * 2.2;
+  else if (selectedBrush === "watercolor") ctx.lineWidth = size * 2.4;
   else if (selectedBrush === "charcoal") ctx.lineWidth = size * 1.35;
   else ctx.lineWidth = size;
 
@@ -536,13 +538,13 @@ function prepareBrush(ctx) {
       ctx.shadowBlur = size * 0.65;
       ctx.shadowColor = hexToRgba(colorPicker.value, opacity * 0.35);
     } else if (selectedBrush === "watercolor") {
-      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.22);
-      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.22);
-      ctx.shadowBlur = size * 0.45;
-      ctx.shadowColor = hexToRgba(colorPicker.value, opacity * 0.28);
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.16);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.16);
+      ctx.shadowBlur = size * 0.7;
+      ctx.shadowColor = hexToRgba(colorPicker.value, opacity * 0.22);
     } else if (selectedBrush === "charcoal") {
-      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.64);
-      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.64);
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.52);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.52);
     }
   }
 }
@@ -574,49 +576,198 @@ function drawCharcoalTexture(ctx, point) {
   ctx.restore();
 }
 
+function drawBrushTexture(ctx, point) {
+  if (activeMode === "erase") return;
+
+  const size = Number(brushSize.value);
+  const flow = Number(brushFlow.value) / 100;
+  const opacity = Number(brushOpacity.value) / 100;
+
+  if (selectedBrush === "charcoal") {
+    drawCharcoalTexture(ctx, point);
+    return;
+  }
+
+  if (selectedBrush === "pencil") {
+    const marks = Math.max(2, Math.floor(size * 0.28));
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * flow * 0.22);
+    ctx.lineWidth = Math.max(0.5, size * 0.035);
+
+    for (let i = 0; i < marks; i += 1) {
+      const angle = -0.55 + Math.random() * 0.32;
+      const distance = Math.random() * size * 0.42;
+      const length = Math.max(2, size * (0.14 + Math.random() * 0.16));
+      const x = point.x + Math.cos(angle + Math.PI / 2) * distance;
+      const y = point.y + Math.sin(angle + Math.PI / 2) * distance;
+      ctx.beginPath();
+      ctx.moveTo(x - Math.cos(angle) * length, y - Math.sin(angle) * length);
+      ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+    return;
+  }
+
+  if (selectedBrush === "watercolor") {
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = opacity * flow * 0.08;
+    ctx.fillStyle = colorPicker.value;
+
+    for (let i = 0; i < 3; i += 1) {
+      const radius = size * (0.35 + Math.random() * 0.25);
+      const angle = Math.random() * Math.PI * 2;
+      const distance = Math.random() * size * 0.28;
+      ctx.beginPath();
+      ctx.arc(
+        point.x + Math.cos(angle) * distance,
+        point.y + Math.sin(angle) * distance,
+        radius,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+    }
+
+    ctx.restore();
+    return;
+  }
+
+  if (selectedBrush === "marker") {
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * flow * 0.12);
+    ctx.beginPath();
+    ctx.ellipse(point.x, point.y, size * 0.52, size * 0.22, -0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function addStrokeTextureSamples(ctx, fromPoint, toPoint) {
+  const size = Number(brushSize.value);
+  const spacing = Number(brushSpacing.value) / 100;
+  const distance = Math.hypot(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y);
+  const stepSize = Math.max(2, size * spacing);
+  const steps = Math.max(1, Math.ceil(distance / stepSize));
+
+  for (let i = 1; i <= steps; i += 1) {
+    const t = i / steps;
+    drawBrushTexture(ctx, {
+      x: fromPoint.x + (toPoint.x - fromPoint.x) * t,
+      y: fromPoint.y + (toPoint.y - fromPoint.y) * t
+    });
+  }
+}
+
 function drawFastSmudge(layer, point) {
   if (activeMode === "erase") {
     drawNormalStroke(point);
     return;
   }
+
+  if (!smudgeBufferCanvas) {
+    smudgeBufferCanvas = document.createElement("canvas");
+    smudgeBufferCtx = smudgeBufferCanvas.getContext("2d", { willReadFrequently: true });
+  }
+
   if (!lastPoint) {
+    const size = Number(brushSize.value);
+    const strength = Number(smudgeStrength.value) / 100;
+    const radius = Math.max(8, Math.floor(size * (0.58 + strength * 0.35)));
+    const bufferSize = radius * 2;
+
+    smudgeBufferCanvas.width = bufferSize;
+    smudgeBufferCanvas.height = bufferSize;
+    smudgeBufferCtx.clearRect(0, 0, bufferSize, bufferSize);
+    smudgeBufferCtx.drawImage(
+      layer.canvas,
+      Math.floor(point.x - radius),
+      Math.floor(point.y - radius),
+      bufferSize,
+      bufferSize,
+      0,
+      0,
+      bufferSize,
+      bufferSize
+    );
+
     lastPoint = point;
     lastMidPoint = point;
     return;
   }
+
   const ctx = layer.ctx;
   const size = Number(brushSize.value);
-  const opacity = Number(brushOpacity.value) / 100;
+  const opacity = (Number(brushOpacity.value) / 100) * (Number(brushFlow.value) / 100);
   const strength = Number(smudgeStrength.value) / 100;
-  const radius = Math.max(5, Math.floor(size * (0.42 + strength * 0.22)));
+  const radius = Math.max(8, Math.floor(size * (0.58 + strength * 0.35)));
   const sampleSize = radius * 2;
   const movementX = point.x - lastPoint.x;
   const movementY = point.y - lastPoint.y;
   const distance = Math.hypot(movementX, movementY);
-  const steps = Math.max(1, Math.min(5, Math.ceil(distance / Math.max(10, radius * 1.35))));
-  const dragLag = 0.18 + strength * 0.52;
-  const alpha = opacity * (0.08 + strength * 0.26);
+  const steps = Math.max(1, Math.min(8, Math.ceil(distance / Math.max(4, radius * 0.45))));
+  const alpha = clamp(opacity * (0.32 + strength * 0.5), 0.08, 0.88);
+  const pickupAlpha = clamp(0.08 + strength * 0.22, 0.08, 0.38);
+
   ctx.save();
   ctx.globalCompositeOperation = "source-over";
   ctx.globalAlpha = alpha;
   ctx.imageSmoothingEnabled = true;
+
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
     const currentX = lastPoint.x + movementX * t;
     const currentY = lastPoint.y + movementY * t;
-    const sourceX = currentX - movementX * dragLag;
-    const sourceY = currentY - movementY * dragLag;
+
+    if (smudgeBufferCanvas.width !== sampleSize || smudgeBufferCanvas.height !== sampleSize) {
+      const oldBuffer = document.createElement("canvas");
+      oldBuffer.width = smudgeBufferCanvas.width;
+      oldBuffer.height = smudgeBufferCanvas.height;
+      oldBuffer.getContext("2d").drawImage(smudgeBufferCanvas, 0, 0);
+      smudgeBufferCanvas.width = sampleSize;
+      smudgeBufferCanvas.height = sampleSize;
+      smudgeBufferCtx = smudgeBufferCanvas.getContext("2d", { willReadFrequently: true });
+      smudgeBufferCtx.drawImage(oldBuffer, 0, 0, sampleSize, sampleSize);
+    }
+
     try {
       ctx.save();
       ctx.beginPath();
       ctx.arc(currentX, currentY, radius, 0, Math.PI * 2);
       ctx.clip();
-      ctx.drawImage(layer.canvas, Math.floor(sourceX - radius), Math.floor(sourceY - radius), sampleSize, sampleSize, Math.floor(currentX - radius), Math.floor(currentY - radius), sampleSize, sampleSize);
+      ctx.drawImage(
+        smudgeBufferCanvas,
+        Math.floor(currentX - radius),
+        Math.floor(currentY - radius),
+        sampleSize,
+        sampleSize
+      );
       ctx.restore();
     } catch (error) {
       ctx.restore();
     }
+
+    smudgeBufferCtx.save();
+    smudgeBufferCtx.globalAlpha = pickupAlpha;
+    smudgeBufferCtx.globalCompositeOperation = "source-over";
+    smudgeBufferCtx.drawImage(
+      layer.canvas,
+      Math.floor(currentX - radius),
+      Math.floor(currentY - radius),
+      sampleSize,
+      sampleSize,
+      0,
+      0,
+      sampleSize,
+      sampleSize
+    );
+    smudgeBufferCtx.restore();
   }
+
   ctx.restore();
   lastPoint = point;
   lastMidPoint = point;
@@ -687,7 +838,7 @@ function drawNormalStroke(point) {
   ctx.moveTo(lastMidPoint.x, lastMidPoint.y);
   ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, mid.x, mid.y);
   ctx.stroke();
-  if (selectedBrush === "charcoal") drawCharcoalTexture(ctx, point);
+  addStrokeTextureSamples(ctx, lastPoint, point);
   lastPoint = point;
   lastMidPoint = mid;
   finishBrush(ctx);
@@ -864,6 +1015,8 @@ function startDrawing(event) {
   activeDrawPointerId = event.pointerId;
   lastPoint = null;
   lastMidPoint = null;
+  smudgeBufferCanvas = null;
+  smudgeBufferCtx = null;
   canvasViewport.setPointerCapture?.(event.pointerId);
   drawSmoothPoint(getCanvasPoint(event));
 }
@@ -915,6 +1068,8 @@ function stopDrawing(event) {
     isRotating = false;
     isMiddleMouseRotating = false;
     rotateLastPoint = null;
+    smudgeBufferCanvas = null;
+    smudgeBufferCtx = null;
     return;
   }
   if (isPanning) {
@@ -923,6 +1078,8 @@ function stopDrawing(event) {
     isRightMousePanning = false;
     panLastPoint = null;
     canvasStage.classList.remove("pan-dragging");
+    smudgeBufferCanvas = null;
+    smudgeBufferCtx = null;
     return;
   }
   if (!isDrawing || activeDrawPointerId !== event.pointerId) return;
@@ -931,6 +1088,8 @@ function stopDrawing(event) {
   activeDrawPointerId = null;
   lastPoint = null;
   lastMidPoint = null;
+  smudgeBufferCanvas = null;
+  smudgeBufferCtx = null;
 }
 
 function handleWheel(event) {
