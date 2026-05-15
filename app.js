@@ -517,7 +517,20 @@ function prepareBrush(ctx) {
   ctx.strokeStyle = activeMode === "erase" ? "#000000" : color;
   ctx.fillStyle = activeMode === "erase" ? "#000000" : color;
 
-  if (selectedBrush === "ink") ctx.lineWidth = Math.max(1, size * 0.68);
+  if (selectedBrush === "flat") ctx.lineWidth = Math.max(2, size * 0.9);
+  else if (selectedBrush === "bright") ctx.lineWidth = Math.max(2, size * 0.78);
+  else if (selectedBrush === "filbert") ctx.lineWidth = Math.max(2, size * 0.92);
+  else if (selectedBrush === "round") ctx.lineWidth = Math.max(1, size * 0.58);
+  else if (selectedBrush === "fan") ctx.lineWidth = Math.max(2, size * 1.15);
+  else if (selectedBrush === "glaze") ctx.lineWidth = Math.max(4, size * 2.6);
+  else if (selectedBrush === "shader") ctx.lineWidth = Math.max(2, size * 0.72);
+  else if (selectedBrush === "catTongue") ctx.lineWidth = Math.max(2, size * 0.86);
+  else if (selectedBrush === "liner") ctx.lineWidth = Math.max(0.7, size * 0.2);
+  else if (selectedBrush === "script") ctx.lineWidth = Math.max(0.7, size * 0.18);
+  else if (selectedBrush === "detailLiner") ctx.lineWidth = Math.max(0.5, size * 0.12);
+  else if (selectedBrush === "egbert") ctx.lineWidth = Math.max(2, size * 0.82);
+  else if (selectedBrush === "mop") ctx.lineWidth = Math.max(4, size * 2.1);
+  else if (selectedBrush === "ink") ctx.lineWidth = Math.max(1, size * 0.68);
   else if (selectedBrush === "pencil") ctx.lineWidth = Math.max(0.8, size * 0.34);
   else if (selectedBrush === "marker") ctx.lineWidth = size * 1.15;
   else if (selectedBrush === "soft") ctx.lineWidth = size * 1.9;
@@ -526,7 +539,46 @@ function prepareBrush(ctx) {
   else ctx.lineWidth = size;
 
   if (activeMode === "draw") {
-    if (selectedBrush === "pencil") {
+    if (selectedBrush === "flat") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.86);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.86);
+    } else if (selectedBrush === "bright") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.94);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.94);
+    } else if (selectedBrush === "filbert") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.76);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.76);
+      ctx.shadowBlur = size * 0.08;
+      ctx.shadowColor = hexToRgba(colorPicker.value, opacity * 0.18);
+    } else if (selectedBrush === "round") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.9);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.9);
+    } else if (selectedBrush === "fan") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.36);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.36);
+    } else if (selectedBrush === "glaze") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.13);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.13);
+      ctx.shadowBlur = size * 0.55;
+      ctx.shadowColor = hexToRgba(colorPicker.value, opacity * 0.16);
+    } else if (selectedBrush === "shader") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.88);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.88);
+    } else if (selectedBrush === "catTongue") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.72);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.72);
+    } else if (selectedBrush === "liner" || selectedBrush === "script" || selectedBrush === "detailLiner") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.96);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.96);
+    } else if (selectedBrush === "egbert") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.72);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.72);
+    } else if (selectedBrush === "mop") {
+      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.18);
+      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.18);
+      ctx.shadowBlur = size * 0.8;
+      ctx.shadowColor = hexToRgba(colorPicker.value, opacity * 0.24);
+    } else if (selectedBrush === "pencil") {
       ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.72);
       ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.72);
     } else if (selectedBrush === "marker") {
@@ -582,6 +634,100 @@ function drawBrushTexture(ctx, point) {
   const size = Number(brushSize.value);
   const flow = Number(brushFlow.value) / 100;
   const opacity = Number(brushOpacity.value) / 100;
+
+  if (selectedBrush === "flat" || selectedBrush === "bright" || selectedBrush === "shader") {
+    const stiff = selectedBrush !== "flat";
+    const marks = stiff ? 5 : 3;
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * flow * (stiff ? 0.22 : 0.14));
+    ctx.lineWidth = Math.max(0.8, size * (stiff ? 0.035 : 0.025));
+
+    for (let i = 0; i < marks; i += 1) {
+      const yOffset = (i - (marks - 1) / 2) * size * 0.1;
+      const length = size * (stiff ? 0.55 : 0.78);
+      ctx.beginPath();
+      ctx.moveTo(point.x - length * 0.5, point.y + yOffset);
+      ctx.lineTo(point.x + length * 0.5, point.y + yOffset + (Math.random() - 0.5) * size * 0.08);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+    return;
+  }
+
+  if (selectedBrush === "filbert" || selectedBrush === "catTongue" || selectedBrush === "egbert") {
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * flow * 0.12);
+    ctx.beginPath();
+    const pointiness = selectedBrush === "catTongue" ? 0.72 : selectedBrush === "egbert" ? 0.42 : 0.1;
+    ctx.ellipse(point.x, point.y - size * pointiness * 0.08, size * 0.34, size * 0.62, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
+
+  if (selectedBrush === "round") {
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * flow * 0.16);
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, Math.max(1, size * 0.16), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
+
+  if (selectedBrush === "fan") {
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * flow * 0.2);
+    ctx.lineWidth = Math.max(0.6, size * 0.025);
+
+    for (let i = -3; i <= 3; i += 1) {
+      const angle = (-0.75 + i * 0.22) + (Math.random() - 0.5) * 0.12;
+      const length = size * (0.45 + Math.random() * 0.26);
+      ctx.beginPath();
+      ctx.moveTo(point.x, point.y);
+      ctx.lineTo(point.x + Math.cos(angle) * length, point.y + Math.sin(angle) * length);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+    return;
+  }
+
+  if (selectedBrush === "glaze" || selectedBrush === "mop") {
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = opacity * flow * (selectedBrush === "mop" ? 0.09 : 0.055);
+    ctx.fillStyle = colorPicker.value;
+
+    for (let i = 0; i < (selectedBrush === "mop" ? 5 : 3); i += 1) {
+      const radius = size * (selectedBrush === "mop" ? 0.7 : 0.95) * (0.62 + Math.random() * 0.35);
+      const angle = Math.random() * Math.PI * 2;
+      const distance = Math.random() * size * 0.36;
+      ctx.beginPath();
+      ctx.arc(point.x + Math.cos(angle) * distance, point.y + Math.sin(angle) * distance, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+    return;
+  }
+
+  if (selectedBrush === "liner" || selectedBrush === "script" || selectedBrush === "detailLiner") {
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * flow * 0.18);
+    const dotSize = selectedBrush === "detailLiner" ? 0.065 : selectedBrush === "script" ? 0.09 : 0.11;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, Math.max(0.5, size * dotSize), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
 
   if (selectedBrush === "charcoal") {
     drawCharcoalTexture(ctx, point);
@@ -1660,7 +1806,7 @@ window.addEventListener("resize", fitCanvasToScreen);
 
 createLayer("Layer 1");
 nextLayerNumber = 2;
-selectBrush("soft");
+selectBrush("flat");
 setMode("draw");
 updateSubmitAgeGroup();
 fitCanvasToScreen();
