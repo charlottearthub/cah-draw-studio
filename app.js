@@ -18,6 +18,8 @@ const brushFlow = document.getElementById("brushFlow");
 const brushFlowText = document.getElementById("brushFlowText");
 const brushSpacing = document.getElementById("brushSpacing");
 const brushSpacingText = document.getElementById("brushSpacingText");
+const brushSoftness = document.getElementById("brushSoftness");
+const brushSoftnessText = document.getElementById("brushSoftnessText");
 const resetBrushSettingsBtn = document.getElementById("resetBrushSettingsBtn");
 const smudgeStrength = document.getElementById("smudgeStrength");
 const smudgeStrengthText = document.getElementById("smudgeStrengthText");
@@ -108,6 +110,9 @@ let canvasHeight = 1080;
 let pickerHue = 220;
 let pickerSaturation = 92;
 let pickerValue = 93;
+let activeBrushFilter = "all";
+let recentBrushes = [];
+let favoriteBrushes = new Set();
 
 const maxLayers = 5;
 const maxHistory = 30;
@@ -508,6 +513,7 @@ function midpoint(a, b) {
 function prepareBrush(ctx) {
   const size = Number(brushSize.value);
   const opacity = (Number(brushOpacity.value) / 100) * (Number(brushFlow.value) / 100);
+  const softness = Number(brushSoftness.value) / 100;
   const color = hexToRgba(colorPicker.value, opacity);
   ctx.globalAlpha = activeMode === "erase" ? opacity : 1;
   ctx.lineCap = "round";
@@ -598,6 +604,11 @@ function prepareBrush(ctx) {
       ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.52);
       ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.52);
     }
+  }
+
+  if (softness > 0 && activeMode !== "erase") {
+    ctx.shadowBlur = Math.max(ctx.shadowBlur, size * softness * 0.42);
+    ctx.shadowColor = hexToRgba(colorPicker.value, opacity * 0.28);
   }
 }
 
@@ -837,13 +848,14 @@ function getBrushDabSpacing(size) {
 
 function setDabPaint(ctx) {
   const opacity = (Number(brushOpacity.value) / 100) * (Number(brushFlow.value) / 100);
+  const softness = Number(brushSoftness.value) / 100;
 
   ctx.globalCompositeOperation = activeMode === "erase" ? "destination-out" : "source-over";
   ctx.globalAlpha = activeMode === "erase" ? opacity : 1;
   ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity);
   ctx.strokeStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity);
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = activeMode === "erase" ? 0 : Number(brushSize.value) * softness * 0.35;
+  ctx.shadowColor = activeMode === "erase" ? "transparent" : hexToRgba(colorPicker.value, opacity * 0.24);
   ctx.filter = "none";
 }
 
@@ -884,6 +896,7 @@ function drawFanDab(ctx, size) {
 function drawBrushDab(ctx, point, angle) {
   const size = Number(brushSize.value);
   const opacity = (Number(brushOpacity.value) / 100) * (Number(brushFlow.value) / 100);
+  const softness = Number(brushSoftness.value) / 100;
 
   ctx.save();
   ctx.translate(point.x, point.y);
@@ -914,6 +927,7 @@ function drawBrushDab(ctx, point, angle) {
     drawFanDab(ctx, size);
   } else if (selectedBrush === "glaze") {
     ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.105;
+    ctx.filter = softness > 0.35 ? "blur(" + Math.min(4, softness * 3) + "px)" : "none";
     ctx.fillStyle = activeMode === "erase" ? "#000" : colorPicker.value;
     ctx.beginPath();
     ctx.ellipse(0, 0, size * 1.36, Math.max(3, size * 0.38), 0, 0, Math.PI * 2);
@@ -931,6 +945,7 @@ function drawBrushDab(ctx, point, angle) {
     ctx.fill();
   } else if (selectedBrush === "mop") {
     ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.13;
+    ctx.filter = softness > 0.25 ? "blur(" + Math.min(5, softness * 4) + "px)" : "none";
     ctx.fillStyle = activeMode === "erase" ? "#000" : colorPicker.value;
     ctx.beginPath();
     ctx.ellipse(0, 0, size * 0.95, Math.max(4, size * 0.52), 0, 0, Math.PI * 2);
@@ -1012,7 +1027,7 @@ function drawFastSmudge(layer, point) {
   const movementY = point.y - lastPoint.y;
   const distance = Math.hypot(movementX, movementY);
   const steps = Math.max(1, Math.min(8, Math.ceil(distance / Math.max(4, radius * 0.45))));
-  const alpha = clamp(opacity * (0.32 + strength * 0.5), 0.08, 0.88);
+  const alpha = clamp(opacity * (0.24 + strength * 0.38), 0.06, 0.72);
   const pickupAlpha = clamp(0.08 + strength * 0.22, 0.08, 0.38);
 
   ctx.save();
@@ -1056,8 +1071,9 @@ function drawFastSmudge(layer, point) {
         radius,
         radius
       );
-      falloff.addColorStop(0, "rgba(0,0,0,1)");
-      falloff.addColorStop(0.55, "rgba(0,0,0,0.88)");
+      falloff.addColorStop(0, "rgba(0,0,0,0.92)");
+      falloff.addColorStop(0.25, "rgba(0,0,0,0.68)");
+      falloff.addColorStop(0.68, "rgba(0,0,0,0.22)");
       falloff.addColorStop(1, "rgba(0,0,0,0)");
 
       smudgeStampCtx.globalCompositeOperation = "destination-in";
@@ -1160,6 +1176,9 @@ function drawNormalStroke(point) {
   if (!lastPoint) {
     lastPoint = point;
     lastMidPoint = point;
+    if (selectedBrush === "liner" || selectedBrush === "script" || selectedBrush === "detailLiner") {
+      return;
+    }
     ctx.beginPath();
     ctx.arc(point.x, point.y, Number(brushSize.value) / 2, 0, Math.PI * 2);
     ctx.fill();
@@ -1338,6 +1357,32 @@ function startDrawing(event) {
     canvasViewport.setPointerCapture?.(event.pointerId);
     return;
   }
+  if (activeMode === "fill") {
+    fillActiveLayer();
+    return;
+  }
+  if (activeMode === "eyedropper") {
+    pickColorFromPoint(getCanvasPoint(event));
+    return;
+  }
+  if (activeMode === "shape") {
+    drawShapeAtPoint(getCanvasPoint(event));
+    return;
+  }
+  if (activeMode === "text") {
+    addTextAtPoint(getCanvasPoint(event));
+    return;
+  }
+  if (activeMode === "zoomIn") {
+    const point = getViewportPoint(event.clientX, event.clientY);
+    zoomAtViewportPoint(1.18, point.x, point.y);
+    return;
+  }
+  if (activeMode === "zoomOut") {
+    const point = getViewportPoint(event.clientX, event.clientY);
+    zoomAtViewportPoint(0.84, point.x, point.y);
+    return;
+  }
   if (!["draw", "erase", "smudge"].includes(activeMode)) {
     return;
   }
@@ -1458,15 +1503,95 @@ function setMode(mode) {
 function selectBrush(brushName) {
   selectedBrush = brushName;
   brushSelect.value = brushName;
+  rememberRecentBrush(brushName);
   document.querySelectorAll(".cah-brush-card").forEach((button) => {
     button.classList.toggle("active", button.dataset.brush === brushName);
   });
+  renderBrushLibrary();
   updateBrushBodyClass();
+}
+
+function rememberRecentBrush(brushName) {
+  recentBrushes = [brushName, ...recentBrushes.filter((item) => item !== brushName)].slice(0, 5);
+}
+
+function renderBrushLibrary() {
+  document.querySelectorAll(".cah-brush-card").forEach((button) => {
+    const brush = button.dataset.brush;
+    const category = button.dataset.category;
+    const isFavorite = favoriteBrushes.has(brush);
+    const isRecent = recentBrushes.includes(brush);
+    const show =
+      activeBrushFilter === "all" ||
+      (activeBrushFilter === "favorites" && isFavorite) ||
+      (activeBrushFilter === "recent" && isRecent) ||
+      activeBrushFilter === category;
+
+    button.hidden = !show;
+    button.classList.toggle("is-favorite", isFavorite);
+    button.classList.toggle("active", brush === selectedBrush);
+  });
 }
 
 function clearCanvas() {
   saveHistory();
   layers.forEach((layer) => layer.ctx.clearRect(0, 0, canvasWidth, canvasHeight));
+}
+
+function fillActiveLayer() {
+  const layer = getActiveLayer();
+  if (!layer || !layer.visible || layer.locked) return;
+  saveHistory();
+  layer.ctx.save();
+  layer.ctx.globalCompositeOperation = "source-over";
+  layer.ctx.globalAlpha = Number(brushOpacity.value) / 100;
+  layer.ctx.fillStyle = colorPicker.value;
+  layer.ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  layer.ctx.restore();
+}
+
+function pickColorFromPoint(point) {
+  const layer = getActiveLayer();
+  if (!layer) return;
+  const pixel = layer.ctx.getImageData(
+    clamp(Math.floor(point.x), 0, canvasWidth - 1),
+    clamp(Math.floor(point.y), 0, canvasHeight - 1),
+    1,
+    1
+  ).data;
+
+  if (pixel[3] === 0) return;
+
+  const toHex = (value) => value.toString(16).padStart(2, "0");
+  colorPicker.value = "#" + toHex(pixel[0]) + toHex(pixel[1]) + toHex(pixel[2]);
+  syncPickerFromHex(colorPicker.value);
+}
+
+function drawShapeAtPoint(point) {
+  const layer = getActiveLayer();
+  if (!layer || !layer.visible || layer.locked) return;
+  const size = Number(brushSize.value) * 2;
+  saveHistory();
+  layer.ctx.save();
+  layer.ctx.globalAlpha = Number(brushOpacity.value) / 100;
+  layer.ctx.strokeStyle = colorPicker.value;
+  layer.ctx.lineWidth = Math.max(1, Number(brushSize.value) * 0.08);
+  layer.ctx.strokeRect(point.x - size / 2, point.y - size / 2, size, size);
+  layer.ctx.restore();
+}
+
+function addTextAtPoint(point) {
+  const layer = getActiveLayer();
+  if (!layer || !layer.visible || layer.locked) return;
+  const text = window.prompt("Text");
+  if (!text) return;
+  saveHistory();
+  layer.ctx.save();
+  layer.ctx.globalAlpha = Number(brushOpacity.value) / 100;
+  layer.ctx.fillStyle = colorPicker.value;
+  layer.ctx.font = Math.max(12, Number(brushSize.value) * 2) + "px Arial";
+  layer.ctx.fillText(text, point.x, point.y);
+  layer.ctx.restore();
 }
 
 function createExportCanvas() {
@@ -1848,12 +1973,14 @@ function resetBrushSettings() {
   brushOpacity.value = 100;
   brushFlow.value = 100;
   brushSpacing.value = 12;
+  brushSoftness.value = 30;
   smudgeStrength.value = 35;
   blendStrength.value = 45;
   brushSizeText.textContent = brushSize.value;
   brushOpacityText.textContent = brushOpacity.value + "%";
   brushFlowText.textContent = brushFlow.value + "%";
   brushSpacingText.textContent = brushSpacing.value + "%";
+  brushSoftnessText.textContent = brushSoftness.value + "%";
   smudgeStrengthText.textContent = smudgeStrength.value + "%";
   blendStrengthText.textContent = blendStrength.value + "%";
 }
@@ -1869,6 +1996,9 @@ brushFlow.addEventListener("input", () => {
 });
 brushSpacing.addEventListener("input", () => {
   brushSpacingText.textContent = brushSpacing.value + "%";
+});
+brushSoftness.addEventListener("input", () => {
+  brushSoftnessText.textContent = brushSoftness.value + "%";
 });
 smudgeStrength.addEventListener("input", () => {
   smudgeStrengthText.textContent = smudgeStrength.value + "%";
@@ -1895,6 +2025,31 @@ document.querySelectorAll(".cah-brush-card").forEach((button) => {
     if (activeMode !== "erase") {
       setMode(button.dataset.brush === "smudge" ? "smudge" : "draw");
     }
+  });
+});
+document.querySelectorAll(".cah-brush-card[data-favorite='true']").forEach((button) => {
+  favoriteBrushes.add(button.dataset.brush);
+});
+document.querySelectorAll(".cah-brush-card em").forEach((star) => {
+  star.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const button = star.closest(".cah-brush-card");
+    const brush = button.dataset.brush;
+    if (favoriteBrushes.has(brush)) {
+      favoriteBrushes.delete(brush);
+    } else {
+      favoriteBrushes.add(brush);
+    }
+    renderBrushLibrary();
+  });
+});
+document.querySelectorAll("[data-brush-filter]").forEach((button) => {
+  button.addEventListener("click", () => {
+    activeBrushFilter = button.dataset.brushFilter;
+    document.querySelectorAll("[data-brush-filter]").forEach((filterButton) => {
+      filterButton.classList.toggle("active", filterButton === button);
+    });
+    renderBrushLibrary();
   });
 });
 document.querySelectorAll("[data-swatch]").forEach((button) => {
@@ -1966,6 +2121,7 @@ document.addEventListener("selectionchange", () => {
 wirePanelMovement();
 loadPanelState();
 syncPickerFromHex(colorPicker.value);
+renderBrushLibrary();
 
 gizmoDragHandle.addEventListener("pointerdown", startGizmoPan);
 gizmoDragHandle.addEventListener("pointermove", moveGizmoPan);
