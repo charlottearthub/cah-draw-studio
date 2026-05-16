@@ -138,7 +138,7 @@ function clamp(value, min, max) {
 function getSoftnessBlur(size, multiplier = 0.22) {
   const softness = Number(brushSoftness.value) / 100;
   if (softness <= 0) return 0;
-  return Math.min(3.2, Math.max(0.12, Math.sqrt(size) * softness * multiplier * 1.65));
+  return Math.min(1.1, Math.max(0, Math.sqrt(size) * softness * multiplier * 0.55));
 }
 
 function getSoftnessAlphaFeather() {
@@ -624,7 +624,7 @@ function prepareBrush(ctx) {
   if (softness > 0 && activeMode !== "erase") {
     ctx.shadowBlur = 0;
     ctx.shadowColor = "transparent";
-    ctx.filter = "blur(" + getSoftnessBlur(size, 0.24) + "px)";
+    ctx.filter = "none";
   }
 }
 
@@ -871,9 +871,7 @@ function setDabPaint(ctx) {
   ctx.strokeStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity);
   ctx.shadowBlur = 0;
   ctx.shadowColor = "transparent";
-  ctx.filter = activeMode === "erase" || softness <= 0
-    ? "none"
-    : "blur(" + getSoftnessBlur(Number(brushSize.value), 0.26) + "px)";
+  ctx.filter = "none";
 }
 
 function drawOrientedRect(ctx, width, height) {
@@ -922,7 +920,7 @@ function drawBrushDab(ctx, point, angle) {
 
   if (selectedBrush === "flat") {
     ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.82);
-    drawOrientedRect(ctx, size * 1.75, Math.max(2, size * 0.34));
+    drawOrientedRect(ctx, size * (1.65 + softness * 0.2), Math.max(2, size * (0.30 + softness * 0.10)));
   } else if (selectedBrush === "bright") {
     ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.92);
     drawOrientedRect(ctx, size * 1.32, Math.max(2, size * 0.40));
@@ -944,7 +942,7 @@ function drawBrushDab(ctx, point, angle) {
     drawFanDab(ctx, size);
   } else if (selectedBrush === "glaze") {
     ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.105;
-    ctx.filter = softness > 0.55 ? "blur(" + getSoftnessBlur(size, 0.20) + "px)" : "none";
+    ctx.filter = "none";
     ctx.fillStyle = activeMode === "erase" ? "#000" : colorPicker.value;
     ctx.beginPath();
     ctx.ellipse(0, 0, size * (1.18 + softness * 0.24), Math.max(3, size * (0.32 + softness * 0.12)), 0, 0, Math.PI * 2);
@@ -962,7 +960,7 @@ function drawBrushDab(ctx, point, angle) {
     ctx.fill();
   } else if (selectedBrush === "mop") {
     ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.13;
-    ctx.filter = softness > 0.55 ? "blur(" + getSoftnessBlur(size, 0.22) + "px)" : "none";
+    ctx.filter = "none";
     ctx.fillStyle = activeMode === "erase" ? "#000" : colorPicker.value;
     ctx.beginPath();
     ctx.ellipse(0, 0, size * (0.82 + softness * 0.22), Math.max(4, size * (0.42 + softness * 0.14)), 0, 0, Math.PI * 2);
@@ -1211,7 +1209,7 @@ function drawNormalStroke(point) {
   if (!lastPoint) {
     lastPoint = point;
     lastMidPoint = point;
-    if (selectedBrush === "liner" || selectedBrush === "script" || selectedBrush === "detailLiner") {
+    if (selectedBrush === "flat" || selectedBrush === "liner" || selectedBrush === "script" || selectedBrush === "detailLiner") {
       return;
     }
     ctx.beginPath();
@@ -1583,6 +1581,7 @@ function renderBrushLibrary() {
       activeBrushFilter === category;
 
     button.hidden = !show;
+    button.style.display = show ? "" : "none";
     button.classList.toggle("is-favorite", isFavorite);
     button.classList.toggle("active", brush === selectedBrush);
   });
