@@ -96,6 +96,8 @@ let panLastPoint = null;
 let rotateLastPoint = null;
 let smudgeBufferCanvas = null;
 let smudgeBufferCtx = null;
+let smudgeStampCanvas = null;
+let smudgeStampCtx = null;
 let undoStack = [];
 let redoStack = [];
 let activeMovingPanel = null;
@@ -525,9 +527,9 @@ function prepareBrush(ctx) {
   else if (selectedBrush === "glaze") ctx.lineWidth = Math.max(4, size * 2.6);
   else if (selectedBrush === "shader") ctx.lineWidth = Math.max(2, size * 0.72);
   else if (selectedBrush === "catTongue") ctx.lineWidth = Math.max(2, size * 0.86);
-  else if (selectedBrush === "liner") ctx.lineWidth = Math.max(0.7, size * 0.2);
-  else if (selectedBrush === "script") ctx.lineWidth = Math.max(0.7, size * 0.18);
-  else if (selectedBrush === "detailLiner") ctx.lineWidth = Math.max(0.5, size * 0.12);
+  else if (selectedBrush === "liner") ctx.lineWidth = Math.max(0.6, size * 0.16);
+  else if (selectedBrush === "script") ctx.lineWidth = Math.max(0.5, size * 0.11);
+  else if (selectedBrush === "detailLiner") ctx.lineWidth = Math.max(0.35, size * 0.065);
   else if (selectedBrush === "egbert") ctx.lineWidth = Math.max(2, size * 0.82);
   else if (selectedBrush === "mop") ctx.lineWidth = Math.max(4, size * 2.1);
   else if (selectedBrush === "ink") ctx.lineWidth = Math.max(1, size * 0.68);
@@ -556,12 +558,10 @@ function prepareBrush(ctx) {
     } else if (selectedBrush === "fan") {
       ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.36);
       ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.36);
-    } else if (selectedBrush === "glaze") {
-      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.13);
-      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.13);
-      ctx.shadowBlur = size * 0.55;
-      ctx.shadowColor = hexToRgba(colorPicker.value, opacity * 0.16);
-    } else if (selectedBrush === "shader") {
+  } else if (selectedBrush === "glaze") {
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.13);
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.13);
+  } else if (selectedBrush === "shader") {
       ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.88);
       ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.88);
     } else if (selectedBrush === "catTongue") {
@@ -720,8 +720,8 @@ function drawBrushTexture(ctx, point) {
   if (selectedBrush === "liner" || selectedBrush === "script" || selectedBrush === "detailLiner") {
     ctx.save();
     ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * flow * 0.18);
-    const dotSize = selectedBrush === "detailLiner" ? 0.065 : selectedBrush === "script" ? 0.09 : 0.11;
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * flow * 0.08);
+    const dotSize = selectedBrush === "detailLiner" ? 0.025 : selectedBrush === "script" ? 0.04 : 0.055;
     ctx.beginPath();
     ctx.arc(point.x, point.y, Math.max(0.5, size * dotSize), 0, Math.PI * 2);
     ctx.fill();
@@ -828,7 +828,8 @@ function getBrushDabSpacing(size) {
   const spacing = Number(brushSpacing.value) / 100;
 
   if (selectedBrush === "fan") return Math.max(3, size * Math.max(0.08, spacing * 0.55));
-  if (selectedBrush === "glaze" || selectedBrush === "mop") return Math.max(4, size * Math.max(0.10, spacing * 0.70));
+  if (selectedBrush === "glaze") return Math.max(10, size * Math.max(0.32, spacing * 1.85));
+  if (selectedBrush === "mop") return Math.max(12, size * Math.max(0.36, spacing * 1.95));
   if (selectedBrush === "round") return Math.max(2, size * Math.max(0.08, spacing * 0.55));
 
   return Math.max(2, size * Math.max(0.07, spacing * 0.45));
@@ -912,11 +913,10 @@ function drawBrushDab(ctx, point, angle) {
   } else if (selectedBrush === "fan") {
     drawFanDab(ctx, size);
   } else if (selectedBrush === "glaze") {
-    ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.16;
-    ctx.filter = "blur(" + Math.max(1, size * 0.05) + "px)";
+    ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.105;
     ctx.fillStyle = activeMode === "erase" ? "#000" : colorPicker.value;
     ctx.beginPath();
-    ctx.ellipse(0, 0, size * 1.22, size * 0.34, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, size * 1.36, Math.max(3, size * 0.38), 0, 0, Math.PI * 2);
     ctx.fill();
   } else if (selectedBrush === "shader") {
     ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.9);
@@ -930,11 +930,10 @@ function drawBrushDab(ctx, point, angle) {
     ctx.ellipse(0, 0, size * 1.05, Math.max(2, size * 0.24), 0, 0, Math.PI * 2);
     ctx.fill();
   } else if (selectedBrush === "mop") {
-    ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.20;
-    ctx.filter = "blur(" + Math.max(1, size * 0.09) + "px)";
+    ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.13;
     ctx.fillStyle = activeMode === "erase" ? "#000" : colorPicker.value;
     ctx.beginPath();
-    ctx.ellipse(0, 0, size * 0.78, size * 0.44, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, size * 0.95, Math.max(4, size * 0.52), 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -970,6 +969,11 @@ function drawFastSmudge(layer, point) {
   if (!smudgeBufferCanvas) {
     smudgeBufferCanvas = document.createElement("canvas");
     smudgeBufferCtx = smudgeBufferCanvas.getContext("2d", { willReadFrequently: true });
+  }
+
+  if (!smudgeStampCanvas) {
+    smudgeStampCanvas = document.createElement("canvas");
+    smudgeStampCtx = smudgeStampCanvas.getContext("2d", { willReadFrequently: true });
   }
 
   if (!lastPoint) {
@@ -1032,21 +1036,38 @@ function drawFastSmudge(layer, point) {
       smudgeBufferCtx.drawImage(oldBuffer, 0, 0, sampleSize, sampleSize);
     }
 
+    if (smudgeStampCanvas.width !== sampleSize || smudgeStampCanvas.height !== sampleSize) {
+      smudgeStampCanvas.width = sampleSize;
+      smudgeStampCanvas.height = sampleSize;
+      smudgeStampCtx = smudgeStampCanvas.getContext("2d", { willReadFrequently: true });
+    }
+
     try {
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(currentX, currentY, radius, 0, Math.PI * 2);
-      ctx.clip();
-      ctx.drawImage(
-        smudgeBufferCanvas,
-        Math.floor(currentX - radius),
-        Math.floor(currentY - radius),
-        sampleSize,
-        sampleSize
+      smudgeStampCtx.clearRect(0, 0, sampleSize, sampleSize);
+      smudgeStampCtx.globalCompositeOperation = "source-over";
+      smudgeStampCtx.globalAlpha = 1;
+      smudgeStampCtx.drawImage(smudgeBufferCanvas, 0, 0, sampleSize, sampleSize);
+
+      const falloff = smudgeStampCtx.createRadialGradient(
+        radius,
+        radius,
+        radius * 0.18,
+        radius,
+        radius,
+        radius
       );
-      ctx.restore();
+      falloff.addColorStop(0, "rgba(0,0,0,1)");
+      falloff.addColorStop(0.55, "rgba(0,0,0,0.88)");
+      falloff.addColorStop(1, "rgba(0,0,0,0)");
+
+      smudgeStampCtx.globalCompositeOperation = "destination-in";
+      smudgeStampCtx.fillStyle = falloff;
+      smudgeStampCtx.fillRect(0, 0, sampleSize, sampleSize);
+      smudgeStampCtx.globalCompositeOperation = "source-over";
+
+      ctx.drawImage(smudgeStampCanvas, Math.floor(currentX - radius), Math.floor(currentY - radius));
     } catch (error) {
-      ctx.restore();
+      console.warn("Smudge stamp failed", error);
     }
 
     smudgeBufferCtx.save();
@@ -1330,6 +1351,8 @@ function startDrawing(event) {
   lastMidPoint = null;
   smudgeBufferCanvas = null;
   smudgeBufferCtx = null;
+  smudgeStampCanvas = null;
+  smudgeStampCtx = null;
   canvasViewport.setPointerCapture?.(event.pointerId);
   drawSmoothPoint(getCanvasPoint(event));
 }
@@ -1383,6 +1406,8 @@ function stopDrawing(event) {
     rotateLastPoint = null;
     smudgeBufferCanvas = null;
     smudgeBufferCtx = null;
+    smudgeStampCanvas = null;
+    smudgeStampCtx = null;
     return;
   }
   if (isPanning) {
@@ -1393,6 +1418,8 @@ function stopDrawing(event) {
     canvasStage.classList.remove("pan-dragging");
     smudgeBufferCanvas = null;
     smudgeBufferCtx = null;
+    smudgeStampCanvas = null;
+    smudgeStampCtx = null;
     return;
   }
   if (!isDrawing || activeDrawPointerId !== event.pointerId) return;
@@ -1403,6 +1430,8 @@ function stopDrawing(event) {
   lastMidPoint = null;
   smudgeBufferCanvas = null;
   smudgeBufferCtx = null;
+  smudgeStampCanvas = null;
+  smudgeStampCtx = null;
 }
 
 function handleWheel(event) {
