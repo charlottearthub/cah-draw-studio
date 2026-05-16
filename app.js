@@ -138,7 +138,11 @@ function clamp(value, min, max) {
 function getSoftnessBlur(size, multiplier = 0.22) {
   const softness = Number(brushSoftness.value) / 100;
   if (softness <= 0) return 0;
-  return Math.min(18, Math.max(0.15, size * softness * multiplier));
+  return Math.min(3.2, Math.max(0.12, Math.sqrt(size) * softness * multiplier * 1.65));
+}
+
+function getSoftnessAlphaFeather() {
+  return Number(brushSoftness.value) / 100;
 }
 
 function hexToRgba(hex, alpha) {
@@ -938,10 +942,10 @@ function drawBrushDab(ctx, point, angle) {
     drawFanDab(ctx, size);
   } else if (selectedBrush === "glaze") {
     ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.105;
-    ctx.filter = softness > 0 ? "blur(" + getSoftnessBlur(size, 0.32) + "px)" : "none";
+    ctx.filter = softness > 0.55 ? "blur(" + getSoftnessBlur(size, 0.20) + "px)" : "none";
     ctx.fillStyle = activeMode === "erase" ? "#000" : colorPicker.value;
     ctx.beginPath();
-    ctx.ellipse(0, 0, size * 1.36, Math.max(3, size * 0.38), 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, size * (1.18 + softness * 0.24), Math.max(3, size * (0.32 + softness * 0.12)), 0, 0, Math.PI * 2);
     ctx.fill();
   } else if (selectedBrush === "shader") {
     ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.9);
@@ -956,10 +960,10 @@ function drawBrushDab(ctx, point, angle) {
     ctx.fill();
   } else if (selectedBrush === "mop") {
     ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.13;
-    ctx.filter = softness > 0 ? "blur(" + getSoftnessBlur(size, 0.38) + "px)" : "none";
+    ctx.filter = softness > 0.55 ? "blur(" + getSoftnessBlur(size, 0.22) + "px)" : "none";
     ctx.fillStyle = activeMode === "erase" ? "#000" : colorPicker.value;
     ctx.beginPath();
-    ctx.ellipse(0, 0, size * 0.95, Math.max(4, size * 0.52), 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, size * (0.82 + softness * 0.22), Math.max(4, size * (0.42 + softness * 0.14)), 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -975,7 +979,10 @@ function drawShapedDabs(fromPoint, toPoint) {
   const distance = Math.hypot(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y);
   const angle = Math.atan2(toPoint.y - fromPoint.y, toPoint.x - fromPoint.x);
   const stepSize = getBrushDabSpacing(size);
-  const steps = Math.max(1, Math.ceil(distance / stepSize));
+  const rawSteps = Math.max(1, Math.ceil(distance / stepSize));
+  const steps = selectedBrush === "glaze" || selectedBrush === "mop"
+    ? Math.min(rawSteps, 5)
+    : rawSteps;
 
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
