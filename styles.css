@@ -1256,17 +1256,13 @@ button,
   padding: 0;
 }
 
-.cah-layer-opacity {
-  margin-top: 8px;
-}
-
 .cah-layers-list {
   max-height: 375px;
 }
 
 .cah-layer-item {
-  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
-  min-height: 36px;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto auto;
+  min-height: 50px;
 }
 
 .cah-layer-name::before {
@@ -1280,6 +1276,27 @@ button,
   background:
     linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02)),
     rgba(120, 130, 145, 0.35);
+}
+
+.cah-layer-name span,
+.cah-layer-name small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cah-layer-name small {
+  margin-top: 2px;
+  color: rgba(247, 244, 237, 0.46);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.cah-layer-opacity-inline {
+  grid-column: 2 / -1;
+  width: 100%;
+  accent-color: #6d94ee;
 }
 
 .cah-color-panel {
@@ -1411,7 +1428,6 @@ body.cah-panel-settings-minimized .cah-brush-settings #resetBrushSettingsBtn,
 body.cah-panel-brushes-minimized .cah-brush-library .cah-brush-library-grid,
 body.cah-panel-color-minimized .cah-color-panel .cah-color-picker-ui,
 body.cah-panel-layers-minimized .cah-layers-panel .cah-select,
-body.cah-panel-layers-minimized .cah-layers-panel .cah-layer-opacity,
 body.cah-panel-layers-minimized .cah-layers-panel .cah-layers-list,
 body.cah-panel-canvas-minimized .cah-canvas-panel .cah-control,
 body.cah-panel-canvas-minimized .cah-canvas-panel #applyCanvasPresetBtn {
