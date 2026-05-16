@@ -559,10 +559,13 @@ function prepareBrush(ctx) {
   else ctx.lineWidth = size;
 
   if (activeMode === "draw") {
-    if (selectedBrush === "flat") {
-      ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.86);
-      ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.86);
-    } else if (selectedBrush === "bright") {
+  if (selectedBrush === "flat") {
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.86);
+    ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.86);
+    ctx.lineWidth = size * 0.72;
+    ctx.lineCap = "butt";
+    ctx.lineJoin = "round";
+  } else if (selectedBrush === "bright") {
       ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * 0.94);
       ctx.fillStyle = hexToRgba(colorPicker.value, opacity * 0.94);
     } else if (selectedBrush === "filbert") {
@@ -661,15 +664,15 @@ function drawBrushTexture(ctx, point) {
 
   if (selectedBrush === "flat" || selectedBrush === "bright" || selectedBrush === "shader") {
     const stiff = selectedBrush !== "flat";
-    const marks = stiff ? 5 : 3;
+    const marks = stiff ? 5 : 4;
     ctx.save();
     ctx.globalCompositeOperation = "source-over";
-    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * flow * (stiff ? 0.22 : 0.14));
-    ctx.lineWidth = Math.max(0.8, size * (stiff ? 0.035 : 0.025));
+    ctx.strokeStyle = hexToRgba(colorPicker.value, opacity * flow * (stiff ? 0.22 : 0.18));
+    ctx.lineWidth = Math.max(0.8, size * (stiff ? 0.035 : 0.028));
 
     for (let i = 0; i < marks; i += 1) {
-      const yOffset = (i - (marks - 1) / 2) * size * 0.1;
-      const length = size * (stiff ? 0.55 : 0.78);
+      const yOffset = (i - (marks - 1) / 2) * size * (stiff ? 0.1 : 0.13);
+      const length = size * (stiff ? 0.55 : 0.92);
       ctx.beginPath();
       ctx.moveTo(point.x - length * 0.5, point.y + yOffset);
       ctx.lineTo(point.x + length * 0.5, point.y + yOffset + (Math.random() - 0.5) * size * 0.08);
@@ -835,7 +838,6 @@ function addStrokeTextureSamples(ctx, fromPoint, toPoint) {
 
 function usesShapedDabs() {
   return [
-    "flat",
     "bright",
     "filbert",
     "round",
@@ -1225,6 +1227,18 @@ function drawNormalStroke(point) {
   ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, mid.x, mid.y);
   ctx.stroke();
   addStrokeTextureSamples(ctx, lastPoint, point);
+  if (selectedBrush === "flat") {
+    const angle = Math.atan2(point.y - lastPoint.y, point.x - lastPoint.x);
+    const size = Number(brushSize.value);
+    const opacity = (Number(brushOpacity.value) / 100) * (Number(brushFlow.value) / 100);
+    ctx.save();
+    ctx.translate(mid.x, mid.y);
+    ctx.rotate(angle);
+    ctx.globalCompositeOperation = activeMode === "erase" ? "destination-out" : "source-over";
+    ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.18);
+    ctx.fillRect(-size * 0.52, -size * 0.36, size * 1.04, Math.max(1, size * 0.08));
+    ctx.restore();
+  }
   lastPoint = point;
   lastMidPoint = mid;
   finishBrush(ctx);
