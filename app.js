@@ -25,6 +25,16 @@ const smudgeStrength = document.getElementById("smudgeStrength");
 const smudgeStrengthText = document.getElementById("smudgeStrengthText");
 const blendStrength = document.getElementById("blendStrength");
 const blendStrengthText = document.getElementById("blendStrengthText");
+const textContentInput = document.getElementById("textContentInput");
+const textFontSelect = document.getElementById("textFontSelect");
+const textAlignSelect = document.getElementById("textAlignSelect");
+const textSize = document.getElementById("textSize");
+const textSizeText = document.getElementById("textSizeText");
+const textOutline = document.getElementById("textOutline");
+const textOutlineText = document.getElementById("textOutlineText");
+const textBoldBtn = document.getElementById("textBoldBtn");
+const textItalicBtn = document.getElementById("textItalicBtn");
+const textPlaceBtn = document.getElementById("textPlaceBtn");
 
 const brushSelect = document.getElementById("brushSelect");
 const drawToolBtn = document.getElementById("drawToolBtn");
@@ -72,6 +82,7 @@ const headerPanel = document.querySelector(".cah-app-bar");
 const canvasPanel = document.querySelector(".cah-canvas-panel");
 const brushPanel = document.querySelector(".cah-brush-library");
 const settingsPanel = document.querySelector(".cah-brush-settings");
+const textPanel = document.querySelector(".cah-text-panel");
 const colorPanel = document.querySelector(".cah-color-panel");
 const layersPanel = document.querySelector(".cah-layers-panel");
 
@@ -125,6 +136,7 @@ const panelMap = {
   canvas: canvasPanel,
   brushes: brushPanel,
   settings: settingsPanel,
+  text: textPanel,
   color: colorPanel,
   layers: layersPanel,
   gizmo: navGizmo
@@ -1607,10 +1619,11 @@ function handleWheel(event) {
 }
 
 function updateBrushBodyClass() {
-  document.body.classList.remove("cah-brush-smudge", "cah-brush-blend", "cah-erase-mode");
+  document.body.classList.remove("cah-brush-smudge", "cah-brush-blend", "cah-erase-mode", "cah-text-mode");
   if (selectedBrush === "smudge") document.body.classList.add("cah-brush-smudge");
   if (selectedBrush === "blend") document.body.classList.add("cah-brush-blend");
   if (activeMode === "erase") document.body.classList.add("cah-erase-mode");
+  if (activeMode === "text") document.body.classList.add("cah-text-mode");
 }
 
 function setMode(mode) {
@@ -1705,14 +1718,41 @@ function drawShapeAtPoint(point) {
 function addTextAtPoint(point) {
   const layer = getActiveLayer();
   if (!layer || !layer.visible || layer.locked) return;
-  const text = window.prompt("Text");
+
+  const typedText = textContentInput.value.trim();
+  const text = typedText || window.prompt("Text");
   if (!text) return;
+
+  const size = Math.max(8, Number(textSize.value) || 48);
+  const outlineWidth = Math.max(0, Number(textOutline.value) || 0);
+  const isBold = textBoldBtn.classList.contains("active");
+  const isItalic = textItalicBtn.classList.contains("active");
+  const fontFamily = textFontSelect.value || "Arial, Helvetica, sans-serif";
+  const fontStyle = isItalic ? "italic" : "normal";
+  const fontWeight = isBold ? "700" : "400";
+  const lineHeight = size * 1.18;
+  const lines = text.split(/\r?\n/).slice(0, 8);
+
   saveHistory();
+
   layer.ctx.save();
   layer.ctx.globalAlpha = Number(brushOpacity.value) / 100;
   layer.ctx.fillStyle = colorPicker.value;
-  layer.ctx.font = Math.max(12, Number(brushSize.value) * 2) + "px Arial";
-  layer.ctx.fillText(text, point.x, point.y);
+  layer.ctx.strokeStyle = "rgba(10, 10, 10, 0.82)";
+  layer.ctx.lineWidth = outlineWidth;
+  layer.ctx.lineJoin = "round";
+  layer.ctx.textAlign = textAlignSelect.value || "left";
+  layer.ctx.textBaseline = "top";
+  layer.ctx.font = `${fontStyle} ${fontWeight} ${size}px ${fontFamily}`;
+
+  lines.forEach((line, index) => {
+    const y = point.y + index * lineHeight;
+    if (outlineWidth > 0) {
+      layer.ctx.strokeText(line, point.x, y);
+    }
+    layer.ctx.fillText(line, point.x, y);
+  });
+
   layer.ctx.restore();
 }
 
@@ -1850,6 +1890,7 @@ function toggleUi() {
       "cah-panel-canvas-minimized",
       "cah-panel-brushes-minimized",
       "cah-panel-settings-minimized",
+      "cah-panel-text-minimized",
       "cah-panel-color-minimized",
       "cah-panel-layers-minimized",
       "cah-panel-gizmo-minimized"
@@ -1996,6 +2037,7 @@ function resetPanels() {
     "cah-panel-canvas-minimized",
     "cah-panel-brushes-minimized",
     "cah-panel-settings-minimized",
+    "cah-panel-text-minimized",
     "cah-panel-color-minimized",
     "cah-panel-layers-minimized",
     "cah-panel-gizmo-minimized"
@@ -2111,6 +2153,10 @@ function resetBrushSettings() {
   blendStrengthText.textContent = blendStrength.value + "%";
 }
 
+function toggleTextStyle(button) {
+  button.classList.toggle("active");
+}
+
 brushSize.addEventListener("input", () => {
   brushSizeText.textContent = brushSize.value;
 });
@@ -2132,6 +2178,15 @@ smudgeStrength.addEventListener("input", () => {
 blendStrength.addEventListener("input", () => {
   blendStrengthText.textContent = blendStrength.value + "%";
 });
+textSize.addEventListener("input", () => {
+  textSizeText.textContent = textSize.value;
+});
+textOutline.addEventListener("input", () => {
+  textOutlineText.textContent = textOutline.value;
+});
+textBoldBtn.addEventListener("click", () => toggleTextStyle(textBoldBtn));
+textItalicBtn.addEventListener("click", () => toggleTextStyle(textItalicBtn));
+textPlaceBtn.addEventListener("click", () => setMode("text"));
 brushSelect.addEventListener("change", () => selectBrush(brushSelect.value));
 resetBrushSettingsBtn.addEventListener("click", resetBrushSettings);
 document.querySelectorAll("[data-tool-mode]").forEach((button) => {
