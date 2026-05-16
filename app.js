@@ -586,7 +586,7 @@ function prepareBrush(ctx) {
   else if (selectedBrush === "liner") ctx.lineWidth = Math.max(0.6, size * 0.16);
   else if (selectedBrush === "script") ctx.lineWidth = Math.max(0.5, size * 0.11);
   else if (selectedBrush === "detailLiner") ctx.lineWidth = Math.max(0.35, size * 0.065);
-  else if (selectedBrush === "egbert") ctx.lineWidth = Math.max(2, size * 0.82);
+  else if (selectedBrush === "egbert") ctx.lineWidth = Math.max(2, size * 0.52);
   else if (selectedBrush === "mop") ctx.lineWidth = Math.max(4, size * 2.1);
   else if (selectedBrush === "ink") ctx.lineWidth = Math.max(1, size * 0.68);
   else if (selectedBrush === "pencil") ctx.lineWidth = Math.max(0.8, size * 0.34);
@@ -992,10 +992,24 @@ function drawBrushDab(ctx, point, angle) {
     ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.76);
     drawCatTongueShape(ctx, size * 1.35, Math.max(3, size * 0.58));
   } else if (selectedBrush === "egbert") {
-    ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.68);
+    ctx.fillStyle = activeMode === "erase" ? "#000" : hexToRgba(colorPicker.value, opacity * 0.72);
     ctx.beginPath();
-    ctx.ellipse(0, 0, size * 1.05, Math.max(2, size * 0.24), 0, 0, Math.PI * 2);
+    ctx.moveTo(-size * 0.92, -size * 0.18);
+    ctx.quadraticCurveTo(-size * 0.20, -size * 0.46, size * 0.88, -size * 0.30);
+    ctx.quadraticCurveTo(size * 1.12, -size * 0.08, size * 0.70, size * 0.20);
+    ctx.quadraticCurveTo(-size * 0.22, size * 0.44, -size * 0.96, size * 0.18);
+    ctx.quadraticCurveTo(-size * 1.08, 0, -size * 0.92, -size * 0.18);
     ctx.fill();
+
+    if (activeMode !== "erase") {
+      ctx.globalAlpha *= 0.34;
+      ctx.fillStyle = colorPicker.value;
+      for (let i = -5; i <= 5; i += 1) {
+        const x = -size * 0.82 + Math.random() * size * 1.55;
+        const y = i * size * 0.035 + (Math.random() - 0.5) * size * 0.04;
+        ctx.fillRect(x, y, size * (0.08 + Math.random() * 0.10), Math.max(1, size * 0.018));
+      }
+    }
   } else if (selectedBrush === "mop") {
     ctx.globalAlpha = activeMode === "erase" ? opacity : opacity * 0.13;
     ctx.filter = "none";
