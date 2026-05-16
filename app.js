@@ -387,10 +387,11 @@ function setLayerOpacity(layerId, opacityValue) {
   renderLayers();
 }
 
-function nudgeLayerOpacity(layerId, amount) {
+function previewLayerOpacity(layerId, opacityValue) {
   const layer = layers.find((item) => item.id === layerId);
   if (!layer) return;
-  setLayerOpacity(layerId, Math.round(clamp((layer.opacity ?? 1) + amount, 0, 1) * 100));
+  layer.opacity = clamp(Number(opacityValue) / 100, 0, 1);
+  layer.canvas.style.opacity = String(layer.opacity);
 }
 
 function renderLayers() {
@@ -415,31 +416,24 @@ function renderLayers() {
     name.innerHTML = `<span>${layer.name}</span><small>${Math.round((layer.opacity ?? 1) * 100)}%</small>`;
     name.addEventListener("click", () => setActiveLayer(layer.id));
 
-    const opacityWrap = document.createElement("div");
-    opacityWrap.className = "cah-layer-opacity-stepper";
-
-    const opacityDown = document.createElement("button");
-    opacityDown.type = "button";
-    opacityDown.textContent = "-";
-    opacityDown.title = "Lower opacity";
-    opacityDown.addEventListener("click", (event) => {
+    const opacity = document.createElement("input");
+    opacity.type = "range";
+    opacity.min = "0";
+    opacity.max = "100";
+    opacity.value = String(Math.round((layer.opacity ?? 1) * 100));
+    opacity.className = "cah-layer-opacity-inline";
+    opacity.title = "Layer opacity";
+    opacity.addEventListener("pointerdown", (event) => event.stopPropagation());
+    opacity.addEventListener("click", (event) => event.stopPropagation());
+    opacity.addEventListener("input", (event) => {
       event.stopPropagation();
-      nudgeLayerOpacity(layer.id, -0.1);
+      previewLayerOpacity(layer.id, event.target.value);
+      name.querySelector("small").textContent = event.target.value + "%";
     });
-
-    const opacityValue = document.createElement("span");
-    opacityValue.textContent = Math.round((layer.opacity ?? 1) * 100) + "%";
-
-    const opacityUp = document.createElement("button");
-    opacityUp.type = "button";
-    opacityUp.textContent = "+";
-    opacityUp.title = "Raise opacity";
-    opacityUp.addEventListener("click", (event) => {
+    opacity.addEventListener("change", (event) => {
       event.stopPropagation();
-      nudgeLayerOpacity(layer.id, 0.1);
+      setLayerOpacity(layer.id, event.target.value);
     });
-
-    opacityWrap.append(opacityDown, opacityValue, opacityUp);
 
     const addButton = document.createElement("button");
     addButton.type = "button";
@@ -473,7 +467,7 @@ function renderLayers() {
       toggleLayerLock(layer.id);
     });
 
-    row.append(checkbox, name, opacityWrap, lockButton, addButton, deleteButton);
+    row.append(checkbox, name, opacity, lockButton, addButton, deleteButton);
     layersList.appendChild(row);
   });
 }
