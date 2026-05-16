@@ -21,7 +21,7 @@
         <div class="cah-project-block">
           <button id="toggleUiBtn" class="cah-icon-button" type="button">☰</button>
           <div>
-            <h1>CAH Draw Studio</h1>
+            <h1>CAH Draw Studio <span id="buildNumber" class="cah-build-number">Build 0.4.0</span></h1>
             <span>Autosaved locally</span>
           </div>
         </div>
@@ -193,6 +193,49 @@
           <input id="blendStrength" type="range" min="5" max="100" value="45" />
         </label>
         <button id="resetBrushSettingsBtn" type="button">Reset</button>
+      </section>
+
+      <section class="cah-text-panel cah-panel" data-panel="text">
+        <button class="cah-panel-min" data-min-panel="text" type="button">-</button>
+        <div class="cah-panel-title">Text</div>
+        <label class="cah-control">
+          <span>Content</span>
+          <textarea id="textContentInput" class="cah-textarea cah-tool-textarea" maxlength="240" placeholder="Type text, then tap canvas"></textarea>
+        </label>
+        <div class="cah-text-control-grid">
+          <label class="cah-control">
+            <span>Font</span>
+            <select id="textFontSelect" class="cah-select">
+              <option value="Arial, Helvetica, sans-serif">Arial</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="'Times New Roman', Times, serif">Times</option>
+              <option value="'Courier New', monospace">Courier</option>
+              <option value="'Trebuchet MS', Arial, sans-serif">Trebuchet</option>
+              <option value="Impact, Haettenschweiler, sans-serif">Impact</option>
+            </select>
+          </label>
+          <label class="cah-control">
+            <span>Align</span>
+            <select id="textAlignSelect" class="cah-select">
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+            </select>
+          </label>
+        </div>
+        <label class="cah-control">
+          <span>Size <b id="textSizeText">48</b></span>
+          <input id="textSize" type="range" min="8" max="240" value="48" />
+        </label>
+        <label class="cah-control">
+          <span>Outline <b id="textOutlineText">0</b></span>
+          <input id="textOutline" type="range" min="0" max="24" value="0" />
+        </label>
+        <div class="cah-text-style-row">
+          <button id="textBoldBtn" type="button">B</button>
+          <button id="textItalicBtn" type="button">I</button>
+          <button id="textPlaceBtn" type="button">Place Text</button>
+        </div>
       </section>
 
       <aside class="cah-layers-panel cah-panel" data-panel="layers">
