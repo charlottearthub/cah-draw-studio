@@ -1197,7 +1197,13 @@ button,
 .stroke-liner { background: linear-gradient(175deg, transparent 44%, rgba(255,255,255,0.98) 49%, transparent 54%); }
 .stroke-script { background: linear-gradient(170deg, transparent 42%, rgba(255,255,255,0.88) 49%, transparent 56%); filter: blur(0.4px); }
 .stroke-detail { background: linear-gradient(175deg, transparent 47%, rgba(255,255,255,1) 50%, transparent 53%); }
-.stroke-egbert { background: linear-gradient(180deg, transparent 25%, rgba(255,255,255,0.8) 42%, rgba(255,255,255,0.42) 68%, transparent 82%); filter: blur(0.7px); }
+.stroke-egbert {
+  background:
+    linear-gradient(165deg, transparent 10%, rgba(255,255,255,0.18) 22%, transparent 28%),
+    radial-gradient(ellipse at 58% 45%, rgba(255,255,255,0.88), rgba(255,255,255,0.46) 48%, transparent 72%);
+  clip-path: polygon(4% 54%, 15% 30%, 82% 16%, 98% 34%, 78% 64%, 16% 76%);
+  filter: blur(0.25px);
+}
 .stroke-mop { background: radial-gradient(circle at center, rgba(255,255,255,0.52), rgba(255,255,255,0.16) 58%, transparent 76%); filter: blur(2.2px); }
 
 .cah-hidden-select {
