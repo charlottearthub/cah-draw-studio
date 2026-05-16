@@ -41,10 +41,10 @@ button {
     linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015)),
     rgba(18, 18, 18, 0.72);
   color: #f7f4ed;
-  border-radius: 6px;
-  padding: 6px 8px;
+  border-radius: 4px;
+  padding: 5px 7px;
   font-weight: 800;
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1;
   cursor: pointer;
   user-select: none;
@@ -147,7 +147,7 @@ button:disabled {
 .cah-panel {
   position: absolute;
   z-index: 24;
-  border-radius: 7px;
+  border-radius: 5px;
   border: 1px solid rgba(255, 255, 255, 0.095);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.018)),
@@ -168,11 +168,11 @@ button:disabled {
   z-index: 6;
   top: 6px;
   right: 6px;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   padding: 0;
-  border-radius: 6px;
-  font-size: 13px;
+  border-radius: 4px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.78);
   background: rgba(0, 0, 0, 0.36);
   box-shadow: none;
@@ -180,11 +180,11 @@ button:disabled {
 
 .cah-panel-title {
   color: rgba(247, 244, 237, 0.82);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   padding-right: 24px;
 }
 
@@ -324,12 +324,12 @@ button:disabled {
 
 .cah-select,
 .cah-text-input {
-  height: 28px;
-  padding: 0 7px;
+  height: 24px;
+  padding: 0 6px;
 }
 
 .cah-textarea {
-  min-height: 64px;
+  min-height: 54px;
   resize: vertical;
   padding: 7px;
   line-height: 1.35;
@@ -344,11 +344,11 @@ button:disabled {
   display: grid;
   gap: 3px;
   color: rgba(247, 244, 237, 0.68);
-  font-size: 8px;
+  font-size: 7.5px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .cah-control b {
@@ -466,10 +466,10 @@ body.cah-submit-child .cah-guardian-wrap {
 
 .cah-layer-mini {
   min-width: 0;
-  width: 26px;
-  height: 22px;
+  width: 22px;
+  height: 19px;
   padding: 0;
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .cah-nav-gizmo {
@@ -989,11 +989,11 @@ button,
 
 /* Tablet art-app layout */
 .cah-app-bar {
-  left: 56px;
-  right: 56px;
+  left: 48px;
+  right: 48px;
   top: 10px;
-  height: 46px;
-  padding: 7px 12px;
+  height: 38px;
+  padding: 5px 9px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1003,13 +1003,13 @@ button,
 .cah-project-block {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   min-width: 220px;
 }
 
 .cah-project-block h1 {
   margin: 0;
-  font-size: 15px;
+  font-size: 13px;
   line-height: 1.05;
   letter-spacing: 0;
 }
@@ -1018,48 +1018,48 @@ button,
   display: block;
   margin-top: 3px;
   color: rgba(247, 244, 237, 0.54);
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .cah-icon-button {
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   min-width: 0;
   padding: 0;
   font-size: 16px;
 }
 
 .cah-tool-rail {
-  left: 10px;
-  top: 70px;
+  left: 8px;
+  top: 58px;
   bottom: 14px;
-  width: 50px;
-  padding: 7px 5px;
+  width: 40px;
+  padding: 5px 4px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 5px;
+  gap: 3px;
 }
 
 .cah-tool-button {
-  height: 45px;
+  height: 36px;
   min-width: 0;
-  padding: 4px 2px;
+  padding: 3px 1px;
   display: grid;
   place-items: center;
   gap: 2px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: transparent;
   box-shadow: none;
 }
 
 .cah-tool-button span {
-  font-size: 15px;
+  font-size: 13px;
   line-height: 1;
 }
 
 .cah-tool-button b {
-  font-size: 8px;
+  font-size: 7px;
   line-height: 1;
   font-weight: 700;
   color: rgba(247, 244, 237, 0.72);
@@ -1070,8 +1070,8 @@ button,
 }
 
 .cah-rail-color {
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   min-width: 0;
   padding: 0;
   border-radius: 50%;
@@ -1081,17 +1081,17 @@ button,
 }
 
 .cah-brush-library {
-  left: 68px;
-  top: 70px;
-  width: 300px;
+  left: 56px;
+  top: 58px;
+  width: 250px;
   max-height: 430px;
-  padding: 10px 34px 10px 10px;
+  padding: 8px 28px 8px 8px;
 }
 
 .cah-brush-library-grid {
   display: grid;
-  grid-template-columns: 105px minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 6px;
 }
 
 .cah-brush-categories,
@@ -1103,7 +1103,7 @@ button,
 .cah-brush-categories button {
   width: 100%;
   min-width: 0;
-  padding: 6px 7px;
+  padding: 5px 5px;
   text-align: left;
   background: transparent;
   box-shadow: none;
@@ -1122,8 +1122,8 @@ button,
 
 .cah-brush-card {
   min-width: 0;
-  height: 54px;
-  padding: 5px 6px;
+  height: 45px;
+  padding: 4px 5px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto 1fr;
@@ -1134,7 +1134,7 @@ button,
 
 .cah-brush-card span {
   grid-column: 1;
-  font-size: 9px;
+  font-size: 8px;
   color: rgba(247, 244, 237, 0.72);
 }
 
@@ -1144,7 +1144,7 @@ button,
   justify-self: end;
   color: rgba(247, 244, 237, 0.35);
   font-style: normal;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1;
 }
 
@@ -1161,7 +1161,7 @@ button,
   grid-column: 1 / -1;
   display: block;
   width: 100%;
-  height: 24px;
+  height: 20px;
   border-radius: 999px;
   opacity: 0.9;
 }
@@ -1197,15 +1197,15 @@ button,
 }
 
 .cah-brush-settings {
-  left: 96px;
-  bottom: 70px;
-  width: 250px;
-  padding: 10px 34px 10px 10px;
+  left: 72px;
+  bottom: 58px;
+  width: 218px;
+  padding: 8px 28px 8px 8px;
 }
 
 .cah-brush-preview {
-  height: 48px;
-  margin-bottom: 8px;
+  height: 36px;
+  margin-bottom: 6px;
   border-radius: 6px;
   background:
     radial-gradient(ellipse at center, rgba(255,255,255,0.72), rgba(255,255,255,0.16) 48%, transparent 72%),
@@ -1214,7 +1214,7 @@ button,
 }
 
 .cah-brush-settings .cah-control {
-  margin-bottom: 7px;
+  margin-bottom: 5px;
 }
 
 .cah-brush-settings button:last-child {
@@ -1223,11 +1223,11 @@ button,
 }
 
 .cah-layers-panel {
-  right: 58px;
-  top: 70px;
-  width: 250px;
+  right: 48px;
+  top: 58px;
+  width: 218px;
   max-height: 540px;
-  padding: 10px 34px 10px 10px;
+  padding: 8px 28px 8px 8px;
 }
 
 .cah-panel-title-row {
@@ -1254,15 +1254,15 @@ button,
 
 .cah-layer-item {
   grid-template-columns: auto minmax(0, 1fr) auto auto auto;
-  min-height: 44px;
+  min-height: 36px;
 }
 
 .cah-layer-name::before {
   content: "";
   display: inline-block;
-  width: 26px;
-  height: 26px;
-  margin-right: 7px;
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
   vertical-align: middle;
   border-radius: 3px;
   background:
@@ -1271,10 +1271,10 @@ button,
 }
 
 .cah-color-panel {
-  right: 58px;
-  bottom: 22px;
-  width: 250px;
-  padding: 10px 34px 10px 10px;
+  right: 48px;
+  bottom: 18px;
+  width: 218px;
+  padding: 8px 28px 8px 8px;
 }
 
 .cah-color-picker-ui {
@@ -1285,8 +1285,8 @@ button,
 
 .cah-color-wheel {
   position: relative;
-  width: 172px;
-  height: 172px;
+  width: 146px;
+  height: 146px;
   border-radius: 50%;
   background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
@@ -1306,8 +1306,8 @@ button,
   z-index: 2;
   left: 50%;
   top: 50%;
-  width: 92px;
-  height: 92px;
+  width: 78px;
+  height: 78px;
   transform: translate(-50%, -50%);
   border-radius: 4px;
   background:
@@ -1358,17 +1358,17 @@ button,
 }
 
 .cah-canvas-panel {
-  left: 96px;
-  bottom: 14px;
+  left: 72px;
+  bottom: 12px;
   right: auto;
-  width: 250px;
-  padding: 10px 34px 10px 10px;
+  width: 218px;
+  padding: 8px 28px 8px 8px;
 }
 
 .cah-nav-gizmo {
   left: auto;
-  right: 324px;
-  bottom: 22px;
+  right: 278px;
+  bottom: 18px;
 }
 
 body.cah-ui-hidden .cah-tool-rail,
