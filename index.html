@@ -45,7 +45,7 @@
           <span>▱</span>
           <b>Eraser</b>
         </button>
-        <button class="cah-tool-button" data-tool-mode="fill" type="button">
+        <button class="cah-tool-button" data-tool-mode="fill" data-tool-action="fill" type="button">
           <span>◈</span>
           <b>Fill</b>
         </button>
@@ -69,9 +69,13 @@
           <span>⌖</span>
           <b>Picker</b>
         </button>
-        <button class="cah-tool-button" data-tool-mode="zoom" type="button">
+        <button class="cah-tool-button" data-tool-mode="zoomIn" data-tool-action="zoomIn" type="button">
           <span>⌕</span>
-          <b>Zoom</b>
+          <b>Zoom+</b>
+        </button>
+        <button class="cah-tool-button" data-tool-mode="zoomOut" data-tool-action="zoomOut" type="button">
+          <span>⊖</span>
+          <b>Zoom-</b>
         </button>
         <button class="cah-tool-button" data-tool-mode="hand" type="button">
           <span>✋</span>
@@ -85,64 +89,60 @@
         <div class="cah-panel-title">Brush Library</div>
         <div class="cah-brush-library-grid">
           <div class="cah-brush-categories">
-            <button class="active" type="button">★ Favorites</button>
-            <button type="button">↺ Recent</button>
-            <button type="button">▴ Sketching</button>
-            <button type="button">▥ Painting</button>
-            <button type="button">▧ Concept</button>
-            <button type="button">▩ Textures</button>
-            <button type="button">△ Abstract</button>
-            <button type="button">▥ Charcoals</button>
-            <button type="button">✦ Elements</button>
-            <button type="button">✱ Spray</button>
+            <button class="active" data-brush-filter="all" type="button">All Brushes</button>
+            <button data-brush-filter="favorites" type="button">★ Favorites</button>
+            <button data-brush-filter="recent" type="button">↺ Recent</button>
+            <button data-brush-filter="drawing" type="button">▴ Drawing</button>
+            <button data-brush-filter="painting" type="button">▥ Painting</button>
+            <button data-brush-filter="wash" type="button">≈ Washes</button>
+            <button data-brush-filter="texture" type="button">✦ Texture</button>
           </div>
           <div class="cah-brush-list">
-            <button class="cah-brush-card active" data-brush="flat" type="button">
-              <span>Flat Brush</span><i class="stroke stroke-flat"></i>
+            <button class="cah-brush-card active" data-brush="flat" data-category="painting" data-favorite="true" type="button">
+              <span>Flat Brush</span><i class="stroke stroke-flat"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="bright" type="button">
-              <span>Bright Brush</span><i class="stroke stroke-bright"></i>
+            <button class="cah-brush-card" data-brush="bright" data-category="painting" type="button">
+              <span>Bright Brush</span><i class="stroke stroke-bright"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="filbert" type="button">
-              <span>Filbert Brush</span><i class="stroke stroke-filbert"></i>
+            <button class="cah-brush-card" data-brush="filbert" data-category="painting" data-favorite="true" type="button">
+              <span>Filbert Brush</span><i class="stroke stroke-filbert"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="round" type="button">
-              <span>Round Brush</span><i class="stroke stroke-round"></i>
+            <button class="cah-brush-card" data-brush="round" data-category="drawing" data-favorite="true" type="button">
+              <span>Round Brush</span><i class="stroke stroke-round"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="fan" type="button">
-              <span>Fan Brush</span><i class="stroke stroke-fan"></i>
+            <button class="cah-brush-card" data-brush="fan" data-category="texture" type="button">
+              <span>Fan Brush</span><i class="stroke stroke-fan"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="glaze" type="button">
-              <span>Glaze Brush</span><i class="stroke stroke-glaze"></i>
+            <button class="cah-brush-card" data-brush="glaze" data-category="wash" type="button">
+              <span>Glaze Brush</span><i class="stroke stroke-glaze"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="shader" type="button">
-              <span>Shader Brush</span><i class="stroke stroke-shader"></i>
+            <button class="cah-brush-card" data-brush="shader" data-category="painting" type="button">
+              <span>Shader Brush</span><i class="stroke stroke-shader"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="catTongue" type="button">
-              <span>Cat Tongue</span><i class="stroke stroke-cat"></i>
+            <button class="cah-brush-card" data-brush="catTongue" data-category="painting" type="button">
+              <span>Cat Tongue</span><i class="stroke stroke-cat"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="liner" type="button">
-              <span>Liner Brush</span><i class="stroke stroke-liner"></i>
+            <button class="cah-brush-card" data-brush="liner" data-category="drawing" type="button">
+              <span>Liner Brush</span><i class="stroke stroke-liner"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="script" type="button">
-              <span>Script Brush</span><i class="stroke stroke-script"></i>
+            <button class="cah-brush-card" data-brush="script" data-category="drawing" type="button">
+              <span>Script Brush</span><i class="stroke stroke-script"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="detailLiner" type="button">
-              <span>Detail Liner</span><i class="stroke stroke-detail"></i>
+            <button class="cah-brush-card" data-brush="detailLiner" data-category="drawing" type="button">
+              <span>Detail Liner</span><i class="stroke stroke-detail"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="egbert" type="button">
-              <span>Egbert Brush</span><i class="stroke stroke-egbert"></i>
+            <button class="cah-brush-card" data-brush="egbert" data-category="painting" type="button">
+              <span>Egbert Brush</span><i class="stroke stroke-egbert"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="mop" type="button">
-              <span>Mop Brush</span><i class="stroke stroke-mop"></i>
+            <button class="cah-brush-card" data-brush="mop" data-category="wash" type="button">
+              <span>Mop Brush</span><i class="stroke stroke-mop"></i><em>☆</em>
             </button>
-            <button class="cah-brush-card" data-brush="smudge" type="button">
-              <span>Smudge Mix</span><i class="stroke stroke-smudge"></i>
+            <button class="cah-brush-card" data-brush="smudge" data-category="texture" type="button">
+              <span>Smudge Mix</span><i class="stroke stroke-smudge"></i><em>☆</em>
             </button>
           </div>
         </div>
         <select id="brushSelect" class="cah-hidden-select" aria-hidden="true">
-          <option value="brush">Brush</option>
           <option value="flat">Flat Brush</option>
           <option value="bright">Bright Brush</option>
           <option value="filbert">Filbert Brush</option>
@@ -156,14 +156,7 @@
           <option value="detailLiner">Detail Liner</option>
           <option value="egbert">Egbert Brush</option>
           <option value="mop">Mop Brush</option>
-          <option value="ink">Ink</option>
-          <option value="pencil">Pencil</option>
-          <option value="marker">Marker</option>
-          <option value="soft">Soft</option>
-          <option value="watercolor">Wash</option>
-          <option value="charcoal">Charcoal</option>
           <option value="smudge">Smudge</option>
-          <option value="blend">Blend</option>
         </select>
       </section>
 
@@ -186,6 +179,10 @@
         <label class="cah-control">
           <span>Spacing <b id="brushSpacingText">12%</b></span>
           <input id="brushSpacing" type="range" min="1" max="60" value="12" />
+        </label>
+        <label class="cah-control">
+          <span>Softness <b id="brushSoftnessText">30%</b></span>
+          <input id="brushSoftness" type="range" min="0" max="100" value="30" />
         </label>
         <label id="smudgeStrengthWrap" class="cah-control cah-conditional-control">
           <span>Smudge <b id="smudgeStrengthText">35%</b></span>
