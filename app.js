@@ -102,6 +102,7 @@ let smudgeStampCanvas = null;
 let smudgeStampCtx = null;
 let smudgeStrokeDistance = 0;
 let smudgeStrokeEnergy = 1;
+let egbertAngleJitter = 0;
 let undoStack = [];
 let redoStack = [];
 let activeMovingPanel = null;
@@ -1038,10 +1039,21 @@ function drawShapedDabs(fromPoint, toPoint) {
 
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
+    let dabAngle = angle;
+
+    if (selectedBrush === "egbert") {
+      egbertAngleJitter = clamp(
+        egbertAngleJitter + (Math.random() - 0.5) * 0.18,
+        -0.42,
+        0.42
+      );
+      dabAngle = angle + egbertAngleJitter;
+    }
+
     drawBrushDab(ctx, {
       x: fromPoint.x + (toPoint.x - fromPoint.x) * t,
       y: fromPoint.y + (toPoint.y - fromPoint.y) * t
-    }, angle);
+    }, dabAngle);
   }
 }
 
@@ -1497,6 +1509,7 @@ function startDrawing(event) {
   smudgeStampCtx = null;
   smudgeStrokeDistance = 0;
   smudgeStrokeEnergy = 1;
+  egbertAngleJitter = 0;
   canvasViewport.setPointerCapture?.(event.pointerId);
   drawSmoothPoint(getCanvasPoint(event));
 }
@@ -1554,6 +1567,7 @@ function stopDrawing(event) {
     smudgeStampCtx = null;
     smudgeStrokeDistance = 0;
     smudgeStrokeEnergy = 1;
+    egbertAngleJitter = 0;
     return;
   }
   if (isPanning) {
@@ -1568,6 +1582,7 @@ function stopDrawing(event) {
     smudgeStampCtx = null;
     smudgeStrokeDistance = 0;
     smudgeStrokeEnergy = 1;
+    egbertAngleJitter = 0;
     return;
   }
   if (!isDrawing || activeDrawPointerId !== event.pointerId) return;
@@ -1582,6 +1597,7 @@ function stopDrawing(event) {
   smudgeStampCtx = null;
   smudgeStrokeDistance = 0;
   smudgeStrokeEnergy = 1;
+  egbertAngleJitter = 0;
 }
 
 function handleWheel(event) {
