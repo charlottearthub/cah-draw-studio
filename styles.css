@@ -422,8 +422,8 @@ body.cah-submit-child .cah-guardian-wrap {
     linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)),
     rgba(5, 5, 5, 0.42);
   color: #f7f4ed;
-  padding: 3px;
-  font-size: 9px;
+  padding: 2px 3px;
+  font-size: 8px;
   text-align: left;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto;
@@ -440,8 +440,8 @@ body.cah-submit-child .cah-guardian-wrap {
 }
 
 .cah-layer-check {
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px;
   accent-color: #6d94ee;
 }
 
@@ -453,7 +453,7 @@ body.cah-submit-child .cah-guardian-wrap {
   background: transparent;
   box-shadow: none;
   color: inherit;
-  font-size: 10px;
+  font-size: 8px;
   text-align: left;
   overflow: hidden;
   white-space: nowrap;
@@ -466,8 +466,8 @@ body.cah-submit-child .cah-guardian-wrap {
 
 .cah-layer-mini {
   min-width: 0;
-  width: 19px;
-  height: 17px;
+  width: 17px;
+  height: 15px;
   padding: 0;
   font-size: 8px;
 }
@@ -1261,16 +1261,16 @@ button,
 }
 
 .cah-layer-item {
-  grid-template-columns: auto minmax(0, 1fr) auto auto auto auto;
-  min-height: 26px;
+  grid-template-columns: auto minmax(0, 1fr) 54px auto auto auto;
+  min-height: 18px;
 }
 
 .cah-layer-name::before {
   content: "";
   display: inline-block;
-  width: 14px;
-  height: 14px;
-  margin-right: 5px;
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
   vertical-align: middle;
   border-radius: 3px;
   background:
@@ -1280,39 +1280,24 @@ button,
 
 .cah-layer-name span,
 .cah-layer-name small {
-  display: block;
+  display: inline;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .cah-layer-name small {
-  margin-top: 1px;
+  margin-top: 0;
+  margin-left: 4px;
   color: rgba(247, 244, 237, 0.46);
   font-size: 8px;
   font-weight: 700;
 }
 
-.cah-layer-opacity-stepper {
-  display: grid;
-  grid-template-columns: 18px 30px 18px;
-  align-items: center;
-  gap: 2px;
-}
-
-.cah-layer-opacity-stepper button {
-  width: 18px;
-  height: 18px;
-  min-width: 0;
-  padding: 0;
-  font-size: 9px;
-}
-
-.cah-layer-opacity-stepper span {
-  color: rgba(247, 244, 237, 0.62);
-  font-size: 8px;
-  font-weight: 800;
-  text-align: center;
+.cah-layer-opacity-inline {
+  width: 54px;
+  height: 14px;
+  accent-color: #6d94ee;
 }
 
 .cah-color-panel {
