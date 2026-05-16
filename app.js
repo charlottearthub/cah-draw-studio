@@ -100,6 +100,8 @@ let smudgeBufferCanvas = null;
 let smudgeBufferCtx = null;
 let smudgeStampCanvas = null;
 let smudgeStampCtx = null;
+let smudgeStrokeDistance = 0;
+let smudgeStrokeEnergy = 1;
 let undoStack = [];
 let redoStack = [];
 let activeMovingPanel = null;
@@ -1012,6 +1014,8 @@ function drawFastSmudge(layer, point) {
       bufferSize
     );
 
+    smudgeStrokeDistance = 0;
+    smudgeStrokeEnergy = 1;
     lastPoint = point;
     lastMidPoint = point;
     return;
@@ -1027,18 +1031,24 @@ function drawFastSmudge(layer, point) {
   const movementY = point.y - lastPoint.y;
   const distance = Math.hypot(movementX, movementY);
   const steps = Math.max(1, Math.min(8, Math.ceil(distance / Math.max(4, radius * 0.45))));
-  const alpha = clamp(opacity * (0.24 + strength * 0.38), 0.06, 0.72);
-  const pickupAlpha = clamp(0.08 + strength * 0.22, 0.08, 0.38);
+  const fadeDistance = Math.max(radius * 4.5, 80 + Number(brushSize.value) * 2.2);
+  const baseAlpha = clamp(opacity * (0.24 + strength * 0.38), 0.06, 0.72);
 
   ctx.save();
   ctx.globalCompositeOperation = "source-over";
-  ctx.globalAlpha = alpha;
   ctx.imageSmoothingEnabled = true;
 
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
     const currentX = lastPoint.x + movementX * t;
     const currentY = lastPoint.y + movementY * t;
+    const stepDistance = distance / steps;
+
+    smudgeStrokeDistance += stepDistance;
+    smudgeStrokeEnergy = clamp(1 - smudgeStrokeDistance / fadeDistance, 0, 1);
+    const stampAlpha = baseAlpha * (0.12 + smudgeStrokeEnergy * 0.88);
+    const pickupAlpha = clamp((0.025 + strength * 0.09) * smudgeStrokeEnergy, 0.006, 0.16);
+    const bufferFade = clamp(0.04 + (1 - smudgeStrokeEnergy) * 0.10, 0.04, 0.16);
 
     if (smudgeBufferCanvas.width !== sampleSize || smudgeBufferCanvas.height !== sampleSize) {
       const oldBuffer = document.createElement("canvas");
@@ -1081,10 +1091,17 @@ function drawFastSmudge(layer, point) {
       smudgeStampCtx.fillRect(0, 0, sampleSize, sampleSize);
       smudgeStampCtx.globalCompositeOperation = "source-over";
 
+      ctx.globalAlpha = stampAlpha;
       ctx.drawImage(smudgeStampCanvas, Math.floor(currentX - radius), Math.floor(currentY - radius));
     } catch (error) {
       console.warn("Smudge stamp failed", error);
     }
+
+    smudgeBufferCtx.save();
+    smudgeBufferCtx.globalCompositeOperation = "destination-out";
+    smudgeBufferCtx.globalAlpha = bufferFade;
+    smudgeBufferCtx.fillRect(0, 0, sampleSize, sampleSize);
+    smudgeBufferCtx.restore();
 
     smudgeBufferCtx.save();
     smudgeBufferCtx.globalAlpha = pickupAlpha;
@@ -1398,6 +1415,8 @@ function startDrawing(event) {
   smudgeBufferCtx = null;
   smudgeStampCanvas = null;
   smudgeStampCtx = null;
+  smudgeStrokeDistance = 0;
+  smudgeStrokeEnergy = 1;
   canvasViewport.setPointerCapture?.(event.pointerId);
   drawSmoothPoint(getCanvasPoint(event));
 }
@@ -1453,6 +1472,8 @@ function stopDrawing(event) {
     smudgeBufferCtx = null;
     smudgeStampCanvas = null;
     smudgeStampCtx = null;
+    smudgeStrokeDistance = 0;
+    smudgeStrokeEnergy = 1;
     return;
   }
   if (isPanning) {
@@ -1465,6 +1486,8 @@ function stopDrawing(event) {
     smudgeBufferCtx = null;
     smudgeStampCanvas = null;
     smudgeStampCtx = null;
+    smudgeStrokeDistance = 0;
+    smudgeStrokeEnergy = 1;
     return;
   }
   if (!isDrawing || activeDrawPointerId !== event.pointerId) return;
@@ -1477,6 +1500,8 @@ function stopDrawing(event) {
   smudgeBufferCtx = null;
   smudgeStampCanvas = null;
   smudgeStampCtx = null;
+  smudgeStrokeDistance = 0;
+  smudgeStrokeEnergy = 1;
 }
 
 function handleWheel(event) {
