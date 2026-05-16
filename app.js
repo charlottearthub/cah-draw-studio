@@ -310,7 +310,8 @@ function createLayer(name, afterLayerId = null) {
     canvas,
     ctx,
     visible: true,
-    locked: false
+    locked: false,
+    opacity: 1
   };
   canvas.style.position = "absolute";
   canvas.style.inset = "0";
@@ -339,6 +340,7 @@ function setActiveLayer(id) {
   layers.forEach((layer, index) => {
     layer.canvas.style.zIndex = String(index + 1);
     layer.canvas.style.display = layer.visible ? "block" : "none";
+    layer.canvas.style.opacity = String(layer.opacity ?? 1);
   });
   renderLayers();
 }
@@ -377,6 +379,14 @@ function toggleLayerLock(layerId) {
   renderLayers();
 }
 
+function setLayerOpacity(layerId, opacityValue) {
+  const layer = layers.find((item) => item.id === layerId);
+  if (!layer) return;
+  layer.opacity = clamp(Number(opacityValue) / 100, 0, 1);
+  layer.canvas.style.opacity = String(layer.opacity);
+  renderLayers();
+}
+
 function renderLayers() {
   layersList.innerHTML = "";
   [...layers].reverse().forEach((layer) => {
@@ -396,8 +406,21 @@ function renderLayers() {
     const name = document.createElement("button");
     name.type = "button";
     name.className = "cah-layer-name";
-    name.textContent = layer.name;
+    name.innerHTML = `<span>${layer.name}</span><small>${Math.round((layer.opacity ?? 1) * 100)}%</small>`;
     name.addEventListener("click", () => setActiveLayer(layer.id));
+
+    const opacity = document.createElement("input");
+    opacity.type = "range";
+    opacity.min = "0";
+    opacity.max = "100";
+    opacity.value = String(Math.round((layer.opacity ?? 1) * 100));
+    opacity.className = "cah-layer-opacity-inline";
+    opacity.title = "Layer opacity";
+    opacity.addEventListener("click", (event) => event.stopPropagation());
+    opacity.addEventListener("input", (event) => {
+      event.stopPropagation();
+      setLayerOpacity(layer.id, event.target.value);
+    });
 
     const addButton = document.createElement("button");
     addButton.type = "button";
@@ -431,7 +454,7 @@ function renderLayers() {
       toggleLayerLock(layer.id);
     });
 
-    row.append(checkbox, name, lockButton, addButton, deleteButton);
+    row.append(checkbox, name, opacity, lockButton, addButton, deleteButton);
     layersList.appendChild(row);
   });
 }
@@ -445,6 +468,7 @@ function captureState() {
       name: layer.name,
       visible: layer.visible,
       locked: layer.locked,
+      opacity: layer.opacity ?? 1,
       data: layer.canvas.toDataURL("image/png")
     }))
   };
@@ -477,7 +501,8 @@ function restoreState(snapshot) {
       canvas,
       ctx,
       visible: savedLayer.visible,
-      locked: Boolean(savedLayer.locked)
+      locked: Boolean(savedLayer.locked),
+      opacity: savedLayer.opacity ?? 1
     };
     canvas.style.position = "absolute";
     canvas.style.inset = "0";
@@ -1656,7 +1681,11 @@ function createExportCanvas() {
   exportCtx.fillStyle = "#fffaf4";
   exportCtx.fillRect(0, 0, canvasWidth, canvasHeight);
   layers.forEach((layer) => {
-    if (layer.visible) exportCtx.drawImage(layer.canvas, 0, 0);
+    if (!layer.visible) return;
+    exportCtx.save();
+    exportCtx.globalAlpha = layer.opacity ?? 1;
+    exportCtx.drawImage(layer.canvas, 0, 0);
+    exportCtx.restore();
   });
   return exportCanvas;
 }
