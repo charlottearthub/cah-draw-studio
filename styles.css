@@ -1125,6 +1125,7 @@ button,
   height: 54px;
   padding: 5px 6px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto 1fr;
   gap: 3px;
   text-align: left;
@@ -1132,8 +1133,23 @@ button,
 }
 
 .cah-brush-card span {
+  grid-column: 1;
   font-size: 9px;
   color: rgba(247, 244, 237, 0.72);
+}
+
+.cah-brush-card em {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  color: rgba(247, 244, 237, 0.35);
+  font-style: normal;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.cah-brush-card.is-favorite em {
+  color: rgba(160, 188, 245, 0.96);
 }
 
 .cah-brush-card.active {
@@ -1142,6 +1158,7 @@ button,
 }
 
 .stroke {
+  grid-column: 1 / -1;
   display: block;
   width: 100%;
   height: 24px;
