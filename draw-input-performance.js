@@ -1,6 +1,6 @@
 (function () {
   const buildNumber = document.getElementById("buildNumber");
-  if (buildNumber) buildNumber.textContent = "Build 0.4.5";
+  if (buildNumber) buildNumber.textContent = "Build 0.4.7";
 
   const viewport = document.getElementById("canvasViewport");
   const style = document.createElement("style");
