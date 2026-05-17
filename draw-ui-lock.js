@@ -1,9 +1,9 @@
 (function () {
   const buildNumber = document.getElementById("buildNumber");
-  if (buildNumber) buildNumber.textContent = "Build 0.4.6";
+  if (buildNumber) buildNumber.textContent = "Build 0.4.7";
 
   const style = document.createElement("style");
-  style.textContent = "html,body,.cah-draw-app,.cah-draw-shell,.cah-canvas-area,.cah-canvas-viewport,.cah-canvas-stage,.cah-layer-stack,.cah-layer-stack canvas{touch-action:none!important;overscroll-behavior:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;}input,textarea,select{user-select:text!important;-webkit-user-select:text!important;}#navGizmo,.cah-nav-gizmo{display:none!important;pointer-events:none!important;}.cah-toolbar-panel-button.is-open{border-color:rgba(105,151,240,.72)!important;background:linear-gradient(180deg,rgba(81,130,226,.72),rgba(43,78,154,.72))!important;color:#f7faff!important;}";
+  style.textContent = "html,body,.cah-draw-app,.cah-draw-shell,.cah-canvas-area,.cah-canvas-viewport,.cah-canvas-stage,.cah-layer-stack,.cah-layer-stack canvas{touch-action:none!important;overscroll-behavior:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;}input,textarea,select{user-select:text!important;-webkit-user-select:text!important;}#navGizmo,.cah-nav-gizmo{display:none!important;pointer-events:none!important;}.cah-toolbar-panel-button.is-open,.cah-tool-button.is-open{border-color:rgba(105,151,240,.72)!important;background:linear-gradient(180deg,rgba(81,130,226,.72),rgba(43,78,154,.72))!important;color:#f7faff!important;}";
   document.head.appendChild(style);
 
   function panelClass(name) {
@@ -18,6 +18,7 @@
       button.textContent = open ? "-" : "+";
     });
     if (!open) return;
+
     const shell = document.querySelector(".cah-draw-shell");
     if (!shell) return;
     const shellRect = shell.getBoundingClientRect();
@@ -43,29 +44,46 @@
       const button = document.getElementById(pair[0]);
       if (button) button.classList.toggle("is-open", isOpen(pair[1]));
     });
+
+    const textTool = document.querySelector('[data-tool-mode="text"]');
+    if (textTool) textTool.classList.toggle("is-open", isOpen("text"));
   }
 
-  function addButton(id, label, panelName) {
-    const bar = document.querySelector(".cah-header-actions");
-    if (!bar || document.getElementById(id)) return;
+  function makeRailButton(id, icon, label, panelName) {
+    const rail = document.querySelector(".cah-tool-rail");
+    if (!rail || document.getElementById(id)) return;
+
     const button = document.createElement("button");
     button.id = id;
     button.type = "button";
-    button.className = "cah-toolbar-panel-button";
-    button.textContent = label;
+    button.className = "cah-tool-button cah-toolbar-panel-button";
+    button.innerHTML = "<span>" + icon + "</span><b>" + label + "</b>";
     button.addEventListener("click", function () {
       setPanel(panelName, !isOpen(panelName));
       updateButtons();
     });
-    const saveButton = document.getElementById("savePngBtn");
-    if (saveButton && saveButton.parentNode === bar) bar.insertBefore(button, saveButton);
-    else bar.appendChild(button);
+
+    const colorButton = document.getElementById("railColorButton");
+    if (colorButton && colorButton.parentNode === rail) rail.insertBefore(button, colorButton);
+    else rail.appendChild(button);
+  }
+
+  function wireExistingTextTool() {
+    const textTool = document.querySelector('[data-tool-mode="text"]');
+    if (!textTool || textTool.dataset.panelToggleReady === "true") return;
+    textTool.dataset.panelToggleReady = "true";
+    textTool.addEventListener("click", function () {
+      setPanel("text", true);
+      updateButtons();
+    });
   }
 
   function boot() {
-    addButton("openBrushLibraryBtn", "Brushes", "brushes");
-    addButton("openCanvasPanelBtn", "Canvas", "canvas");
-    addButton("openTextPanelBtn", "Text", "text");
+    makeRailButton("openBrushLibraryBtn", "▤", "Library", "brushes");
+    makeRailButton("openCanvasPanelBtn", "▣", "Canvas", "canvas");
+    makeRailButton("openTextPanelBtn", "T", "Text Pane", "text");
+    wireExistingTextTool();
+
     setPanel("brushes", false);
     setPanel("canvas", false);
     setPanel("text", false);
@@ -77,6 +95,6 @@
   else boot();
 
   const script = document.createElement("script");
-  script.src = "draw-input-performance.js?v=0.4.6";
+  script.src = "draw-input-performance.js?v=0.4.7";
   document.body.appendChild(script);
 })();
