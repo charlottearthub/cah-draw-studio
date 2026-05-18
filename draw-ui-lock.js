@@ -1,5 +1,5 @@
 (function () {
-  const CAH_DRAW_BUILD = "Build 0.5.5";
+  const CAH_DRAW_BUILD = "Build 0.5.6";
   const buildNumber = document.getElementById("buildNumber");
   if (buildNumber) buildNumber.textContent = CAH_DRAW_BUILD;
 
@@ -168,7 +168,7 @@
   }
 
   window.addEventListener("resize", function () {
-    ["brushes", "canvas", "text", "color", "layers"].forEach(function (name) {
+    ["brushes", "canvas", "text", "color", "layers", "shape"].forEach(function (name) {
       if (isOpen(name)) positionPanel(document.querySelector('[data-panel="' + name + '"]'), name);
     });
   });
@@ -176,7 +176,11 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 
-  const script = document.createElement("script");
-  script.src = "draw-input-performance.js?v=0.5.5";
-  document.body.appendChild(script);
+  const inputScript = document.createElement("script");
+  inputScript.src = "draw-input-performance.js?v=0.5.6";
+  document.body.appendChild(inputScript);
+
+  const shapeScript = document.createElement("script");
+  shapeScript.src = "shape-tool.js?v=0.5.6";
+  document.body.appendChild(shapeScript);
 })();
