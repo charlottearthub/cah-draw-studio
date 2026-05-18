@@ -1,9 +1,9 @@
 (function () {
   const buildNumber = document.getElementById("buildNumber");
-  if (buildNumber) buildNumber.textContent = "Build 0.4.8";
+  if (buildNumber) buildNumber.textContent = "Build 0.4.9";
 
   const style = document.createElement("style");
-  style.textContent = "html,body,.cah-draw-app,.cah-draw-shell,.cah-canvas-area,.cah-canvas-viewport,.cah-canvas-stage,.cah-layer-stack,.cah-layer-stack canvas{touch-action:none!important;overscroll-behavior:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;}input,textarea,select{user-select:text!important;-webkit-user-select:text!important;}#navGizmo,.cah-nav-gizmo{display:none!important;pointer-events:none!important;}body.cah-panel-brushes-minimized [data-panel='brushes'],body.cah-panel-canvas-minimized [data-panel='canvas'],body.cah-panel-text-minimized [data-panel='text'],body.cah-panel-gizmo-minimized [data-panel='gizmo']{display:none!important;pointer-events:none!important;visibility:hidden!important;}.cah-toolbar-panel-button.is-open,.cah-tool-button.is-open{border-color:rgba(105,151,240,.72)!important;background:linear-gradient(180deg,rgba(81,130,226,.72),rgba(43,78,154,.72))!important;color:#f7faff!important;}";
+  style.textContent = "html,body,.cah-draw-app,.cah-draw-shell,.cah-canvas-area,.cah-canvas-viewport,.cah-canvas-stage,.cah-layer-stack,.cah-layer-stack canvas{touch-action:none!important;overscroll-behavior:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;}input,textarea,select{user-select:text!important;-webkit-user-select:text!important;}#navGizmo,.cah-nav-gizmo{display:none!important;pointer-events:none!important;}body.cah-panel-brushes-minimized [data-panel='brushes'],body.cah-panel-canvas-minimized [data-panel='canvas'],body.cah-panel-text-minimized [data-panel='text'],body.cah-panel-color-minimized [data-panel='color'],body.cah-panel-layers-minimized [data-panel='layers'],body.cah-panel-gizmo-minimized [data-panel='gizmo']{display:none!important;pointer-events:none!important;visibility:hidden!important;}.cah-toolbar-panel-button.is-open,.cah-tool-button.is-open{border-color:rgba(105,151,240,.72)!important;background:linear-gradient(180deg,rgba(81,130,226,.72),rgba(43,78,154,.72))!important;color:#f7faff!important;}";
   document.head.appendChild(style);
 
   function panelClass(name) { return "cah-panel-" + name + "-minimized"; }
@@ -34,7 +34,7 @@
   }
 
   function updateButtons() {
-    [["openBrushLibraryBtn", "brushes"], ["openCanvasPanelBtn", "canvas"], ["openTextPanelBtn", "text"]].forEach(function (pair) {
+    [["openBrushLibraryBtn", "brushes"], ["openCanvasPanelBtn", "canvas"], ["openTextPanelBtn", "text"], ["openColorPanelBtn", "color"], ["openLayersPanelBtn", "layers"]].forEach(function (pair) {
       const button = document.getElementById(pair[0]);
       if (button) button.classList.toggle("is-open", isOpen(pair[1]));
     });
@@ -56,10 +56,20 @@
     else rail.appendChild(button);
   }
 
+  function wireRailColorButton() {
+    const colorButton = document.getElementById("railColorButton");
+    if (!colorButton || colorButton.dataset.panelToggleReady === "true") return;
+    colorButton.dataset.panelToggleReady = "true";
+    colorButton.addEventListener("click", function () { setPanel("color", !isOpen("color")); updateButtons(); });
+  }
+
   function boot() {
     makeRailButton("openBrushLibraryBtn", "▤", "Library", "brushes");
     makeRailButton("openCanvasPanelBtn", "▣", "Canvas", "canvas");
     makeRailButton("openTextPanelBtn", "T", "Text Pane", "text");
+    makeRailButton("openColorPanelBtn", "◉", "Color", "color");
+    makeRailButton("openLayersPanelBtn", "▦", "Layers", "layers");
+    wireRailColorButton();
     const textTool = document.querySelector('[data-tool-mode="text"]');
     if (textTool && textTool.dataset.panelToggleReady !== "true") {
       textTool.dataset.panelToggleReady = "true";
@@ -73,6 +83,8 @@
     setPanel("brushes", false);
     setPanel("canvas", false);
     setPanel("text", false);
+    setPanel("color", false);
+    setPanel("layers", false);
     setPanel("gizmo", false);
     updateButtons();
   }
@@ -81,6 +93,6 @@
   else boot();
 
   const script = document.createElement("script");
-  script.src = "draw-input-performance.js?v=0.4.8";
+  script.src = "draw-input-performance.js?v=0.4.9";
   document.body.appendChild(script);
 })();
