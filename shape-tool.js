@@ -1,5 +1,5 @@
 (function () {
-  const CAH_DRAW_BUILD = "Build 0.5.6";
+  const CAH_DRAW_BUILD = "Build 0.5.7";
   const buildNumber = document.getElementById("buildNumber");
   if (buildNumber) buildNumber.textContent = CAH_DRAW_BUILD;
 
@@ -47,6 +47,26 @@
 
   function panelClass(name) {
     return "cah-panel-" + name + "-minimized";
+  }
+
+  function getCanvasSize() {
+    const activeLayer = typeof getActiveLayer === "function" ? getActiveLayer() : null;
+    if (activeLayer && activeLayer.canvas) {
+      return {
+        width: activeLayer.canvas.width || 1920,
+        height: activeLayer.canvas.height || 1080
+      };
+    }
+
+    const firstLayerCanvas = layersContainerEl.querySelector("canvas");
+    if (firstLayerCanvas) {
+      return {
+        width: firstLayerCanvas.width || 1920,
+        height: firstLayerCanvas.height || 1080
+      };
+    }
+
+    return { width: 1920, height: 1080 };
   }
 
   function getCanvasPointFromEvent(event) {
@@ -185,10 +205,10 @@
         <label><input id="shapeOutline" type="checkbox" checked /> Outline</label>
       </div>
       <div class="cah-shape-actions">
-        <button id="shapePlaceCenterBtn" type="button">Place Center</button>
+        <button id="shapePlaceCenterBtn" type="button">Place Shape</button>
         <button id="shapeCancelBtn" type="button">Cancel</button>
       </div>
-      <p class="cah-shape-note">Tap the canvas to place. Adjust size and rotation before placing.</p>
+      <p class="cah-shape-note">Tap the canvas to move the preview. Press Place Shape to commit it.</p>
     `;
 
     shell.appendChild(shapePanel);
@@ -219,15 +239,21 @@
   }
 
   function makePreviewCanvas() {
-    if (previewCanvas) return;
-    previewCanvas = document.createElement("canvas");
-    previewCanvas.className = "cah-shape-preview-canvas";
-    previewCanvas.width = window.canvasWidth || 1920;
-    previewCanvas.height = window.canvasHeight || 1080;
-    previewCanvas.style.width = previewCanvas.width + "px";
-    previewCanvas.style.height = previewCanvas.height + "px";
-    previewCtx = previewCanvas.getContext("2d");
-    layersContainerEl.appendChild(previewCanvas);
+    const canvasSize = getCanvasSize();
+
+    if (!previewCanvas) {
+      previewCanvas = document.createElement("canvas");
+      previewCanvas.className = "cah-shape-preview-canvas";
+      previewCtx = previewCanvas.getContext("2d");
+      layersContainerEl.appendChild(previewCanvas);
+    }
+
+    if (previewCanvas.width !== canvasSize.width || previewCanvas.height !== canvasSize.height) {
+      previewCanvas.width = canvasSize.width;
+      previewCanvas.height = canvasSize.height;
+      previewCanvas.style.width = canvasSize.width + "px";
+      previewCanvas.style.height = canvasSize.height + "px";
+    }
   }
 
   function clearPreview() {
@@ -276,10 +302,10 @@
 
   function placeShape(point) {
     const layer = typeof getActiveLayer === "function" ? getActiveLayer() : null;
-    if (!layer || !layer.ctx || layer.locked) return;
+    if (!layer || !layer.ctx || layer.locked || !point) return;
     if (typeof saveHistory === "function") saveHistory();
     drawShapeToContext(layer.ctx, point, false);
-    pendingPoint = point;
+    clearPreview();
     drawPreview();
   }
 
@@ -294,13 +320,14 @@
 
     if (open) {
       const shellRect = shell.getBoundingClientRect();
+      const canvasSize = getCanvasSize();
       const toolbarOffset = window.innerWidth <= 720 ? 58 : 72;
       const topOffset = window.innerWidth <= 720 ? 58 : 76;
       shapePanel.style.left = toolbarOffset + "px";
       shapePanel.style.top = topOffset + "px";
       shapePanel.style.maxHeight = Math.max(220, shellRect.height - topOffset - 12) + "px";
       shapePanel.style.maxWidth = Math.max(240, Math.min(340, shellRect.width - toolbarOffset - 18)) + "px";
-      pendingPoint = { x: previewCanvas ? previewCanvas.width / 2 : 960, y: previewCanvas ? previewCanvas.height / 2 : 540 };
+      pendingPoint = { x: canvasSize.width / 2, y: canvasSize.height / 2 };
       makePreviewCanvas();
       drawPreview();
     } else {
@@ -327,7 +354,7 @@
 
     shapePanel.querySelector('[data-min-panel="shape"]').addEventListener("click", function () { setShapePanel(false); });
     document.getElementById("shapeCancelBtn").addEventListener("click", function () { setShapePanel(false); });
-    document.getElementById("shapePlaceCenterBtn").addEventListener("click", function () { placeShape(pendingPoint || { x: previewCanvas.width / 2, y: previewCanvas.height / 2 }); });
+    document.getElementById("shapePlaceCenterBtn").addEventListener("click", function () { placeShape(pendingPoint); });
   }
 
   injectStyle();
@@ -349,10 +376,9 @@
 
   viewport.addEventListener("pointerdown", function (event) {
     if (!shapeModeActive) return;
-    if (event.pointerType === "touch" && event.touches && event.touches.length > 1) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     pendingPoint = getCanvasPointFromEvent(event);
-    placeShape(pendingPoint);
+    drawPreview();
   }, true);
 })();
