@@ -1,32 +1,62 @@
 (function () {
+  const CAH_DRAW_BUILD = "Build 0.5.4";
   const buildNumber = document.getElementById("buildNumber");
-  if (buildNumber) buildNumber.textContent = "Build 0.5.3";
+  if (buildNumber) buildNumber.textContent = CAH_DRAW_BUILD;
 
   const style = document.createElement("style");
-  style.textContent = "html,body,.cah-draw-app,.cah-draw-shell,.cah-canvas-area,.cah-canvas-viewport,.cah-canvas-stage,.cah-layer-stack,.cah-layer-stack canvas{touch-action:none!important;overscroll-behavior:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;}input,textarea,select{user-select:text!important;-webkit-user-select:text!important;}#navGizmo,.cah-nav-gizmo{display:none!important;pointer-events:none!important;}[data-tool-mode='transform'],[data-tool-mode='hand'],[data-tool-mode='zoomIn'],[data-tool-mode='zoomOut']{display:none!important;pointer-events:none!important;visibility:hidden!important;}body.cah-panel-brushes-minimized [data-panel='brushes'],body.cah-panel-canvas-minimized [data-panel='canvas'],body.cah-panel-text-minimized [data-panel='text'],body.cah-panel-color-minimized [data-panel='color'],body.cah-panel-layers-minimized [data-panel='layers'],body.cah-panel-settings-minimized [data-panel='settings'],body.cah-panel-gizmo-minimized [data-panel='gizmo']{display:none!important;pointer-events:none!important;visibility:hidden!important;}[data-panel='settings'].cah-settings-merged{display:block!important;position:relative!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;width:100%!important;margin-top:12px!important;visibility:visible!important;pointer-events:auto!important;transform:none!important;}.cah-merged-settings-title{margin:12px 0 8px!important;padding-top:12px!important;border-top:1px solid rgba(255,255,255,.09)!important;color:rgba(247,244,237,.86)!important;font-size:12px!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.08em!important;}.cah-toolbar-panel-button.is-open,.cah-tool-button.is-open{border-color:rgba(105,151,240,.72)!important;background:linear-gradient(180deg,rgba(81,130,226,.72),rgba(43,78,154,.72))!important;color:#f7faff!important;}.cah-app-bar{grid-template-columns:minmax(150px,auto) minmax(0,1fr)!important;gap:8px!important;align-items:center!important;overflow:hidden!important;}.cah-project-block{min-width:0!important;}.cah-project-block h1{font-size:clamp(13px,2.2vw,18px)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}.cah-project-block span:not(.cah-build-number){display:none!important;}.cah-build-number{font-size:10px!important;opacity:.7!important;}.cah-header-actions{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;}.cah-header-actions::-webkit-scrollbar{display:none!important;}.cah-header-actions button{flex:0 0 auto!important;min-width:32px!important;min-height:30px!important;height:30px!important;padding:0 8px!important;border-radius:6px!important;font-size:11px!important;line-height:1!important;letter-spacing:0!important;white-space:nowrap!important;}#toggleUiBtn{width:32px!important;min-width:32px!important;padding:0!important;}@media(max-width:720px){.cah-app-bar{padding:8px!important;grid-template-columns:minmax(96px,auto) minmax(0,1fr)!important;}.cah-project-block{gap:6px!important;}.cah-project-block h1{font-size:12px!important;}.cah-build-number{display:block!important;font-size:9px!important;}.cah-header-actions button{min-width:30px!important;height:28px!important;min-height:28px!important;padding:0 7px!important;font-size:10px!important;}}";
+  style.textContent = "html,body,.cah-draw-app,.cah-draw-shell,.cah-canvas-area,.cah-canvas-viewport,.cah-canvas-stage,.cah-layer-stack,.cah-layer-stack canvas{touch-action:none!important;overscroll-behavior:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;}input,textarea,select{user-select:text!important;-webkit-user-select:text!important;}#navGizmo,.cah-nav-gizmo{display:none!important;pointer-events:none!important;}[data-tool-mode='transform'],[data-tool-mode='hand'],[data-tool-mode='zoomIn'],[data-tool-mode='zoomOut']{display:none!important;pointer-events:none!important;visibility:hidden!important;}body.cah-panel-brushes-minimized [data-panel='brushes'],body.cah-panel-canvas-minimized [data-panel='canvas'],body.cah-panel-text-minimized [data-panel='text'],body.cah-panel-color-minimized [data-panel='color'],body.cah-panel-layers-minimized [data-panel='layers'],body.cah-panel-settings-minimized [data-panel='settings'],body.cah-panel-gizmo-minimized [data-panel='gizmo']{display:none!important;pointer-events:none!important;visibility:hidden!important;}[data-panel='settings'].cah-settings-merged{display:block!important;position:relative!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;width:100%!important;margin-top:12px!important;visibility:visible!important;pointer-events:auto!important;transform:none!important;}.cah-merged-settings-title{margin:12px 0 8px!important;padding-top:12px!important;border-top:1px solid rgba(255,255,255,.09)!important;color:rgba(247,244,237,.86)!important;font-size:12px!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.08em!important;}.cah-toolbar-panel-button.is-open,.cah-tool-button.is-open{border-color:rgba(105,151,240,.72)!important;background:linear-gradient(180deg,rgba(81,130,226,.72),rgba(43,78,154,.72))!important;color:#f7faff!important;}.cah-app-bar{grid-template-columns:minmax(150px,auto) minmax(0,1fr)!important;gap:8px!important;align-items:center!important;overflow:hidden!important;}.cah-project-block{min-width:0!important;}.cah-project-block h1{font-size:clamp(13px,2.2vw,18px)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}.cah-project-block span:not(.cah-build-number){display:none!important;}.cah-build-number{font-size:10px!important;opacity:.7!important;}.cah-header-actions{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;}.cah-header-actions::-webkit-scrollbar{display:none!important;}.cah-header-actions button{flex:0 0 auto!important;min-width:32px!important;min-height:30px!important;height:30px!important;padding:0 8px!important;border-radius:6px!important;font-size:11px!important;line-height:1!important;letter-spacing:0!important;white-space:nowrap!important;}#toggleUiBtn{width:32px!important;min-width:32px!important;padding:0!important;}#railColorButton{display:none!important;}[data-panel='color']{min-width:260px!important;max-width:min(340px,calc(100vw - 84px))!important;z-index:99999!important;}@media(max-width:720px){.cah-app-bar{padding:8px!important;grid-template-columns:minmax(96px,auto) minmax(0,1fr)!important;}.cah-project-block{gap:6px!important;}.cah-project-block h1{font-size:12px!important;}.cah-build-number{display:block!important;font-size:9px!important;}.cah-header-actions button{min-width:30px!important;height:28px!important;min-height:28px!important;padding:0 7px!important;font-size:10px!important;}[data-panel='color']{max-width:calc(100vw - 76px)!important;}}";
   document.head.appendChild(style);
 
   function panelClass(name) { return "cah-panel-" + name + "-minimized"; }
 
-  function setPanel(name, open) {
-    const panel = document.querySelector('[data-panel="' + name + '"]');
-    if (!panel) return;
-    document.body.classList.toggle(panelClass(name), !open);
-    panel.style.display = open ? "" : "none";
-    panel.style.pointerEvents = open ? "" : "none";
-    panel.style.visibility = open ? "" : "hidden";
-    document.querySelectorAll('[data-min-panel="' + name + '"]').forEach(function (button) { button.textContent = open ? "-" : "+"; });
-    if (!open) return;
-    if (panel.classList.contains("cah-settings-merged")) return;
+  function positionPanel(panel, name) {
+    if (!panel || panel.classList.contains("cah-settings-merged")) return;
+
     const shell = document.querySelector(".cah-draw-shell");
-    if (!shell) return;
-    const shellRect = shell.getBoundingClientRect();
+    const shellRect = shell ? shell.getBoundingClientRect() : { width: window.innerWidth, height: window.innerHeight };
     const panelRect = panel.getBoundingClientRect();
-    panel.style.left = Math.max(8, shellRect.width - panelRect.width - 16) + "px";
-    panel.style.top = "76px";
+    const toolbarOffset = window.innerWidth <= 720 ? 58 : 72;
+    const topOffset = window.innerWidth <= 720 ? 58 : 76;
+    const margin = 8;
+
+    const availableWidth = Math.max(220, shellRect.width - toolbarOffset - margin * 2);
+    const availableHeight = Math.max(220, shellRect.height - topOffset - margin * 2);
+
+    panel.style.maxWidth = availableWidth + "px";
+    panel.style.maxHeight = availableHeight + "px";
+    panel.style.overflow = "auto";
+    panel.style.zIndex = "99999";
+
+    const width = Math.min(panelRect.width || 300, availableWidth);
+    const height = Math.min(panelRect.height || 360, availableHeight);
+
+    let left = name === "color" ? toolbarOffset : Math.max(toolbarOffset, shellRect.width - width - 16);
+    let top = topOffset;
+
+    left = Math.max(toolbarOffset, Math.min(left, shellRect.width - width - margin));
+    top = Math.max(topOffset, Math.min(top, shellRect.height - height - margin));
+
+    panel.style.left = left + "px";
+    panel.style.top = top + "px";
     panel.style.right = "auto";
     panel.style.bottom = "auto";
     panel.style.transform = "none";
+  }
+
+  function setPanel(name, open) {
+    const panel = document.querySelector('[data-panel="' + name + '"]');
+    if (!panel) return;
+
+    document.body.classList.toggle(panelClass(name), !open);
+    panel.style.display = open ? "block" : "none";
+    panel.style.pointerEvents = open ? "auto" : "none";
+    panel.style.visibility = open ? "visible" : "hidden";
+
+    document.querySelectorAll('[data-min-panel="' + name + '"]').forEach(function (button) { button.textContent = open ? "-" : "+"; });
+    if (!open) return;
+
+    positionPanel(panel, name);
+    window.requestAnimationFrame(function () { positionPanel(panel, name); });
   }
 
   function isOpen(name) {
@@ -67,13 +97,6 @@
     brushButton.addEventListener("click", function () { setPanel("brushes", !isOpen("brushes")); updateButtons(); });
   }
 
-  function wireRailColorButton() {
-    const colorButton = document.getElementById("railColorButton");
-    if (!colorButton || colorButton.dataset.panelToggleReady === "true") return;
-    colorButton.dataset.panelToggleReady = "true";
-    colorButton.addEventListener("click", function () { setPanel("color", !isOpen("color")); updateButtons(); });
-  }
-
   function mergeBrushSettings() {
     const brushPanel = document.querySelector('[data-panel="brushes"]');
     const settingsPanel = document.querySelector('[data-panel="settings"]');
@@ -99,14 +122,7 @@
   }
 
   function compactTopBarButtons() {
-    const labels = {
-      undoBtn: "↶",
-      redoBtn: "↷",
-      savePngBtn: "PNG",
-      openSubmitModalBtn: "Submit",
-      clearCanvasBtn: "Clear",
-      resetPanelsBtn: "Reset"
-    };
+    const labels = { undoBtn: "↶", redoBtn: "↷", savePngBtn: "PNG", openSubmitModalBtn: "Submit", clearCanvasBtn: "Clear", resetPanelsBtn: "Reset" };
     Object.keys(labels).forEach(function (id) {
       const button = document.getElementById(id);
       if (!button) return;
@@ -122,7 +138,6 @@
     makeRailButton("openCanvasPanelBtn", "▣", "Canvas", "canvas");
     makeRailButton("openColorPanelBtn", "◉", "Color", "color");
     makeRailButton("openLayersPanelBtn", "▦", "Layers", "layers");
-    wireRailColorButton();
     compactTopBarButtons();
 
     const duplicateBrushesButton = document.getElementById("openBrushLibraryBtn");
@@ -152,10 +167,16 @@
     updateButtons();
   }
 
+  window.addEventListener("resize", function () {
+    ["brushes", "canvas", "text", "color", "layers"].forEach(function (name) {
+      if (isOpen(name)) positionPanel(document.querySelector('[data-panel="' + name + '"]'), name);
+    });
+  });
+
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 
   const script = document.createElement("script");
-  script.src = "draw-input-performance.js?v=0.5.3";
+  script.src = "draw-input-performance.js?v=0.5.4";
   document.body.appendChild(script);
 })();
