@@ -1,9 +1,9 @@
 (function () {
   const buildNumber = document.getElementById("buildNumber");
-  if (buildNumber) buildNumber.textContent = "Build 0.5.1";
+  if (buildNumber) buildNumber.textContent = "Build 0.5.2";
 
   const style = document.createElement("style");
-  style.textContent = "html,body,.cah-draw-app,.cah-draw-shell,.cah-canvas-area,.cah-canvas-viewport,.cah-canvas-stage,.cah-layer-stack,.cah-layer-stack canvas{touch-action:none!important;overscroll-behavior:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;}input,textarea,select{user-select:text!important;-webkit-user-select:text!important;}#navGizmo,.cah-nav-gizmo{display:none!important;pointer-events:none!important;}[data-tool-mode='transform'],[data-tool-mode='hand'],[data-tool-mode='zoomIn'],[data-tool-mode='zoomOut']{display:none!important;pointer-events:none!important;visibility:hidden!important;}body.cah-panel-brushes-minimized [data-panel='brushes'],body.cah-panel-canvas-minimized [data-panel='canvas'],body.cah-panel-text-minimized [data-panel='text'],body.cah-panel-color-minimized [data-panel='color'],body.cah-panel-layers-minimized [data-panel='layers'],body.cah-panel-settings-minimized [data-panel='settings'],body.cah-panel-gizmo-minimized [data-panel='gizmo']{display:none!important;pointer-events:none!important;visibility:hidden!important;}[data-panel='settings'].cah-settings-merged{display:block!important;position:relative!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;width:100%!important;margin-top:12px!important;visibility:visible!important;pointer-events:auto!important;transform:none!important;}.cah-merged-settings-title{margin:12px 0 8px!important;padding-top:12px!important;border-top:1px solid rgba(255,255,255,.09)!important;color:rgba(247,244,237,.86)!important;font-size:12px!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.08em!important;}.cah-toolbar-panel-button.is-open,.cah-tool-button.is-open{border-color:rgba(105,151,240,.72)!important;background:linear-gradient(180deg,rgba(81,130,226,.72),rgba(43,78,154,.72))!important;color:#f7faff!important;}";
+  style.textContent = "html,body,.cah-draw-app,.cah-draw-shell,.cah-canvas-area,.cah-canvas-viewport,.cah-canvas-stage,.cah-layer-stack,.cah-layer-stack canvas{touch-action:none!important;overscroll-behavior:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;-webkit-tap-highlight-color:transparent!important;}input,textarea,select{user-select:text!important;-webkit-user-select:text!important;}#navGizmo,.cah-nav-gizmo{display:none!important;pointer-events:none!important;}[data-tool-mode='transform'],[data-tool-mode='hand'],[data-tool-mode='zoomIn'],[data-tool-mode='zoomOut']{display:none!important;pointer-events:none!important;visibility:hidden!important;}body.cah-panel-brushes-minimized [data-panel='brushes'],body.cah-panel-canvas-minimized [data-panel='canvas'],body.cah-panel-text-minimized [data-panel='text'],body.cah-panel-color-minimized [data-panel='color'],body.cah-panel-layers-minimized [data-panel='layers'],body.cah-panel-settings-minimized [data-panel='settings'],body.cah-panel-gizmo-minimized [data-panel='gizmo']{display:none!important;pointer-events:none!important;visibility:hidden!important;}[data-panel='settings'].cah-settings-merged{display:block!important;position:relative!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;width:100%!important;margin-top:12px!important;visibility:visible!important;pointer-events:auto!important;transform:none!important;}.cah-merged-settings-title{margin:12px 0 8px!important;padding-top:12px!important;border-top:1px solid rgba(255,255,255,.09)!important;color:rgba(247,244,237,.86)!important;font-size:12px!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.08em!important;}.cah-toolbar-panel-button.is-open,.cah-tool-button.is-open{border-color:rgba(105,151,240,.72)!important;background:linear-gradient(180deg,rgba(81,130,226,.72),rgba(43,78,154,.72))!important;color:#f7faff!important;}.cah-app-bar{grid-template-columns:minmax(150px,auto) minmax(0,1fr)!important;gap:8px!important;align-items:center!important;overflow:hidden!important;}.cah-project-block{min-width:0!important;}.cah-project-block h1{font-size:clamp(13px,2.2vw,18px)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}.cah-project-block span:not(.cah-build-number){display:none!important;}.cah-build-number{font-size:10px!important;opacity:.7!important;}.cah-header-actions{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;}.cah-header-actions::-webkit-scrollbar{display:none!important;}.cah-header-actions button{flex:0 0 auto!important;min-width:32px!important;min-height:30px!important;height:30px!important;padding:0 8px!important;border-radius:6px!important;font-size:11px!important;line-height:1!important;letter-spacing:0!important;white-space:nowrap!important;}#toggleUiBtn{width:32px!important;min-width:32px!important;padding:0!important;}@media(max-width:720px){.cah-app-bar{padding:8px!important;grid-template-columns:minmax(96px,auto) minmax(0,1fr)!important;}.cah-project-block{gap:6px!important;}.cah-project-block h1{font-size:12px!important;}.cah-build-number{display:block!important;font-size:9px!important;}.cah-header-actions button{min-width:30px!important;height:28px!important;min-height:28px!important;padding:0 7px!important;font-size:10px!important;}}";
   document.head.appendChild(style);
 
   function panelClass(name) { return "cah-panel-" + name + "-minimized"; }
@@ -88,6 +88,24 @@
     document.body.classList.remove(panelClass("settings"));
   }
 
+  function compactTopBarButtons() {
+    const labels = {
+      undoBtn: "↶",
+      redoBtn: "↷",
+      savePngBtn: "PNG",
+      openSubmitModalBtn: "Submit",
+      clearCanvasBtn: "Clear",
+      resetPanelsBtn: "Reset"
+    };
+    Object.keys(labels).forEach(function (id) {
+      const button = document.getElementById(id);
+      if (!button) return;
+      button.textContent = labels[id];
+      button.title = id === "undoBtn" ? "Undo" : id === "redoBtn" ? "Redo" : id === "savePngBtn" ? "Save PNG" : id === "openSubmitModalBtn" ? "Submit" : id === "clearCanvasBtn" ? "Clear" : "Reset UI";
+      button.setAttribute("aria-label", button.title);
+    });
+  }
+
   function boot() {
     mergeBrushSettings();
     makeRailButton("openBrushLibraryBtn", "▤", "Brushes", "brushes");
@@ -95,6 +113,7 @@
     makeRailButton("openColorPanelBtn", "◉", "Color", "color");
     makeRailButton("openLayersPanelBtn", "▦", "Layers", "layers");
     wireRailColorButton();
+    compactTopBarButtons();
 
     const textPaneButton = document.getElementById("openTextPanelBtn");
     if (textPaneButton) textPaneButton.remove();
@@ -124,6 +143,6 @@
   else boot();
 
   const script = document.createElement("script");
-  script.src = "draw-input-performance.js?v=0.5.1";
+  script.src = "draw-input-performance.js?v=0.5.2";
   document.body.appendChild(script);
 })();
