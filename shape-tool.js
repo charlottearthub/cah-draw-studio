@@ -3,28 +3,46 @@
   const buildNumber = document.getElementById("buildNumber");
   if (buildNumber) buildNumber.textContent = CAH_DRAW_BUILD;
 
+  if (window.__cahShapeToolInstalled) return;
+
   const viewport = document.getElementById("canvasViewport");
   const rail = document.querySelector(".cah-tool-rail");
-  const shapeButton = document.querySelector('[data-tool-mode="shape"]');
   const shell = document.querySelector(".cah-draw-shell");
+  const layersContainerEl = document.getElementById("layersContainer");
 
-  if (!viewport || !rail || !shapeButton || !shell) return;
-  if (window.__cahShapeToolInstalled) return;
+  if (!viewport || !rail || !shell || !layersContainerEl) return;
+
   window.__cahShapeToolInstalled = true;
 
+  let shapeButton = document.querySelector('[data-tool-mode="shape"]');
   let shapePanel = null;
   let previewCanvas = null;
   let previewCtx = null;
   let pendingPoint = null;
   let shapeModeActive = false;
 
+  function createShapeButton() {
+    if (shapeButton) return shapeButton;
+
+    shapeButton = document.createElement("button");
+    shapeButton.id = "shapeToolBtn";
+    shapeButton.type = "button";
+    shapeButton.className = "cah-tool-button cah-toolbar-panel-button";
+    shapeButton.setAttribute("data-tool-mode", "shape");
+    shapeButton.title = "Shapes";
+    shapeButton.setAttribute("aria-label", "Shapes");
+    shapeButton.innerHTML = "<span>◇</span><b>Shape</b>";
+
+    const textButton = rail.querySelector('[data-tool-mode="text"]');
+    if (textButton && textButton.parentNode === rail) rail.insertBefore(shapeButton, textButton.nextSibling);
+    else rail.appendChild(shapeButton);
+
+    return shapeButton;
+  }
+
   function getColor() {
     const picker = document.getElementById("colorPicker");
     return picker ? picker.value : "#111111";
-  }
-
-  function clamp(value, min, max) {
-    return Math.min(max, Math.max(min, value));
   }
 
   function panelClass(name) {
@@ -33,7 +51,6 @@
 
   function getCanvasPointFromEvent(event) {
     if (typeof getCanvasPoint === "function") return getCanvasPoint(event);
-
     const rect = viewport.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -41,50 +58,9 @@
     return { x, y };
   }
 
-  function makePanel() {
-    if (shapePanel) return shapePanel;
-
-    shapePanel = document.createElement("section");
-    shapePanel.className = "cah-shape-panel cah-panel";
-    shapePanel.setAttribute("data-panel", "shape");
-    shapePanel.innerHTML = `
-      <button class="cah-panel-min" data-min-panel="shape" type="button">-</button>
-      <div class="cah-panel-title">Shapes</div>
-
-      <div class="cah-shape-grid">
-        <button type="button" class="active" data-shape-choice="rectangle">▭<span>Rectangle</span></button>
-        <button type="button" data-shape-choice="square">□<span>Square</span></button>
-        <button type="button" data-shape-choice="circle">○<span>Circle</span></button>
-        <button type="button" data-shape-choice="ellipse">⬭<span>Ellipse</span></button>
-        <button type="button" data-shape-choice="triangle">△<span>Triangle</span></button>
-        <button type="button" data-shape-choice="line">╱<span>Line</span></button>
-        <button type="button" data-shape-choice="arrow">➜<span>Arrow</span></button>
-      </div>
-
-      <label class="cah-control"><span>Width <b id="shapeWidthText">240</b></span><input id="shapeWidth" type="range" min="20" max="1200" value="240" /></label>
-      <label class="cah-control"><span>Height <b id="shapeHeightText">160</b></span><input id="shapeHeight" type="range" min="20" max="1200" value="160" /></label>
-      <label class="cah-control"><span>Rotation <b id="shapeRotationText">0°</b></span><input id="shapeRotation" type="range" min="-180" max="180" value="0" /></label>
-      <label class="cah-control"><span>Stroke <b id="shapeStrokeText">8</b></span><input id="shapeStroke" type="range" min="1" max="80" value="8" /></label>
-
-      <div class="cah-shape-checks">
-        <label><input id="shapeFill" type="checkbox" checked /> Fill</label>
-        <label><input id="shapeOutline" type="checkbox" checked /> Outline</label>
-      </div>
-
-      <div class="cah-shape-actions">
-        <button id="shapePlaceCenterBtn" type="button">Place Center</button>
-        <button id="shapeCancelBtn" type="button">Cancel</button>
-      </div>
-      <p class="cah-shape-note">Tap the canvas to place. Adjust size and rotation before placing.</p>
-    `;
-
-    shell.appendChild(shapePanel);
-    wirePanel();
-    return shapePanel;
-  }
-
   function injectStyle() {
     if (document.getElementById("cah-shape-tool-style")) return;
+
     const style = document.createElement("style");
     style.id = "cah-shape-tool-style";
     style.textContent = `
@@ -182,6 +158,44 @@
     document.head.appendChild(style);
   }
 
+  function makePanel() {
+    if (shapePanel) return shapePanel;
+
+    shapePanel = document.createElement("section");
+    shapePanel.className = "cah-shape-panel cah-panel";
+    shapePanel.setAttribute("data-panel", "shape");
+    shapePanel.innerHTML = `
+      <button class="cah-panel-min" data-min-panel="shape" type="button">-</button>
+      <div class="cah-panel-title">Shapes</div>
+      <div class="cah-shape-grid">
+        <button type="button" class="active" data-shape-choice="rectangle">▭<span>Rectangle</span></button>
+        <button type="button" data-shape-choice="square">□<span>Square</span></button>
+        <button type="button" data-shape-choice="circle">○<span>Circle</span></button>
+        <button type="button" data-shape-choice="ellipse">⬭<span>Ellipse</span></button>
+        <button type="button" data-shape-choice="triangle">△<span>Triangle</span></button>
+        <button type="button" data-shape-choice="line">╱<span>Line</span></button>
+        <button type="button" data-shape-choice="arrow">➜<span>Arrow</span></button>
+      </div>
+      <label class="cah-control"><span>Width <b id="shapeWidthText">240</b></span><input id="shapeWidth" type="range" min="20" max="1200" value="240" /></label>
+      <label class="cah-control"><span>Height <b id="shapeHeightText">160</b></span><input id="shapeHeight" type="range" min="20" max="1200" value="160" /></label>
+      <label class="cah-control"><span>Rotation <b id="shapeRotationText">0°</b></span><input id="shapeRotation" type="range" min="-180" max="180" value="0" /></label>
+      <label class="cah-control"><span>Stroke <b id="shapeStrokeText">8</b></span><input id="shapeStroke" type="range" min="1" max="80" value="8" /></label>
+      <div class="cah-shape-checks">
+        <label><input id="shapeFill" type="checkbox" checked /> Fill</label>
+        <label><input id="shapeOutline" type="checkbox" checked /> Outline</label>
+      </div>
+      <div class="cah-shape-actions">
+        <button id="shapePlaceCenterBtn" type="button">Place Center</button>
+        <button id="shapeCancelBtn" type="button">Cancel</button>
+      </div>
+      <p class="cah-shape-note">Tap the canvas to place. Adjust size and rotation before placing.</p>
+    `;
+
+    shell.appendChild(shapePanel);
+    wirePanel();
+    return shapePanel;
+  }
+
   function getShapeSettings() {
     const typeButton = shapePanel.querySelector("[data-shape-choice].active");
     return {
@@ -197,14 +211,10 @@
   }
 
   function updateReadouts() {
-    const w = document.getElementById("shapeWidth");
-    const h = document.getElementById("shapeHeight");
-    const r = document.getElementById("shapeRotation");
-    const s = document.getElementById("shapeStroke");
-    if (document.getElementById("shapeWidthText")) document.getElementById("shapeWidthText").textContent = w.value;
-    if (document.getElementById("shapeHeightText")) document.getElementById("shapeHeightText").textContent = h.value;
-    if (document.getElementById("shapeRotationText")) document.getElementById("shapeRotationText").textContent = r.value + "°";
-    if (document.getElementById("shapeStrokeText")) document.getElementById("shapeStrokeText").textContent = s.value;
+    document.getElementById("shapeWidthText").textContent = document.getElementById("shapeWidth").value;
+    document.getElementById("shapeHeightText").textContent = document.getElementById("shapeHeight").value;
+    document.getElementById("shapeRotationText").textContent = document.getElementById("shapeRotation").value + "°";
+    document.getElementById("shapeStrokeText").textContent = document.getElementById("shapeStroke").value;
     drawPreview();
   }
 
@@ -212,12 +222,12 @@
     if (previewCanvas) return;
     previewCanvas = document.createElement("canvas");
     previewCanvas.className = "cah-shape-preview-canvas";
-    previewCanvas.width = canvasWidth;
-    previewCanvas.height = canvasHeight;
-    previewCanvas.style.width = canvasWidth + "px";
-    previewCanvas.style.height = canvasHeight + "px";
+    previewCanvas.width = window.canvasWidth || 1920;
+    previewCanvas.height = window.canvasHeight || 1080;
+    previewCanvas.style.width = previewCanvas.width + "px";
+    previewCanvas.style.height = previewCanvas.height + "px";
     previewCtx = previewCanvas.getContext("2d");
-    document.getElementById("layersContainer").appendChild(previewCanvas);
+    layersContainerEl.appendChild(previewCanvas);
   }
 
   function clearPreview() {
@@ -229,35 +239,19 @@
     const h = settings.type === "square" || settings.type === "circle" ? Math.min(settings.width, settings.height) : settings.height;
     const halfW = w / 2;
     const halfH = h / 2;
-
     ctx.beginPath();
-
-    if (settings.type === "circle" || settings.type === "ellipse") {
-      ctx.ellipse(0, 0, halfW, halfH, 0, 0, Math.PI * 2);
-    } else if (settings.type === "triangle") {
-      ctx.moveTo(0, -halfH);
-      ctx.lineTo(halfW, halfH);
-      ctx.lineTo(-halfW, halfH);
-      ctx.closePath();
-    } else if (settings.type === "line") {
-      ctx.moveTo(-halfW, 0);
-      ctx.lineTo(halfW, 0);
-    } else if (settings.type === "arrow") {
-      ctx.moveTo(-halfW, 0);
-      ctx.lineTo(halfW * 0.62, 0);
-      ctx.moveTo(halfW * 0.28, -halfH * 0.45);
-      ctx.lineTo(halfW, 0);
-      ctx.lineTo(halfW * 0.28, halfH * 0.45);
-    } else {
-      ctx.rect(-halfW, -halfH, w, h);
-    }
+    if (settings.type === "circle" || settings.type === "ellipse") ctx.ellipse(0, 0, halfW, halfH, 0, 0, Math.PI * 2);
+    else if (settings.type === "triangle") { ctx.moveTo(0, -halfH); ctx.lineTo(halfW, halfH); ctx.lineTo(-halfW, halfH); ctx.closePath(); }
+    else if (settings.type === "line") { ctx.moveTo(-halfW, 0); ctx.lineTo(halfW, 0); }
+    else if (settings.type === "arrow") { ctx.moveTo(-halfW, 0); ctx.lineTo(halfW * 0.62, 0); ctx.moveTo(halfW * 0.28, -halfH * 0.45); ctx.lineTo(halfW, 0); ctx.lineTo(halfW * 0.28, halfH * 0.45); }
+    else ctx.rect(-halfW, -halfH, w, h);
   }
 
   function drawShapeToContext(ctx, point, ghost) {
     if (!point) return;
     const settings = getShapeSettings();
-    const opacity = Number(document.getElementById("brushOpacity") ? document.getElementById("brushOpacity").value : 100) / 100;
-
+    const opacityControl = document.getElementById("brushOpacity");
+    const opacity = opacityControl ? Number(opacityControl.value) / 100 : 1;
     ctx.save();
     ctx.translate(point.x, point.y);
     ctx.rotate((settings.rotation * Math.PI) / 180);
@@ -267,12 +261,9 @@
     ctx.globalAlpha = ghost ? 0.42 : opacity;
     ctx.strokeStyle = settings.color;
     ctx.fillStyle = settings.color;
-
     drawShapePath(ctx, settings);
-
     if (settings.fill && settings.type !== "line" && settings.type !== "arrow") ctx.fill();
     if (settings.outline || settings.type === "line" || settings.type === "arrow") ctx.stroke();
-
     ctx.restore();
   }
 
@@ -303,14 +294,13 @@
 
     if (open) {
       const shellRect = shell.getBoundingClientRect();
-      const panelRect = shapePanel.getBoundingClientRect();
       const toolbarOffset = window.innerWidth <= 720 ? 58 : 72;
       const topOffset = window.innerWidth <= 720 ? 58 : 76;
       shapePanel.style.left = toolbarOffset + "px";
       shapePanel.style.top = topOffset + "px";
       shapePanel.style.maxHeight = Math.max(220, shellRect.height - topOffset - 12) + "px";
       shapePanel.style.maxWidth = Math.max(240, Math.min(340, shellRect.width - toolbarOffset - 18)) + "px";
-      pendingPoint = { x: canvasWidth / 2, y: canvasHeight / 2 };
+      pendingPoint = { x: previewCanvas ? previewCanvas.width / 2 : 960, y: previewCanvas ? previewCanvas.height / 2 : 540 };
       makePreviewCanvas();
       drawPreview();
     } else {
@@ -335,18 +325,15 @@
       control.addEventListener("change", updateReadouts);
     });
 
-    shapePanel.querySelector('[data-min-panel="shape"]').addEventListener("click", function () {
-      setShapePanel(false);
-    });
-
-    document.getElementById("shapeCancelBtn").addEventListener("click", function () {
-      setShapePanel(false);
-    });
-
-    document.getElementById("shapePlaceCenterBtn").addEventListener("click", function () {
-      placeShape(pendingPoint || { x: canvasWidth / 2, y: canvasHeight / 2 });
-    });
+    shapePanel.querySelector('[data-min-panel="shape"]').addEventListener("click", function () { setShapePanel(false); });
+    document.getElementById("shapeCancelBtn").addEventListener("click", function () { setShapePanel(false); });
+    document.getElementById("shapePlaceCenterBtn").addEventListener("click", function () { placeShape(pendingPoint || { x: previewCanvas.width / 2, y: previewCanvas.height / 2 }); });
   }
+
+  injectStyle();
+  createShapeButton();
+  makePanel();
+  setShapePanel(false);
 
   shapeButton.addEventListener("click", function (event) {
     event.preventDefault();
@@ -362,14 +349,10 @@
 
   viewport.addEventListener("pointerdown", function (event) {
     if (!shapeModeActive) return;
-    if (event.pointerType === "touch" && typeof getTouchPointers === "function" && getTouchPointers().length >= 1) return;
+    if (event.pointerType === "touch" && event.touches && event.touches.length > 1) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     pendingPoint = getCanvasPointFromEvent(event);
     placeShape(pendingPoint);
   }, true);
-
-  injectStyle();
-  makePanel();
-  setShapePanel(false);
 })();
