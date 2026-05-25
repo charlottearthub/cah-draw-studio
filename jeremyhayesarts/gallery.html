@@ -19,15 +19,48 @@
       <section class="page-panel">
         <p class="eyebrow">Personal Gallery</p>
         <h1>Work, studies, and pieces from the studio.</h1>
-        <p>This page will hold the actual gallery: finished paintings, studies, Dreamscapes, WIPs, original concepts, and portrait work.</p>
-        <div class="gallery-grid">
-          <article class="work-card"><div class="work-image">Finished</div><div class="work-body"><h3>Finished Paintings</h3><p>Oil and digital pieces.</p></div></article>
-          <article class="work-card"><div class="work-image">Studies</div><div class="work-body"><h3>Studies</h3><p>Reference, anatomy, lighting, and mood.</p></div></article>
-          <article class="work-card"><div class="work-image">WIP</div><div class="work-body"><h3>Works in Progress</h3><p>Process and studio development.</p></div></article>
+        <p>Filter the gallery by type. Finished work, studies, Dreamscapes, WIPs, original concepts, and portrait work will live here.</p>
+
+        <div class="gallery-filters" aria-label="Gallery filters">
+          <button class="filter-btn is-active" type="button" data-filter="all">All</button>
+          <button class="filter-btn" type="button" data-filter="finished">Finished</button>
+          <button class="filter-btn" type="button" data-filter="studies">Studies</button>
+          <button class="filter-btn" type="button" data-filter="dreamscapes">Dreamscapes</button>
+          <button class="filter-btn" type="button" data-filter="wip">WIP</button>
+          <button class="filter-btn" type="button" data-filter="originals">Originals</button>
+          <button class="filter-btn" type="button" data-filter="portraits">Portraits</button>
+        </div>
+
+        <div class="gallery-grid filterable-gallery">
+          <article class="work-card gallery-item" data-category="finished"><div class="work-image">Finished</div><div class="work-body"><h3>Finished Paintings</h3><p>Completed oil and digital pieces.</p></div></article>
+          <article class="work-card gallery-item" data-category="studies"><div class="work-image">Studies</div><div class="work-body"><h3>Studies</h3><p>Reference, anatomy, lighting, and mood.</p></div></article>
+          <article class="work-card gallery-item" data-category="dreamscapes"><div class="work-image">Dreamscape</div><div class="work-body"><h3>Dreamscapes</h3><p>Portraits pushed into another world.</p></div></article>
+          <article class="work-card gallery-item" data-category="wip"><div class="work-image">WIP</div><div class="work-body"><h3>Works in Progress</h3><p>Process shots and studio development.</p></div></article>
+          <article class="work-card gallery-item" data-category="originals"><div class="work-image">Originals</div><div class="work-body"><h3>Original Concepts</h3><p>Personal ideas, figures, characters, and scenes.</p></div></article>
+          <article class="work-card gallery-item" data-category="portraits"><div class="work-image">Portraits</div><div class="work-body"><h3>Portrait Work</h3><p>Faces, figures, and character-driven pieces.</p></div></article>
         </div>
       </section>
     </main>
     <footer class="site-footer"><p>© 2026 Jeremy Hayes Arts.</p><a href="index.html">Home</a></footer>
   </div>
+
+  <script>
+    const buttons = document.querySelectorAll('.filter-btn');
+    const items = document.querySelectorAll('.gallery-item');
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+
+        buttons.forEach((btn) => btn.classList.remove('is-active'));
+        button.classList.add('is-active');
+
+        items.forEach((item) => {
+          const match = filter === 'all' || item.dataset.category === filter;
+          item.hidden = !match;
+        });
+      });
+    });
+  </script>
 </body>
 </html>
