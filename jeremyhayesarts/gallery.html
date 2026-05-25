@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=framed-viewer-1" />
+  <link rel="stylesheet" href="styles.css?v=framed-viewer-2" />
 </head>
 <body>
   <div class="site-shell">
@@ -146,18 +146,47 @@
       emptyMessage.hidden = visibleCount !== 0;
     }
 
+    function escapeAttribute(value) {
+      return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     function openViewer(trigger) {
-      const kind = trigger.dataset.kind;
-      const src = trigger.dataset.src;
-      const poster = trigger.dataset.poster;
-      viewerTitle.textContent = trigger.dataset.title || '';
+      const kind = trigger.dataset.kind || 'image';
+      const thumbImage = trigger.querySelector('img.gallery-media');
+      const sourceEl = trigger.querySelector('source');
+      const src = trigger.dataset.src || thumbImage?.currentSrc || thumbImage?.src || sourceEl?.src || '';
+      const poster = trigger.dataset.poster || trigger.querySelector('video')?.poster || '';
+      const title = trigger.dataset.title || 'Artwork';
+
+      viewerTitle.textContent = title;
       viewerType.textContent = trigger.dataset.type || '';
       viewerDescription.textContent = trigger.dataset.description || '';
+      viewerMediaWrap.innerHTML = '';
 
       if (kind === 'video') {
-        viewerMediaWrap.innerHTML = `<video class="viewer-media" controls autoplay playsinline poster="${poster || ''}"><source src="${src}" type="video/mp4">Your browser does not support video playback.</video>`;
+        const video = document.createElement('video');
+        video.className = 'viewer-media';
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.poster = poster;
+
+        const source = document.createElement('source');
+        source.src = src;
+        source.type = 'video/mp4';
+        video.appendChild(source);
+        viewerMediaWrap.appendChild(video);
       } else {
-        viewerMediaWrap.innerHTML = `<img class="viewer-media" src="${src}" alt="${trigger.dataset.title || 'Artwork'}">`;
+        const img = document.createElement('img');
+        img.className = 'viewer-media';
+        img.src = src;
+        img.alt = title;
+        img.loading = 'eager';
+        img.decoding = 'async';
+        img.onerror = () => {
+          viewerMediaWrap.innerHTML = '<p class="viewer-error">Image could not load.</p>';
+        };
+        viewerMediaWrap.appendChild(img);
       }
 
       viewer.hidden = false;
