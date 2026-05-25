@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=gallery-protect-1" />
 </head>
 <body>
   <div class="site-shell">
@@ -35,11 +35,12 @@
           <button class="filter-btn" type="button" data-filter="video">Video</button>
         </div>
 
-        <div class="gallery-grid filterable-gallery" id="galleryGrid">
+        <div class="gallery-grid filterable-gallery protected-gallery" id="galleryGrid">
           <article class="work-card gallery-item" data-category="finished fantasy originals" data-search="alloy and ash finished fantasy original digital painting fire ash armor warrior dark medieval concept">
-            <a class="media-link" href="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778290058/hmsbtgpzhxpj740lunma.png" target="_blank" rel="noopener">
-              <img class="gallery-media" src="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778290058/hmsbtgpzhxpj740lunma.png" alt="Alloy and Ash by Jeremy Hayes" loading="lazy" />
-            </a>
+            <div class="media-link protected-media" aria-label="Alloy and Ash by Jeremy Hayes">
+              <img class="gallery-media" src="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778290058/hmsbtgpzhxpj740lunma.png" alt="Alloy and Ash by Jeremy Hayes" loading="lazy" draggable="false" oncontextmenu="return false" />
+              <span class="media-shield" aria-hidden="true"></span>
+            </div>
             <div class="work-body">
               <p class="piece-type">Finished • Fantasy • Original</p>
               <h3>Alloy and Ash</h3>
@@ -48,9 +49,10 @@
           </article>
 
           <article class="work-card gallery-item" data-category="finished studies fantasy portraits" data-search="gandalf the grey finished study fantasy portrait wizard grey robe staff character painting reference study">
-            <a class="media-link" href="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778295189/djtes06plajnonh1t8y2.png" target="_blank" rel="noopener">
-              <img class="gallery-media" src="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778295189/djtes06plajnonh1t8y2.png" alt="Gandalf the Grey by Jeremy Hayes" loading="lazy" />
-            </a>
+            <div class="media-link protected-media" aria-label="Gandalf the Grey by Jeremy Hayes">
+              <img class="gallery-media" src="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778295189/djtes06plajnonh1t8y2.png" alt="Gandalf the Grey by Jeremy Hayes" loading="lazy" draggable="false" oncontextmenu="return false" />
+              <span class="media-shield" aria-hidden="true"></span>
+            </div>
             <div class="work-body">
               <p class="piece-type">Study • Fantasy • Portrait</p>
               <h3>Gandalf the Grey</h3>
@@ -59,9 +61,10 @@
           </article>
 
           <article class="work-card gallery-item" data-category="finished dreamscapes portraits fantasy" data-search="a kiss for the princess finished dreamscape fantasy portrait princess romantic cinematic figure character">
-            <a class="media-link" href="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778296273/kuq9ty3xnkty6ppflkug.jpg" target="_blank" rel="noopener">
-              <img class="gallery-media" src="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778296273/kuq9ty3xnkty6ppflkug.jpg" alt="A Kiss for the Princess by Jeremy Hayes" loading="lazy" />
-            </a>
+            <div class="media-link protected-media" aria-label="A Kiss for the Princess by Jeremy Hayes">
+              <img class="gallery-media" src="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778296273/kuq9ty3xnkty6ppflkug.jpg" alt="A Kiss for the Princess by Jeremy Hayes" loading="lazy" draggable="false" oncontextmenu="return false" />
+              <span class="media-shield" aria-hidden="true"></span>
+            </div>
             <div class="work-body">
               <p class="piece-type">Dreamscape • Fantasy • Portrait</p>
               <h3>A Kiss for the Princess</h3>
@@ -70,9 +73,10 @@
           </article>
 
           <article class="work-card gallery-item" data-category="finished studies portraits" data-search="cardinal finished study portrait bird cardinal red nature painting color study realism">
-            <a class="media-link" href="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778312423/sqxhmgr8iimm9ej68qpw.jpg" target="_blank" rel="noopener">
-              <img class="gallery-media" src="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778312423/sqxhmgr8iimm9ej68qpw.jpg" alt="Cardinal by Jeremy Hayes" loading="lazy" />
-            </a>
+            <div class="media-link protected-media" aria-label="Cardinal by Jeremy Hayes">
+              <img class="gallery-media" src="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1778312423/sqxhmgr8iimm9ej68qpw.jpg" alt="Cardinal by Jeremy Hayes" loading="lazy" draggable="false" oncontextmenu="return false" />
+              <span class="media-shield" aria-hidden="true"></span>
+            </div>
             <div class="work-body">
               <p class="piece-type">Finished • Study</p>
               <h3>Cardinal</h3>
@@ -81,8 +85,8 @@
           </article>
 
           <article class="work-card gallery-item" data-category="video studies fantasy portraits" data-search="rhaenyra targaryen video study fantasy portrait dragon queen character process painting clip video playback preview">
-            <div class="video-shell">
-              <video class="gallery-media" controls preload="metadata" playsinline poster="https://res.cloudinary.com/dkhxur6ga/video/upload/so_0,q_auto/f_auto/v1778369856/charlotte-art-hub/submissions/y0infap74yzvqbtkuye8.jpg">
+            <div class="video-shell protected-media">
+              <video class="gallery-media" controls controlslist="nodownload noplaybackrate" disablepictureinpicture preload="metadata" playsinline draggable="false" oncontextmenu="return false" poster="https://res.cloudinary.com/dkhxur6ga/video/upload/so_0,q_auto/f_auto/v1778369856/charlotte-art-hub/submissions/y0infap74yzvqbtkuye8.jpg">
                 <source src="https://res.cloudinary.com/dkhxur6ga/video/upload/q_auto/f_auto/v1778369856/charlotte-art-hub/submissions/y0infap74yzvqbtkuye8.mp4" type="video/mp4" />
                 Your browser does not support video playback.
               </video>
@@ -137,6 +141,18 @@
     });
 
     searchInput.addEventListener('input', updateGallery);
+
+    document.addEventListener('contextmenu', (event) => {
+      if (event.target.closest('.protected-gallery')) {
+        event.preventDefault();
+      }
+    });
+
+    document.addEventListener('dragstart', (event) => {
+      if (event.target.closest('.protected-gallery')) {
+        event.preventDefault();
+      }
+    });
   </script>
 </body>
 </html>
