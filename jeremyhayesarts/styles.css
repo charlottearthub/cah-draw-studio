@@ -146,6 +146,7 @@ video.gallery-media { object-fit: cover; }
 .gallery-filters { display: flex; flex-wrap: wrap; gap: 9px; margin: 26px 0; }
 .filter-btn { border: 1px solid var(--line); border-radius: 0; background: rgba(0,0,0,.82); color: var(--muted); font-weight: 900; padding: 9px 13px; cursor: pointer; text-transform: uppercase; letter-spacing: .07em; }
 .filter-btn.is-active, .filter-btn:hover { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: #120000; }
+.gallery-viewer[hidden] { display: none !important; visibility: hidden !important; pointer-events: none !important; }
 .gallery-viewer { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; padding: 18px; }
 .viewer-backdrop { position: fixed; inset: 0; border: 0; background: rgba(0,0,0,.86); backdrop-filter: blur(8px); cursor: zoom-out; }
 .viewer-frame { position: relative; z-index: 1; width: min(1120px, 100%); max-height: calc(100vh - 36px); overflow: auto; border: 1px solid var(--line); background: linear-gradient(135deg, rgba(62,0,0,.96), rgba(0,0,0,.98)); box-shadow: 0 32px 90px rgba(0,0,0,.82), inset 0 0 0 1px rgba(255,212,0,.08); padding: clamp(16px, 3vw, 28px); }
@@ -154,6 +155,7 @@ video.gallery-media { object-fit: cover; }
 .viewer-close { position: absolute; top: 12px; right: 12px; z-index: 2; width: 42px; height: 42px; border: 1px solid var(--line); background: rgba(0,0,0,.86); color: var(--yellow); font-size: 2rem; line-height: 1; cursor: pointer; }
 .viewer-media-wrap { position: relative; z-index: 1; display: grid; place-items: center; background: #000; border: 1px solid rgba(255,180,0,.2); min-height: 240px; }
 .viewer-media { display: block; max-width: 100%; max-height: min(70vh, 760px); width: auto; height: auto; object-fit: contain; background: #000; }
+.viewer-error { padding: 32px; color: var(--yellow); text-align: center; }
 video.viewer-media { width: 100%; }
 .viewer-caption { position: relative; z-index: 1; padding: 18px 4px 2px; }
 .viewer-caption h2 { margin-bottom: 10px; font-size: clamp(1.8rem, 5vw, 3rem); }
