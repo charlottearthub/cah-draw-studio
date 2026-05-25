@@ -102,8 +102,8 @@
         <section class="invoice-preview" id="invoicePreview" hidden>
           <p class="eyebrow">Invoice Draft</p>
           <h2>Order Summary</h2>
-          <div class="invoice-box" id="invoiceBox"></div>
-          <div class="form-actions-row">
+          <div class="invoice-box invoice-document" id="invoiceBox"></div>
+          <div class="form-actions-row invoice-actions">
             <button class="btn btn-primary" type="button" id="copyInvoice">Copy Invoice Draft</button>
             <button class="btn btn-secondary" type="button" id="printInvoice">Print</button>
             <a class="btn btn-secondary" id="emailInvoice" href="#">Email Draft</a>
@@ -132,6 +132,14 @@
       return number > 0 ? `$${number.toFixed(2)}` : 'Quote required';
     }
 
+    function clean(value, fallback = 'Not provided') {
+      return value && String(value).trim() ? String(value).trim() : fallback;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+    }
+
     function getSelectedPricing() {
       const selected = artworkType.options[artworkType.selectedIndex];
       const baseTotal = Number(selected?.dataset.price || 0);
@@ -142,32 +150,87 @@
       return { total, deposit, balance };
     }
 
-    function buildInvoiceText(data, pricing, requestId) {
-      return `Jeremy Hayes Arts — Artwork Request / Invoice Draft\n\nRequest ID: ${requestId}\nClient: ${data.get('name')}\nEmail: ${data.get('email')}\nPhone: ${data.get('phone') || 'Not provided'}\nLocation: ${data.get('location') || 'Not provided'}\n\nArtwork Type: ${data.get('artwork_type')}\nFinished Format: ${data.get('format')}\nIntended Use: ${data.get('usage')}\nStyle / Mood: ${data.get('style') || 'Not provided'}\nDeadline: ${data.get('deadline') || 'Not provided'}\nReference Link: ${data.get('reference_link') || 'Not provided'}\n\nProject Description:\n${data.get('request_details')}\n\nAdditional Notes:\n${data.get('extra_notes') || 'None'}\n\nEstimated Project Total: ${money(pricing.total)}\nDeposit Due: ${money(pricing.deposit)}\nEstimated Balance Due: ${pricing.total > 0 ? money(pricing.balance) : 'Quote required'}\n\nNotes: This is an invoice draft generated from the client request. Final scope, usage rights, timeline, payment terms, and delivery details must be confirmed by Jeremy Hayes Arts before the order is active.`;
+    function buildInvoiceText(data, pricing, requestId, today) {
+      return `Jeremy Hayes Arts — Artwork Request / Invoice Draft\n${today}\n\nRequest ID: ${requestId}\n\nCLIENT\nName: ${data.get('name')}\nEmail: ${data.get('email')}\nPhone: ${clean(data.get('phone'))}\nLocation: ${clean(data.get('location'))}\n\nPROJECT\nArtwork Type: ${data.get('artwork_type')}\nFinished Format: ${data.get('format')}\nIntended Use: ${data.get('usage')}\nStyle / Mood: ${clean(data.get('style'))}\nDeadline: ${clean(data.get('deadline'))}\nReference Link: ${clean(data.get('reference_link'))}\n\nREQUEST\n${data.get('request_details')}\n\nNOTES\n${clean(data.get('extra_notes'), 'None')}\n\nINVOICE DRAFT\nEstimated Project Total: ${money(pricing.total)}\nDeposit Due: ${money(pricing.deposit)}\nEstimated Balance Due: ${pricing.total > 0 ? money(pricing.balance) : 'Quote required'}\n\nThis is a draft generated from the client request. Final scope, usage rights, timeline, payment terms, and delivery details must be confirmed by Jeremy Hayes Arts before the order is active.`;
     }
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       const data = new FormData(form);
       const pricing = getSelectedPricing();
+      const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
       const requestId = `JHA-${new Date().toISOString().slice(0,10).replaceAll('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
-      const invoiceText = buildInvoiceText(data, pricing, requestId);
+      const invoiceText = buildInvoiceText(data, pricing, requestId, today);
+
+      const name = escapeHtml(data.get('name'));
+      const email = escapeHtml(data.get('email'));
+      const phone = escapeHtml(clean(data.get('phone')));
+      const location = escapeHtml(clean(data.get('location')));
+      const type = escapeHtml(data.get('artwork_type'));
+      const format = escapeHtml(data.get('format'));
+      const usage = escapeHtml(data.get('usage'));
+      const style = escapeHtml(clean(data.get('style')));
+      const deadline = escapeHtml(clean(data.get('deadline')));
+      const reference = escapeHtml(clean(data.get('reference_link')));
+      const details = escapeHtml(data.get('request_details')).replace(/\n/g, '<br>');
+      const notes = escapeHtml(clean(data.get('extra_notes'), 'None')).replace(/\n/g, '<br>');
 
       invoiceBox.dataset.invoiceText = invoiceText;
       invoiceBox.innerHTML = `
-        <div class="invoice-grid">
-          <div><strong>Request ID</strong><span>${requestId}</span></div>
-          <div><strong>Client</strong><span>${data.get('name')}</span></div>
-          <div><strong>Email</strong><span>${data.get('email')}</span></div>
-          <div><strong>Artwork Type</strong><span>${data.get('artwork_type')}</span></div>
-          <div><strong>Format</strong><span>${data.get('format')}</span></div>
-          <div><strong>Use</strong><span>${data.get('usage')}</span></div>
-          <div><strong>Total</strong><span>${money(pricing.total)}</span></div>
-          <div><strong>Deposit Due</strong><span>${money(pricing.deposit)}</span></div>
-          <div><strong>Balance</strong><span>${pricing.total > 0 ? money(pricing.balance) : 'Quote required'}</span></div>
+        <div class="invoice-doc-header">
+          <img src="https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1779711066/IMG_0012_cmyp1c.jpg" alt="Jeremy Hayes Arts logo" />
+          <div>
+            <h3>Jeremy Hayes Arts</h3>
+            <p>Artwork Request / Invoice Draft</p>
+          </div>
         </div>
-        <div class="invoice-section"><strong>Project Description</strong><p>${data.get('request_details')}</p></div>
-        <div class="invoice-section"><strong>Notes</strong><p>${data.get('extra_notes') || 'None'}</p></div>
+
+        <div class="invoice-doc-meta">
+          <span><strong>Request ID</strong>${requestId}</span>
+          <span><strong>Date</strong>${today}</span>
+        </div>
+
+        <div class="invoice-doc-section">
+          <h4>Client</h4>
+          <dl>
+            <div><dt>Name</dt><dd>${name}</dd></div>
+            <div><dt>Email</dt><dd>${email}</dd></div>
+            <div><dt>Phone</dt><dd>${phone}</dd></div>
+            <div><dt>Location</dt><dd>${location}</dd></div>
+          </dl>
+        </div>
+
+        <div class="invoice-doc-section">
+          <h4>Project</h4>
+          <dl>
+            <div><dt>Artwork Type</dt><dd>${type}</dd></div>
+            <div><dt>Finished Format</dt><dd>${format}</dd></div>
+            <div><dt>Intended Use</dt><dd>${usage}</dd></div>
+            <div><dt>Style / Mood</dt><dd>${style}</dd></div>
+            <div><dt>Deadline</dt><dd>${deadline}</dd></div>
+            <div><dt>Reference</dt><dd>${reference}</dd></div>
+          </dl>
+        </div>
+
+        <div class="invoice-doc-section">
+          <h4>Request</h4>
+          <p>${details}</p>
+        </div>
+
+        <div class="invoice-doc-section">
+          <h4>Notes</h4>
+          <p>${notes}</p>
+        </div>
+
+        <div class="invoice-doc-section invoice-doc-totals">
+          <dl>
+            <div><dt>Estimated Project Total</dt><dd>${money(pricing.total)}</dd></div>
+            <div><dt>Deposit Due</dt><dd>${money(pricing.deposit)}</dd></div>
+            <div><dt>Estimated Balance Due</dt><dd>${pricing.total > 0 ? money(pricing.balance) : 'Quote required'}</dd></div>
+          </dl>
+        </div>
+
+        <p class="invoice-doc-disclaimer">This is a draft generated from the client request. Final scope, usage rights, timeline, payment terms, and delivery details must be confirmed by Jeremy Hayes Arts before the order is active.</p>
       `;
 
       const subject = encodeURIComponent(`JHA Artwork Request ${requestId}`);
