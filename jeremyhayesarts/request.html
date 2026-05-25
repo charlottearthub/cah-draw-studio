@@ -12,109 +12,185 @@
 <body>
   <div class="site-shell">
     <header class="site-header">
-      <a class="brand" href="index.html"><span class="brand-mark">JHA</span><span class="brand-text"><strong>Jeremy Hayes Arts</strong><small>Request Artwork</small></span></a>
-      <nav class="site-nav"><a href="index.html">Home</a><a href="gallery.html">Gallery</a><a href="dreamscapes.html">Dreamscapes</a><a href="commissions.html">Commissions</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+      <a class="brand" href="index.html"><span class="brand-mark">JHA</span><span class="brand-text"><strong>Jeremy Hayes Arts</strong><small>Artwork Request</small></span></a>
+      <nav class="site-nav"><a href="index.html">Home</a><a href="gallery.html">Gallery</a><a href="dreamscapes.html">Dreamscapes</a><a href="commissions.html">Commissions</a><a href="request.html">Request</a><a href="contact.html">Contact</a></nav>
     </header>
 
     <main class="page-main">
       <section class="page-panel request-panel">
-        <p class="eyebrow">Commission Request</p>
+        <p class="eyebrow">Order Chain / Step One</p>
         <h1>Request Artwork</h1>
-        <p>Tell me what you want made. Keep it simple or go deep. The more useful detail you give me, the better I can tell you what is possible.</p>
+        <p>This starts the order chain. Fill out the request, generate the order summary, then use the invoice draft as the starting point for the final quote or invoice.</p>
 
-        <form class="request-form" action="#" method="post">
-          <div class="form-grid two-col">
-            <label>
-              <span>Your name</span>
-              <input type="text" name="name" placeholder="Name" required />
-            </label>
-
-            <label>
-              <span>Email</span>
-              <input type="email" name="email" placeholder="you@example.com" required />
-            </label>
+        <form class="request-form" id="artRequestForm">
+          <div class="form-step-block">
+            <h2>Client</h2>
+            <div class="form-grid two-col">
+              <label><span>Your name</span><input type="text" name="name" placeholder="Name" required /></label>
+              <label><span>Email</span><input type="email" name="email" placeholder="you@example.com" required /></label>
+            </div>
+            <div class="form-grid two-col">
+              <label><span>Phone</span><input type="tel" name="phone" placeholder="Optional" /></label>
+              <label><span>City / State</span><input type="text" name="location" placeholder="Optional" /></label>
+            </div>
           </div>
 
-          <div class="form-grid two-col">
-            <label>
-              <span>Artwork type</span>
-              <select name="artwork_type" required>
-                <option value="">Choose one</option>
-                <option>Dreamscape portrait</option>
-                <option>Digital custom artwork</option>
-                <option>Oil custom artwork</option>
-                <option>Book or album cover concept</option>
-                <option>Character design</option>
-                <option>Commercial licensing</option>
-                <option>Not sure yet</option>
-              </select>
-            </label>
+          <div class="form-step-block">
+            <h2>Project</h2>
+            <div class="form-grid two-col">
+              <label>
+                <span>Artwork type</span>
+                <select name="artwork_type" id="artworkType" required>
+                  <option value="">Choose one</option>
+                  <option value="Digital Dreamscape" data-price="450" data-deposit="175">Digital Dreamscape — $450</option>
+                  <option value="Oil Dreamscape" data-price="600" data-deposit="175">Oil Dreamscape — $600</option>
+                  <option value="Photography Session" data-price="150" data-deposit="150">Photography Session — $150</option>
+                  <option value="Digital Custom Artwork" data-price="300" data-deposit="100">Digital Custom Artwork — starting at $300</option>
+                  <option value="Oil Custom Artwork" data-price="450" data-deposit="150">Oil Custom Artwork — starting at $450</option>
+                  <option value="Book / Album Cover Concept" data-price="300" data-deposit="100">Book / Album Cover Concept — starting at $300</option>
+                  <option value="Commercial Licensing" data-price="0" data-deposit="0">Commercial Licensing — quote required</option>
+                  <option value="Not Sure Yet" data-price="0" data-deposit="0">Not sure yet — quote required</option>
+                </select>
+              </label>
 
-            <label>
-              <span>Finished format</span>
-              <select name="format" required>
-                <option value="">Choose one</option>
-                <option>Digital file</option>
-                <option>Oil painting</option>
-                <option>Digital plus print</option>
-                <option>Commercial/project use</option>
-                <option>Not sure yet</option>
-              </select>
-            </label>
+              <label>
+                <span>Finished format</span>
+                <select name="format" required>
+                  <option value="">Choose one</option>
+                  <option>Digital file</option>
+                  <option>Oil painting</option>
+                  <option>Digital plus print</option>
+                  <option>Photography only</option>
+                  <option>Commercial/project use</option>
+                  <option>Not sure yet</option>
+                </select>
+              </label>
+            </div>
+
+            <label><span>What do you want?</span><textarea name="request_details" rows="7" placeholder="Describe the subject, scene, character, mood, background, colors, weapons, clothing, setting, or anything important." required></textarea></label>
+
+            <div class="form-grid two-col">
+              <label><span>Style / mood</span><input type="text" name="style" placeholder="Dark fantasy, medieval, cinematic, realistic..." /></label>
+              <label><span>Intended use</span><select name="usage"><option>Personal use</option><option>Gift</option><option>Book / Album / Cover use</option><option>Business / Commercial use</option><option>Not sure yet</option></select></label>
+            </div>
           </div>
 
-          <label>
-            <span>What do you want?</span>
-            <textarea name="request_details" rows="7" placeholder="Describe the subject, scene, character, mood, background, colors, weapons, clothing, setting, or anything important." required></textarea>
-          </label>
-
-          <div class="form-grid two-col">
-            <label>
-              <span>Style / mood</span>
-              <input type="text" name="style" placeholder="Dark fantasy, portrait, medieval, cinematic, realistic..." />
-            </label>
-
-            <label>
-              <span>Budget range</span>
-              <select name="budget">
-                <option value="">Choose one</option>
-                <option>$300–$450</option>
-                <option>$450–$600</option>
-                <option>$600+</option>
-                <option>Commercial/project quote</option>
-                <option>I need guidance</option>
-              </select>
-            </label>
+          <div class="form-step-block">
+            <h2>Reference / Timeline</h2>
+            <div class="form-grid two-col">
+              <label><span>Deadline</span><input type="text" name="deadline" placeholder="No rush, specific date, or event date" /></label>
+              <label><span>Reference links</span><input type="url" name="reference_link" placeholder="Google Drive, Dropbox, Instagram, website, etc." /></label>
+            </div>
+            <label><span>Anything else I should know?</span><textarea name="extra_notes" rows="5" placeholder="Size, print needs, privacy, commercial purpose, permissions, or notes."></textarea></label>
           </div>
 
-          <div class="form-grid two-col">
-            <label>
-              <span>Deadline</span>
-              <input type="text" name="deadline" placeholder="No rush, specific date, or event date" />
-            </label>
-
-            <label>
-              <span>Reference links</span>
-              <input type="url" name="reference_link" placeholder="Google Drive, Dropbox, Instagram, website, etc." />
-            </label>
+          <div class="form-step-block">
+            <h2>Invoice Draft Settings</h2>
+            <div class="form-grid two-col">
+              <label><span>Adjusted project total</span><input type="number" name="manual_total" id="manualTotal" min="0" step="1" placeholder="Optional override" /></label>
+              <label><span>Adjusted deposit due</span><input type="number" name="manual_deposit" id="manualDeposit" min="0" step="1" placeholder="Optional override" /></label>
+            </div>
+            <p class="form-help">Use overrides only when the quote needs to change. Otherwise the draft uses the selected service price.</p>
           </div>
 
-          <label>
-            <span>Anything else I should know?</span>
-            <textarea name="extra_notes" rows="5" placeholder="Use, size, print needs, private gift, commercial purpose, characters, permissions, or notes."></textarea>
-          </label>
-
-          <div class="form-notice">
-            <strong>Mockup only.</strong>
-            <p>This form is not connected yet. Next step is wiring it to email, Jotform, Supabase, or a backend request table.</p>
+          <div class="form-actions-row">
+            <button class="btn btn-primary request-submit" type="submit">Generate Order Summary</button>
+            <button class="btn btn-secondary" type="button" id="clearRequest">Clear</button>
           </div>
-
-          <button class="btn btn-primary request-submit" type="submit" disabled>Submit Request Soon</button>
         </form>
+
+        <section class="invoice-preview" id="invoicePreview" hidden>
+          <p class="eyebrow">Invoice Draft</p>
+          <h2>Order Summary</h2>
+          <div class="invoice-box" id="invoiceBox"></div>
+          <div class="form-actions-row">
+            <button class="btn btn-primary" type="button" id="copyInvoice">Copy Invoice Draft</button>
+            <button class="btn btn-secondary" type="button" id="printInvoice">Print</button>
+            <a class="btn btn-secondary" id="emailInvoice" href="#">Email Draft</a>
+          </div>
+        </section>
       </section>
     </main>
 
     <footer class="site-footer"><p>© 2026 Jeremy Hayes Arts.</p><a href="mailto:jeremyhayesarts@jeremyhayesarts.com">jeremyhayesarts@jeremyhayesarts.com</a></footer>
   </div>
+
+  <script>
+    const form = document.querySelector('#artRequestForm');
+    const invoicePreview = document.querySelector('#invoicePreview');
+    const invoiceBox = document.querySelector('#invoiceBox');
+    const artworkType = document.querySelector('#artworkType');
+    const manualTotal = document.querySelector('#manualTotal');
+    const manualDeposit = document.querySelector('#manualDeposit');
+    const copyInvoice = document.querySelector('#copyInvoice');
+    const printInvoice = document.querySelector('#printInvoice');
+    const clearRequest = document.querySelector('#clearRequest');
+    const emailInvoice = document.querySelector('#emailInvoice');
+
+    function money(value) {
+      const number = Number(value || 0);
+      return number > 0 ? `$${number.toFixed(2)}` : 'Quote required';
+    }
+
+    function getSelectedPricing() {
+      const selected = artworkType.options[artworkType.selectedIndex];
+      const baseTotal = Number(selected?.dataset.price || 0);
+      const baseDeposit = Number(selected?.dataset.deposit || 0);
+      const total = manualTotal.value ? Number(manualTotal.value) : baseTotal;
+      const deposit = manualDeposit.value ? Number(manualDeposit.value) : baseDeposit;
+      const balance = total > 0 ? Math.max(total - deposit, 0) : 0;
+      return { total, deposit, balance };
+    }
+
+    function buildInvoiceText(data, pricing, requestId) {
+      return `Jeremy Hayes Arts — Artwork Request / Invoice Draft\n\nRequest ID: ${requestId}\nClient: ${data.get('name')}\nEmail: ${data.get('email')}\nPhone: ${data.get('phone') || 'Not provided'}\nLocation: ${data.get('location') || 'Not provided'}\n\nArtwork Type: ${data.get('artwork_type')}\nFinished Format: ${data.get('format')}\nIntended Use: ${data.get('usage')}\nStyle / Mood: ${data.get('style') || 'Not provided'}\nDeadline: ${data.get('deadline') || 'Not provided'}\nReference Link: ${data.get('reference_link') || 'Not provided'}\n\nProject Description:\n${data.get('request_details')}\n\nAdditional Notes:\n${data.get('extra_notes') || 'None'}\n\nEstimated Project Total: ${money(pricing.total)}\nDeposit Due: ${money(pricing.deposit)}\nEstimated Balance Due: ${pricing.total > 0 ? money(pricing.balance) : 'Quote required'}\n\nNotes: This is an invoice draft generated from the client request. Final scope, usage rights, timeline, payment terms, and delivery details must be confirmed by Jeremy Hayes Arts before the order is active.`;
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const pricing = getSelectedPricing();
+      const requestId = `JHA-${new Date().toISOString().slice(0,10).replaceAll('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const invoiceText = buildInvoiceText(data, pricing, requestId);
+
+      invoiceBox.dataset.invoiceText = invoiceText;
+      invoiceBox.innerHTML = `
+        <div class="invoice-grid">
+          <div><strong>Request ID</strong><span>${requestId}</span></div>
+          <div><strong>Client</strong><span>${data.get('name')}</span></div>
+          <div><strong>Email</strong><span>${data.get('email')}</span></div>
+          <div><strong>Artwork Type</strong><span>${data.get('artwork_type')}</span></div>
+          <div><strong>Format</strong><span>${data.get('format')}</span></div>
+          <div><strong>Use</strong><span>${data.get('usage')}</span></div>
+          <div><strong>Total</strong><span>${money(pricing.total)}</span></div>
+          <div><strong>Deposit Due</strong><span>${money(pricing.deposit)}</span></div>
+          <div><strong>Balance</strong><span>${pricing.total > 0 ? money(pricing.balance) : 'Quote required'}</span></div>
+        </div>
+        <div class="invoice-section"><strong>Project Description</strong><p>${data.get('request_details')}</p></div>
+        <div class="invoice-section"><strong>Notes</strong><p>${data.get('extra_notes') || 'None'}</p></div>
+      `;
+
+      const subject = encodeURIComponent(`JHA Artwork Request ${requestId}`);
+      const body = encodeURIComponent(invoiceText);
+      emailInvoice.href = `mailto:jeremyhayesarts@jeremyhayesarts.com?subject=${subject}&body=${body}`;
+      invoicePreview.hidden = false;
+      invoicePreview.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    copyInvoice.addEventListener('click', async () => {
+      const text = invoiceBox.dataset.invoiceText || '';
+      await navigator.clipboard.writeText(text);
+      copyInvoice.textContent = 'Copied';
+      setTimeout(() => copyInvoice.textContent = 'Copy Invoice Draft', 1400);
+    });
+
+    printInvoice.addEventListener('click', () => window.print());
+
+    clearRequest.addEventListener('click', () => {
+      form.reset();
+      invoicePreview.hidden = true;
+      invoiceBox.innerHTML = '';
+    });
+  </script>
 </body>
 </html>
