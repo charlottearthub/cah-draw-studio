@@ -1,12 +1,12 @@
 (() => {
-  const cacheVersion = 'shared-2';
+  const cacheVersion = 'shared-3';
   const pages = [
     { href: 'index.html', label: 'Home' },
     { href: 'gallery.html', label: 'Gallery' },
     { href: 'dreamscapes.html', label: 'Dreamscapes' },
     { href: 'commissions.html', label: 'Commissions' },
     { href: 'request.html', label: 'Request' },
-    { href: 'store.html', label: 'Store' },
+    { href: 'https://jeremyhayesarts.printify.me/', label: 'Store', external: true },
     { href: 'about.html', label: 'About' },
     { href: 'contact.html', label: 'Contact' }
   ];
@@ -40,7 +40,6 @@
       'dreamscapes.html': 'Dreamscapes',
       'commissions.html': 'Commissions',
       'request.html': 'Artwork Request',
-      'store.html': 'Prints & Merch',
       'about.html': 'About',
       'contact.html': 'Contact'
     };
@@ -51,7 +50,8 @@
     const current = getCurrentPage();
     const nav = pages.map((page) => {
       const active = page.href === current ? ' aria-current="page"' : '';
-      return `<a href="${page.href}"${active}>${page.label}</a>`;
+      const externalAttrs = page.external ? ' target="_blank" rel="noopener"' : '';
+      return `<a href="${page.href}"${active}${externalAttrs}>${page.label}</a>`;
     }).join('');
 
     return `
