@@ -1,11 +1,12 @@
 (() => {
-  const cacheVersion = 'shared-1';
+  const cacheVersion = 'shared-2';
   const pages = [
     { href: 'index.html', label: 'Home' },
     { href: 'gallery.html', label: 'Gallery' },
     { href: 'dreamscapes.html', label: 'Dreamscapes' },
     { href: 'commissions.html', label: 'Commissions' },
     { href: 'request.html', label: 'Request' },
+    { href: 'store.html', label: 'Store' },
     { href: 'about.html', label: 'About' },
     { href: 'contact.html', label: 'Contact' }
   ];
@@ -13,7 +14,8 @@
   const footerLinks = [
     { href: 'mailto:jeremyhayes@jeremyhayesarts.com', label: 'Email' },
     { href: 'https://www.instagram.com/jeremyhayesarts/', label: '@jeremyhayesarts', external: true },
-    { href: 'https://www.facebook.com/share/1DHbp1F35e/?mibextid=wwXIfr', label: 'Facebook', external: true }
+    { href: 'https://www.facebook.com/share/1DHbp1F35e/?mibextid=wwXIfr', label: 'Facebook', external: true },
+    { href: 'https://jeremyhayesarts.printify.me/', label: 'Printify Store', external: true }
   ];
 
   function ensureSharedCss() {
@@ -38,6 +40,7 @@
       'dreamscapes.html': 'Dreamscapes',
       'commissions.html': 'Commissions',
       'request.html': 'Artwork Request',
+      'store.html': 'Prints & Merch',
       'about.html': 'About',
       'contact.html': 'Contact'
     };
@@ -75,7 +78,7 @@
       <footer class="site-footer jha-shared-footer">
         <div class="jha-footer-brand">
           <strong>Jeremy Hayes Arts</strong>
-          <span>Fantasy realism, Dreamscapes, commissions, and original work.</span>
+          <span>Fantasy realism, Dreamscapes, commissions, prints, merch, and original work.</span>
           <small>© 2026 Jeremy Hayes Arts.</small>
         </div>
         <nav class="jha-footer-links" aria-label="Footer links">${links}</nav>
