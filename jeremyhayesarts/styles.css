@@ -73,20 +73,20 @@ a { color: inherit; }
 }
 .brand { display: inline-flex; align-items: center; gap: 13px; text-decoration: none; position: relative; z-index: 1; }
 .brand-mark {
-  width: 44px;
-  height: 44px;
+  width: 58px;
+  height: 58px;
   border-radius: 0;
-  display: grid;
-  place-items: center;
-  color: #120000;
-  background: linear-gradient(135deg, var(--yellow), var(--orange));
-  font-family: Cinzel, serif;
-  font-weight: 900;
-  box-shadow: 0 0 22px rgba(255,90,0,.28);
-  transform: rotate(45deg);
+  display: block;
+  background-image: url("https://res.cloudinary.com/dkhxur6ga/image/upload/q_auto/f_auto/v1779711066/IMG_0012_cmyp1c.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid var(--line);
+  box-shadow: 0 0 22px rgba(255,90,0,.28), inset 0 0 0 1px rgba(255,212,0,.12);
   font-size: 0;
+  flex: 0 0 auto;
 }
-.brand-mark::after { content: "JH"; font-size: .95rem; transform: rotate(-45deg); }
+.brand-mark::after { content: none; }
 .brand-text { display: grid; line-height: 1.05; }
 .brand-text strong { font-family: Cinzel, serif; letter-spacing: .11em; font-size: .95rem; }
 .brand-text small { margin-top: 4px; color: var(--muted); font-size: .7rem; letter-spacing: .05em; text-transform: uppercase; }
@@ -152,7 +152,7 @@ video.gallery-media { object-fit: cover; }
 }
 @media (max-width: 520px) {
   .site-header, .section-pad, .site-footer, .page-main { width: min(calc(100% - 22px), var(--max)); }
-  .brand-mark { width: 40px; height: 40px; }
+  .brand-mark { width: 50px; height: 50px; }
   .brand-text strong { font-size: .8rem; }
   h1 { font-size: clamp(2.45rem, 15vw, 3.7rem); }
   h2 { font-size: clamp(1.9rem, 11vw, 3rem); }
