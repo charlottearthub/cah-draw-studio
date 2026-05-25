@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request Artwork | Jeremy Hayes Arts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="index.html"><span class="brand-mark">JHA</span><span class="brand-text"><strong>Jeremy Hayes Arts</strong><small>Request Artwork</small></span></a>
+      <nav class="site-nav"><a href="index.html">Home</a><a href="gallery.html">Gallery</a><a href="dreamscapes.html">Dreamscapes</a><a href="commissions.html">Commissions</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+    </header>
+
+    <main class="page-main">
+      <section class="page-panel request-panel">
+        <p class="eyebrow">Commission Request</p>
+        <h1>Request Artwork</h1>
+        <p>Tell me what you want made. Keep it simple or go deep. The more useful detail you give me, the better I can tell you what is possible.</p>
+
+        <form class="request-form" action="#" method="post">
+          <div class="form-grid two-col">
+            <label>
+              <span>Your name</span>
+              <input type="text" name="name" placeholder="Name" required />
+            </label>
+
+            <label>
+              <span>Email</span>
+              <input type="email" name="email" placeholder="you@example.com" required />
+            </label>
+          </div>
+
+          <div class="form-grid two-col">
+            <label>
+              <span>Artwork type</span>
+              <select name="artwork_type" required>
+                <option value="">Choose one</option>
+                <option>Dreamscape portrait</option>
+                <option>Digital custom artwork</option>
+                <option>Oil custom artwork</option>
+                <option>Book or album cover concept</option>
+                <option>Character design</option>
+                <option>Commercial licensing</option>
+                <option>Not sure yet</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Finished format</span>
+              <select name="format" required>
+                <option value="">Choose one</option>
+                <option>Digital file</option>
+                <option>Oil painting</option>
+                <option>Digital plus print</option>
+                <option>Commercial/project use</option>
+                <option>Not sure yet</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            <span>What do you want?</span>
+            <textarea name="request_details" rows="7" placeholder="Describe the subject, scene, character, mood, background, colors, weapons, clothing, setting, or anything important." required></textarea>
+          </label>
+
+          <div class="form-grid two-col">
+            <label>
+              <span>Style / mood</span>
+              <input type="text" name="style" placeholder="Dark fantasy, portrait, medieval, cinematic, realistic..." />
+            </label>
+
+            <label>
+              <span>Budget range</span>
+              <select name="budget">
+                <option value="">Choose one</option>
+                <option>$300–$450</option>
+                <option>$450–$600</option>
+                <option>$600+</option>
+                <option>Commercial/project quote</option>
+                <option>I need guidance</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="form-grid two-col">
+            <label>
+              <span>Deadline</span>
+              <input type="text" name="deadline" placeholder="No rush, specific date, or event date" />
+            </label>
+
+            <label>
+              <span>Reference links</span>
+              <input type="url" name="reference_link" placeholder="Google Drive, Dropbox, Instagram, website, etc." />
+            </label>
+          </div>
+
+          <label>
+            <span>Anything else I should know?</span>
+            <textarea name="extra_notes" rows="5" placeholder="Use, size, print needs, private gift, commercial purpose, characters, permissions, or notes."></textarea>
+          </label>
+
+          <div class="form-notice">
+            <strong>Mockup only.</strong>
+            <p>This form is not connected yet. Next step is wiring it to email, Jotform, Supabase, or a backend request table.</p>
+          </div>
+
+          <button class="btn btn-primary request-submit" type="submit" disabled>Submit Request Soon</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer"><p>© 2026 Jeremy Hayes Arts.</p><a href="mailto:jeremyhayesarts@jeremyhayesarts.com">jeremyhayesarts@jeremyhayesarts.com</a></footer>
+  </div>
+</body>
+</html>
