@@ -143,10 +143,36 @@ video.gallery-media { object-fit: cover; }
 .gallery-filters { display: flex; flex-wrap: wrap; gap: 9px; margin: 26px 0; }
 .filter-btn { border: 1px solid var(--line); border-radius: 0; background: rgba(0,0,0,.82); color: var(--muted); font-weight: 900; padding: 9px 13px; cursor: pointer; text-transform: uppercase; letter-spacing: .07em; }
 .filter-btn.is-active, .filter-btn:hover { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: #120000; }
+.request-form { margin-top: 30px; display: grid; gap: 22px; }
+.form-grid { display: grid; gap: 18px; }
+.form-grid.two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.request-form label { display: grid; gap: 8px; color: var(--yellow); font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.request-form input,
+.request-form select,
+.request-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: rgba(0,0,0,.84);
+  color: var(--text);
+  padding: 13px 14px;
+  font: inherit;
+  outline: none;
+}
+.request-form textarea { resize: vertical; min-height: 130px; }
+.request-form input::placeholder,
+.request-form textarea::placeholder { color: rgba(255,191,69,.58); }
+.request-form input:focus,
+.request-form select:focus,
+.request-form textarea:focus { border-color: var(--yellow); box-shadow: inset 0 0 0 1px rgba(255,212,0,.22); }
+.form-notice { border: 1px solid var(--line); padding: 16px; background: rgba(0,0,0,.72); }
+.form-notice strong { display: block; color: var(--yellow); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; }
+.form-notice p { margin: 0; }
+.request-submit:disabled { opacity: .65; cursor: not-allowed; }
 @media (max-width: 900px) {
   .site-header { border-radius: 0; align-items: flex-start; flex-direction: column; }
   .site-nav { justify-content: flex-start; }
-  .hero, .split-section, .contact-section, .gallery-grid, .service-grid { grid-template-columns: 1fr; }
+  .hero, .split-section, .contact-section, .gallery-grid, .service-grid, .form-grid.two-col { grid-template-columns: 1fr; }
   .hero { min-height: auto; }
   .section-pad { padding: 46px 0; }
 }
