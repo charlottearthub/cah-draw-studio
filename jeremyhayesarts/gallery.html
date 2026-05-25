@@ -7,14 +7,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=framed-viewer-2" />
+  <link rel="stylesheet" href="styles.css?v=framed-viewer-3" />
+  <script src="shared.js?v=shared-3" defer></script>
 </head>
 <body>
   <div class="site-shell">
-    <header class="site-header">
-      <a class="brand" href="index.html"><span class="brand-mark">JH</span><span class="brand-text"><strong>Jeremy Hayes Arts</strong><small>Personal Gallery</small></span></a>
-      <nav class="site-nav"><a href="index.html">Home</a><a href="dreamscapes.html">Dreamscapes</a><a href="commissions.html">Commissions</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
-    </header>
+    <header class="site-header"></header>
 
     <main class="page-main">
       <section class="page-panel">
@@ -98,7 +96,7 @@
         <p class="gallery-empty" id="galleryEmpty" hidden>No pieces match that search or filter.</p>
       </section>
     </main>
-    <footer class="site-footer"><p>© 2026 Jeremy Hayes Arts.</p><a href="index.html">Home</a></footer>
+    <footer class="site-footer"></footer>
   </div>
 
   <div class="gallery-viewer" id="galleryViewer" hidden aria-hidden="true">
@@ -144,10 +142,6 @@
       });
 
       emptyMessage.hidden = visibleCount !== 0;
-    }
-
-    function escapeAttribute(value) {
-      return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     function openViewer(trigger) {
