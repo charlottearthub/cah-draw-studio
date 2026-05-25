@@ -25,6 +25,7 @@ body {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #000000;
 }
+body.viewer-open { overflow: hidden; }
 body::before {
   content: "";
   position: fixed;
@@ -119,8 +120,9 @@ p { color: var(--muted); line-height: 1.72; font-size: 1rem; }
 .work-card, .info-panel, .contact-card, .portrait-block { border-radius: 0; background: rgba(0,0,0,.9); overflow: hidden; }
 .work-image, .portrait-placeholder, .gallery-media { min-height: 250px; }
 .work-image, .portrait-placeholder { background: radial-gradient(circle at 30% 20%, rgba(255,212,0,.26), transparent 24%), radial-gradient(circle at 70% 35%, rgba(176,0,0,.62), transparent 30%), linear-gradient(145deg, #400000, #000000 72%); border-bottom: 1px solid var(--line); display: grid; place-items: center; color: rgba(255,247,223,.7); font-family: Cinzel, serif; }
-.media-link, .video-shell { display: block; position: relative; border-bottom: 1px solid var(--line); background: #000; }
-.gallery-media { display: block; width: 100%; height: 310px; object-fit: cover; background: #000; }
+.media-link, .video-shell { display: block; position: relative; border: 0; border-bottom: 1px solid var(--line); background: #000; width: 100%; padding: 0; cursor: pointer; text-align: inherit; color: inherit; font: inherit; }
+.media-link:hover .gallery-media, .video-shell:hover .gallery-media { transform: scale(1.025); filter: brightness(1.08); }
+.gallery-media { display: block; width: 100%; height: 310px; object-fit: cover; background: #000; transition: 180ms ease; }
 video.gallery-media { object-fit: cover; }
 .video-badge { position: absolute; left: 10px; top: 10px; border: 1px solid var(--line); background: rgba(0,0,0,.82); color: var(--yellow); padding: 6px 9px; font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .piece-type { margin-bottom: 8px; color: var(--yellow); font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
@@ -144,6 +146,18 @@ video.gallery-media { object-fit: cover; }
 .gallery-filters { display: flex; flex-wrap: wrap; gap: 9px; margin: 26px 0; }
 .filter-btn { border: 1px solid var(--line); border-radius: 0; background: rgba(0,0,0,.82); color: var(--muted); font-weight: 900; padding: 9px 13px; cursor: pointer; text-transform: uppercase; letter-spacing: .07em; }
 .filter-btn.is-active, .filter-btn:hover { background: linear-gradient(135deg, var(--yellow), var(--orange)); color: #120000; }
+.gallery-viewer { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; padding: 18px; }
+.viewer-backdrop { position: fixed; inset: 0; border: 0; background: rgba(0,0,0,.86); backdrop-filter: blur(8px); cursor: zoom-out; }
+.viewer-frame { position: relative; z-index: 1; width: min(1120px, 100%); max-height: calc(100vh - 36px); overflow: auto; border: 1px solid var(--line); background: linear-gradient(135deg, rgba(62,0,0,.96), rgba(0,0,0,.98)); box-shadow: 0 32px 90px rgba(0,0,0,.82), inset 0 0 0 1px rgba(255,212,0,.08); padding: clamp(16px, 3vw, 28px); }
+.viewer-frame::before { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(255,180,0,.14); pointer-events: none; }
+.viewer-frame::after { content: ""; position: absolute; right: -1px; top: -1px; width: 42px; height: 42px; background: linear-gradient(135deg, transparent 0 50%, var(--line) 50% 53%, transparent 53%); pointer-events: none; }
+.viewer-close { position: absolute; top: 12px; right: 12px; z-index: 2; width: 42px; height: 42px; border: 1px solid var(--line); background: rgba(0,0,0,.86); color: var(--yellow); font-size: 2rem; line-height: 1; cursor: pointer; }
+.viewer-media-wrap { position: relative; z-index: 1; display: grid; place-items: center; background: #000; border: 1px solid rgba(255,180,0,.2); min-height: 240px; }
+.viewer-media { display: block; max-width: 100%; max-height: min(70vh, 760px); width: auto; height: auto; object-fit: contain; background: #000; }
+video.viewer-media { width: 100%; }
+.viewer-caption { position: relative; z-index: 1; padding: 18px 4px 2px; }
+.viewer-caption h2 { margin-bottom: 10px; font-size: clamp(1.8rem, 5vw, 3rem); }
+.viewer-caption p:last-child { margin-bottom: 0; }
 .request-form { margin-top: 30px; display: grid; gap: 22px; }
 .form-grid { display: grid; gap: 18px; }
 .form-grid.two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -228,6 +242,9 @@ video.gallery-media { object-fit: cover; }
   .hero-content, .page-panel { padding: 24px; }
   .site-nav a { padding: 8px 10px; }
   .gallery-media { height: 270px; }
+  .viewer-frame { padding: 14px; }
+  .viewer-close { width: 38px; height: 38px; }
+  .viewer-media { max-height: 62vh; }
   .invoice-document { padding: 24px; }
   .invoice-doc-meta, .invoice-doc-section dl { grid-template-columns: 1fr; }
   .invoice-doc-header { align-items: flex-start; }
