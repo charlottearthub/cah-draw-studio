@@ -1,5 +1,5 @@
 (function () {
-  const CAH_DRAW_BUILD = "Build 0.5.9";
+  const CAH_DRAW_BUILD = "Build 0.6.0";
   const buildNumber = document.getElementById("buildNumber");
   if (buildNumber) buildNumber.textContent = CAH_DRAW_BUILD;
 
@@ -32,31 +32,24 @@
 
   function positionPanel(panel, name) {
     if (!panel) return;
-
     const shell = document.querySelector(".cah-draw-shell");
     const shellRect = shell ? shell.getBoundingClientRect() : { width: window.innerWidth, height: window.innerHeight };
     const panelRect = panel.getBoundingClientRect();
     const toolbarOffset = window.innerWidth <= 720 ? 58 : 72;
     const topOffset = window.innerWidth <= 720 ? 58 : 76;
     const margin = 8;
-
     const availableWidth = Math.max(220, shellRect.width - toolbarOffset - margin * 2);
     const availableHeight = Math.max(220, shellRect.height - topOffset - margin * 2);
-
     panel.style.maxWidth = availableWidth + "px";
     panel.style.maxHeight = availableHeight + "px";
     panel.style.overflow = "auto";
     panel.style.zIndex = "99999";
-
     const width = Math.min(panelRect.width || 300, availableWidth);
     const height = Math.min(panelRect.height || 360, availableHeight);
-
     let left = name === "color" || name === "settings" || name === "brushes" ? toolbarOffset : Math.max(toolbarOffset, shellRect.width - width - 16);
     let top = topOffset;
-
     left = Math.max(toolbarOffset, Math.min(left, shellRect.width - width - margin));
     top = Math.max(topOffset, Math.min(top, shellRect.height - height - margin));
-
     panel.style.left = left + "px";
     panel.style.top = top + "px";
     panel.style.right = "auto";
@@ -67,15 +60,12 @@
   function setPanel(name, open) {
     const panel = document.querySelector('[data-panel="' + name + '"]');
     if (!panel) return;
-
     document.body.classList.toggle(panelClass(name), !open);
     panel.style.display = open ? "block" : "none";
     panel.style.pointerEvents = open ? "auto" : "none";
     panel.style.visibility = open ? "visible" : "hidden";
-
     document.querySelectorAll('[data-min-panel="' + name + '"]').forEach(function (button) { button.textContent = open ? "-" : "+"; });
     if (!open) return;
-
     positionPanel(panel, name);
     window.requestAnimationFrame(function () { positionPanel(panel, name); });
   }
@@ -90,10 +80,8 @@
       const button = document.getElementById(pair[0]);
       if (button) button.classList.toggle("is-open", isOpen(pair[1]));
     });
-
     const textTool = document.querySelector('[data-tool-mode="text"]');
     if (textTool) textTool.classList.toggle("is-open", isOpen("text"));
-
     const shapeTool = document.querySelector('[data-tool-mode="shape"]');
     if (shapeTool) shapeTool.classList.toggle("is-open", isOpen("shape"));
   }
@@ -117,10 +105,8 @@
     brushButton.innerHTML = "<span>▤</span><b>Brushes</b>";
     brushButton.title = "Brush Library";
     brushButton.setAttribute("aria-label", "Brush Library");
-
     const oldBrushesButton = document.getElementById("openBrushLibraryBtn");
     if (oldBrushesButton) oldBrushesButton.remove();
-
     if (brushButton.dataset.panelToggleReady === "true") return;
     brushButton.dataset.panelToggleReady = "true";
     brushButton.addEventListener("click", function () { setPanel("brushes", !isOpen("brushes")); updateButtons(); });
@@ -137,14 +123,9 @@
     const settingsPanel = document.querySelector('[data-panel="settings"]');
     const shell = document.querySelector(".cah-draw-shell");
     if (!settingsPanel || !shell) return;
-
     settingsPanel.classList.remove("cah-settings-merged");
     settingsPanel.dataset.mergedIntoBrushes = "false";
-
-    if (settingsPanel.parentElement !== shell) {
-      shell.appendChild(settingsPanel);
-    }
-
+    if (settingsPanel.parentElement !== shell) shell.appendChild(settingsPanel);
     let minButton = settingsPanel.querySelector('[data-min-panel="settings"]');
     if (!minButton) {
       minButton = document.createElement("button");
@@ -154,7 +135,6 @@
       minButton.textContent = "-";
       settingsPanel.insertBefore(minButton, settingsPanel.firstChild);
     }
-
     const title = settingsPanel.querySelector(".cah-panel-title");
     if (title) {
       title.textContent = "Brush Settings";
@@ -176,7 +156,6 @@
   function orderMainToolbar() {
     const rail = document.querySelector(".cah-tool-rail");
     if (!rail) return;
-
     const brushLibrary = document.getElementById("drawToolBtn");
     const brushSettings = document.getElementById("openBrushSettingsBtn");
     const eraser = document.getElementById("eraserToolBtn");
@@ -185,7 +164,6 @@
     const shape = document.querySelector('[data-tool-mode="shape"]');
     const text = document.querySelector('[data-tool-mode="text"]');
     const canvas = document.getElementById("openCanvasPanelBtn");
-
     [brushLibrary, brushSettings, eraser, color, layers, shape, text, canvas].forEach(function (button) {
       if (button && button.parentElement === rail) rail.appendChild(button);
     });
@@ -194,30 +172,23 @@
   function boot() {
     restoreSeparateBrushSettings();
     wireBrushLibraryButton();
-
     makeRailButton("openBrushSettingsBtn", "⚙", "Settings", "settings");
     makeRailButton("openColorPanelBtn", "◉", "Color", "color");
     makeRailButton("openLayersPanelBtn", "▦", "Layers", "layers");
     makeRailButton("openCanvasPanelBtn", "▣", "Canvas", "canvas");
-
     compactTopBarButtons();
     loadMemberBridge();
-
     const duplicateBrushesButton = document.getElementById("openBrushLibraryBtn");
     if (duplicateBrushesButton) duplicateBrushesButton.remove();
-
     const textPaneButton = document.getElementById("openTextPanelBtn");
     if (textPaneButton) textPaneButton.remove();
-
     wireTextButton();
     orderMainToolbar();
-
     document.querySelectorAll("[data-min-panel]").forEach(function (button) {
       if (button.dataset.cahHideReady === "true") return;
       button.dataset.cahHideReady = "true";
       button.addEventListener("click", function () { setPanel(button.getAttribute("data-min-panel"), false); updateButtons(); });
     });
-
     setPanel("brushes", false);
     setPanel("settings", false);
     setPanel("canvas", false);
@@ -238,10 +209,14 @@
   else boot();
 
   const inputScript = document.createElement("script");
-  inputScript.src = "draw-input-performance.js?v=0.5.9";
+  inputScript.src = "draw-input-performance.js?v=0.6.0";
   document.body.appendChild(inputScript);
 
   const shapeScript = document.createElement("script");
-  shapeScript.src = "shape-tool.js?v=0.5.9";
+  shapeScript.src = "shape-tool.js?v=0.6.0";
   document.body.appendChild(shapeScript);
+
+  const zoomPatchScript = document.createElement("script");
+  zoomPatchScript.src = "draw-zoom-stability.js?v=0.6.0";
+  document.body.appendChild(zoomPatchScript);
 })();
