@@ -1,5 +1,5 @@
 (function () {
-  const CAH_DRAW_BUILD = "Build 0.5.8";
+  const CAH_DRAW_BUILD = "Build 0.5.9";
   const buildNumber = document.getElementById("buildNumber");
   if (buildNumber) buildNumber.textContent = CAH_DRAW_BUILD;
 
@@ -8,6 +8,27 @@
   document.head.appendChild(style);
 
   function panelClass(name) { return "cah-panel-" + name + "-minimized"; }
+
+  function loadScript(src, id) {
+    return new Promise(function (resolve) {
+      if (id && document.getElementById(id)) {
+        resolve();
+        return;
+      }
+      const script = document.createElement("script");
+      if (id) script.id = id;
+      script.src = src;
+      script.onload = function () { resolve(); };
+      script.onerror = function () { resolve(); };
+      document.body.appendChild(script);
+    });
+  }
+
+  function loadMemberBridge() {
+    loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2", "cahSupabaseClientScript")
+      .then(function () { return loadScript("https://charlotte-art-hub-app.onrender.com/cah-auth-config.js", "cahDrawAuthConfigScript"); })
+      .then(function () { return loadScript("draw-member-bridge.js?v=0.5.9", "cahDrawMemberBridgeScript"); });
+  }
 
   function positionPanel(panel, name) {
     if (!panel) return;
@@ -180,6 +201,7 @@
     makeRailButton("openCanvasPanelBtn", "▣", "Canvas", "canvas");
 
     compactTopBarButtons();
+    loadMemberBridge();
 
     const duplicateBrushesButton = document.getElementById("openBrushLibraryBtn");
     if (duplicateBrushesButton) duplicateBrushesButton.remove();
@@ -216,10 +238,10 @@
   else boot();
 
   const inputScript = document.createElement("script");
-  inputScript.src = "draw-input-performance.js?v=0.5.8";
+  inputScript.src = "draw-input-performance.js?v=0.5.9";
   document.body.appendChild(inputScript);
 
   const shapeScript = document.createElement("script");
-  shapeScript.src = "shape-tool.js?v=0.5.8";
+  shapeScript.src = "shape-tool.js?v=0.5.9";
   document.body.appendChild(shapeScript);
 })();
