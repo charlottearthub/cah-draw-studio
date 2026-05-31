@@ -1,5 +1,5 @@
 (function () {
-  const CAH_DRAW_BUILD = "Build 0.6.0";
+  const CAH_DRAW_BUILD = "Build 0.6.1";
   const buildNumber = document.getElementById("buildNumber");
   if (buildNumber) buildNumber.textContent = CAH_DRAW_BUILD;
 
