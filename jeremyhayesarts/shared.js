@@ -6,7 +6,6 @@
     { href: 'dreamscapes.html', label: 'Dreamscapes' },
     { href: 'commissions.html', label: 'Commissions' },
     { href: 'request.html', label: 'Request' },
-    { href: 'model-agreement.html', label: 'Models' },
     { href: 'https://jeremyhayesarts.printify.me/', label: 'Store', external: true },
     { href: 'about.html', label: 'About' },
     { href: 'contact.html', label: 'Contact' }
@@ -14,7 +13,6 @@
 
   const footerLinks = [
     { href: 'mailto:jeremyhayes@jeremyhayesarts.com', label: 'Email' },
-    { href: 'model-agreement.html', label: 'Model Agreement' },
     { href: 'https://www.instagram.com/jeremyhayesarts/', label: '@jeremyhayesarts', external: true },
     { href: 'https://www.facebook.com/share/1DHbp1F35e/?mibextid=wwXIfr', label: 'Facebook', external: true },
     { href: 'https://jeremyhayesarts.printify.me/', label: 'Printify Store', external: true }
@@ -42,7 +40,6 @@
       'dreamscapes.html': 'Dreamscapes',
       'commissions.html': 'Commissions',
       'request.html': 'Artwork Request',
-      'model-agreement.html': 'Model Agreement',
       'about.html': 'About',
       'contact.html': 'Contact'
     };
